@@ -1,0 +1,47 @@
+{
+  "n_samples": 2000,
+  "zones": {
+    "maize": {
+      "lat": -29.5166,
+      "lon": 27.8311
+    },
+    "potato": {
+      "lat": -29.8041,
+      "lon": 27.5026
+    },
+    "beans": {
+      "lat": -28.8638,
+      "lon": 28.0479
+    },
+    "wheat": {
+      "lat": -28.7654,
+      "lon": 28.2468
+    },
+    "weed": {
+      "lat": -29.0,
+      "lon": 28.0
+    }
+  },
+  "buffer_deg": 0.1,
+  "crs": "EPSG:4326",
+  "features": [
+    "type",
+    "crop_type",
+    "label",
+    "B2",
+    "B3",
+    "B4",
+    "B5",
+    "B6",
+    "B7",
+    "B8A",
+    "B11",
+    "B12",
+    "x",
+    "y",
+    "ndvi",
+    "ndwi",
+    "lst",
+    "irradiance"
+  ]
+}

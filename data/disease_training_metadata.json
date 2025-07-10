@@ -1,0 +1,36 @@
+{
+  "description": "Synthetic crop disease training data with spatial coordinates",
+  "n_samples": 2000,
+  "label_distribution": {
+    "healthy": 0.6,
+    "diseased": 0.4
+  },
+  "crop_types": [
+    "maize",
+    "potato",
+    "sweet_potato"
+  ],
+  "coordinate_bounds": {
+    "lat_min": -30.6,
+    "lat_max": -28.5,
+    "lon_min": 27.0,
+    "lon_max": 29.5
+  },
+  "features": [
+    "b5",
+    "b6",
+    "b7",
+    "b11",
+    "b12",
+    "ndvi",
+    "ndwi",
+    "soil_moisture",
+    "temperature",
+    "humidity",
+    "precipitation",
+    "crop_type",
+    "label",
+    "x",
+    "y"
+  ]
+}

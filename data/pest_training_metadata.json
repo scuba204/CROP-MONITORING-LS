@@ -1,0 +1,30 @@
+{
+  "description": "Synthetic pest detection training data",
+  "n_samples": 2400,
+  "label_distribution": {
+    "no_pest": 0.6,
+    "pest": 0.4
+  },
+  "crop_types": [
+    "maize",
+    "potato",
+    "sweet_potato",
+    "sorghum",
+    "beans",
+    "wheat"
+  ],
+  "features": [
+    "b5",
+    "b6",
+    "b7",
+    "b11",
+    "b12",
+    "ndvi",
+    "ndwi",
+    "lst",
+    "humidity",
+    "irradiance",
+    "crop_type",
+    "label"
+  ]
+}
