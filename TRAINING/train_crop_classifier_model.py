@@ -5,6 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 import joblib
+import json
 
 # === STEP 1: Load Labeled Field Data ===
 # Assumed format: CSV with lat, lon, label (0=crop, 1=weed), plus optional metadata
@@ -34,6 +35,9 @@ y_pred = clf.predict(X_test)
 print(classification_report(y_test, y_pred, target_names=["Crop", "Weed"]))
 
 # === STEP 6: Save Model ===
-model_path = "models/crop_classifier_model.pkl"
-joblib.dump(clf, model_path)
-print(f"Model saved to {model_path}")
+joblib.dump(clf, "models/crop_classifier_model.pkl")
+print(f"Model saved to models/crop_classifier_model.pkl")
+
+# Save feature names
+with open("models/crop_classifier_features.json", "w") as f:
+    json.dump(list(X.columns), f)

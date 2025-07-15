@@ -39,7 +39,7 @@ def get_precipitation(start_date, end_date, roi=roi):
 
 
 def get_land_surface_temperature(start_date, end_date, roi=roi):
-    lst = ee.ImageCollection("MODIS/006/MOD11A2") \
+    lst = ee.ImageCollection("MODIS/061/MOD11A2") \
         .filterDate(start_date, end_date) \
         .filterBounds(roi) \
         .select("LST_Day_1km") \
@@ -86,27 +86,31 @@ def get_soil_ph(roi=roi):
         .select('phh2o') \
         .clip(roi)
 
-def get_soil_texture(roi=roi):
-    return ee.Image('OpenLandMap/SOL/SOL_TEXTURE-USDA-TT_M/v02') \
-        .select('usda_texture') \
-        .clip(roi)
+def get_soil_texture(geom):
+    texture = ee.Image('ISDASOIL/Africa/v1/texture_class_mean').select('mean')
+    return texture.clip(geom)
+
 
 def get_evapotranspiration(start_date, end_date, roi=roi):
-    et = ee.ImageCollection('MODIS/006/MOD16A2') \
+    et = ee.ImageCollection('MODIS/061/MOD11A2') \
         .filterDate(start_date, end_date) \
         .filterBounds(roi) \
         .select('ET') \
         .mean().clip(roi)
     return et
 
-
 def get_soil_nitrogen(roi):
-    return ee.Image("projects/soilgrids-isric/ntd_mean").clip(roi)
+    image = ee.Image("ISDASOIL/Africa/nitrogen_total_mean")
+    nitrogen_0_20cm = image.select('mean_0_20cm')
+    return nitrogen_0_20cm.clip(roi)
 
 def get_soil_phosphorus(roi):
-    return ee.Image("projects/soilgrids-isric/phh1_mean").clip(roi)
+    image = ee.Image("ISDASOIL/Africa/phosphorus_extractable_mean")
+    phosphorus_0_20cm = image.select('mean_0_20cm')
+    return phosphorus_0_20cm.clip(roi)
 
-def get_soil_potassium(roi):
-    # SoilGrids does not provide K directly; use CEC as proxy for K-holding capacity
-    return ee.Image("projects/soilgrids-isric/cec_mean").clip(roi)
+def get_soil_cec(roi):
+    image = ee.Image("ISDASOIL/Africa/cec_mean")
+    cec_0_20cm = image.select('mean_0_20cm')
+    return cec_0_20cm.clip(roi)
 
