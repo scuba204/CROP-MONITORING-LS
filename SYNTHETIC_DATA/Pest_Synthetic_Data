@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import os
 import json
+import geopandas as gpd
+from shapely.geometry import Point
 
 np.random.seed(42)
 n_samples = 2400  # Total samples for pest detection
@@ -10,10 +12,17 @@ n_samples = 2400  # Total samples for pest detection
 crop_types = ['maize', 'potato', 'sweet_potato', 'sorghum', 'beans', 'wheat']
 crop_probs = [0.3, 0.2, 0.2, 0.1, 0.1, 0.1]
 
+# Function to generate random coordinates within Lesotho bounds
+def generate_coords():
+    lon = np.random.uniform(27.0, 29.5)
+    lat = np.random.uniform(-30.7, -28.5)
+    return lon, lat
+
 # Function to generate synthetic pest sample
 def generate_sample(label, crop):
+    x, y = generate_coords()
     if label == 0:  # No pest
-        return {
+        sample = {
             'b5': np.random.normal(1400, 90),
             'b6': np.random.normal(1500, 95),
             'b7': np.random.normal(1600, 100),
@@ -25,10 +34,12 @@ def generate_sample(label, crop):
             'humidity': np.random.normal(60, 10),
             'irradiance': np.random.normal(200, 20),
             'crop_type': crop,
+            'x': x,
+            'y': y,
             'label': label
         }
     else:  # Pest present
-        return {
+        sample = {
             'b5': np.random.normal(1200, 100),
             'b6': np.random.normal(1300, 110),
             'b7': np.random.normal(1350, 120),
@@ -40,8 +51,11 @@ def generate_sample(label, crop):
             'humidity': np.random.normal(75, 12),
             'irradiance': np.random.normal(180, 25),
             'crop_type': crop,
+            'x': x,
+            'y': y,
             'label': label
         }
+    return sample
 
 # Generate dataset
 samples = []
@@ -54,9 +68,17 @@ df = pd.DataFrame(samples)
 df['ndvi'] = df['ndvi'].clip(0, 1)
 df['ndwi'] = df['ndwi'].clip(0, 1)
 
-# Save to file
+# Reorder columns (optional but helpful)
+cols = [col for col in df.columns if col != 'label'] + ['label']
+df = df[cols]
+
+# Save CSV
 os.makedirs("data", exist_ok=True)
 df.to_csv("data/pest_training.csv", index=False)
+
+# Save shapefile
+gdf = gpd.GeoDataFrame(df, geometry=[Point(xy) for xy in zip(df.x, df.y)], crs="EPSG:4326")
+gdf.to_file("data/pest_training.shp")
 
 # Save metadata
 metadata = {
@@ -64,11 +86,14 @@ metadata = {
     "n_samples": n_samples,
     "label_distribution": {"no_pest": 0.6, "pest": 0.4},
     "crop_types": crop_types,
-    "features": list(df.columns)
+    "features": list(df.columns),
+    "crs": "EPSG:4326"
 }
 
 with open("data/pest_training_metadata.json", "w") as f:
     json.dump(metadata, f, indent=2)
 
-print("✅ Synthetic pest dataset saved to data/pest_training.csv")
+print("✅ Synthetic pest dataset saved to:")
+print("   - data/pest_training.csv")
+print("   - data/pest_training.shp")
 print("📄 Metadata saved to data/pest_training_metadata.json")
