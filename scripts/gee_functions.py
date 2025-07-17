@@ -1,16 +1,3 @@
-#!/usr/bin/env python3
-"""
-gee_workflow.py
-
-A modular, maintainable GEE functions script with:
-  - Centralized configuration
-  - DRY date & bounds filtering
-  - Docstrings & type hints
-  - Static soil layers factory
-  - Dynamic dataset registry
-  - Error handling & logging
-  - CLI via argparse
-"""
 
 import argparse
 import logging
@@ -145,6 +132,14 @@ def get_simulated_hyperspectral(start: str, end: str, roi: ee.Geometry) -> ee.Im
 # 5. SOIL GRID LAYERS
 # -----------------------------------------------------------------------------
 
+def get_soil_moisture(start, end, roi: ee.Geometry) -> ee.Image:
+    collection = ee.ImageCollection('NASA/FLDAS/NOAH01/C/GL/M/V001') \
+        .filterDate('2024-07-01', '2024-07-31') \
+        .filterBounds(roi)
+    soil_moisture = collection.select('SoilMoi00_10cm_tavg').mean().clip(roi)
+    return soil_moisture
+
+
 SOIL_LAYERS = {
     'soil_organic_matter': ('projects/soilgrids-isric/soc_mean',     'soc_0-5cm_mean'),
     'soil_ph':             ('projects/soilgrids-isric/phh2o_mean',  'phh2o_0-5cm_mean'),
@@ -186,6 +181,7 @@ DATASETS = {
     'Soil pH':                   (lambda start,end,roi: get_soil_property('soil_ph',           roi), ['start','end','roi']),
     'Soil CEC':                  (lambda start,end,roi: get_soil_property('soil_cec',          roi), ['start','end','roi']),
     'Soil Nitrogen':             (lambda start,end,roi: get_soil_property('soil_nitrogen',     roi), ['start','end','roi']),
+    'Soil Moisture':             (get_soil_moisture,      ['start','end','roi']),
     # add others as needed
 }
 
