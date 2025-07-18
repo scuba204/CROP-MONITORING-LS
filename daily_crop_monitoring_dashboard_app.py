@@ -253,7 +253,6 @@ if st.button("Run Monitoring"):
             )
 
         m.addLayerControl()
-        m.addInspector()
         m.to_streamlit(height=600)
 
         # Parameter Means
