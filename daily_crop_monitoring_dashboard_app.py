@@ -92,11 +92,11 @@ ee.Initialize(project='winged-tenure-464005-p9')
 
 # Load, simplify & union Lesotho geometry
 shp_path = r'C:\Users\MY PC\Documents\GIS DATA\BOUNDARIES\LSO_adm\LSO_adm1.shp'
-gdf = gpd.read_file(shp_path).simplify(0.01)
+gdf = gpd.read_file(shp_path)
+gdf["geometry"] = gdf.geometry.simplify(tolerance=0.01)
 lesotho_shape = unary_union(gdf.geometry)
 country_geom = ee.Geometry(mapping(lesotho_shape))
 
-# -------------------------------------------------------------------
 # SIDEBAR: Modular UI Components
 # -------------------------------------------------------------------
 def select_parameters():
@@ -132,14 +132,13 @@ def select_date_range(selected_params):
     return start, end
 
 def select_roi():
-    """Region of Interest: country vs district."""
     roi_opt = st.radio("Region of Interest", ["Whole Country", "Select District"])
     roi_geom = country_geom
     if roi_opt == "Select District":
-        district = st.selectbox("Choose District", list(gdf.ADM1_NAME.unique()))
-        roi_shape = gdf[gdf.ADM1_NAME == district].geometry.unary_union
-        roi_geom = ee.Geometry(mapping(roi_shape))
-        # highlight district on map later
+        district = st.selectbox("Choose District", gdf["ADM1_NAME"].unique())
+        roi_shape = gdf.loc[gdf.ADM1_NAME == district, "geometry"].unary_union
+        roi_geom  = ee.Geometry(mapping(roi_shape))
+ 
     return roi_geom, roi_opt
 
 def report_settings():
