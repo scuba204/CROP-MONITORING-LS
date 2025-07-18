@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import datetime
 import geopandas as gpd
@@ -18,66 +19,40 @@ from scripts.gee_functions import (
     get_simulated_hyperspectral, get_soil_texture,
     get_evapotranspiration, get_soil_property
 )
+from palettes import get_palettes
 
 # -------------------------------------------------------------------
 # CONFIGURATION
 # -------------------------------------------------------------------
 PARAM_CATEGORIES = {
-    "Vegetation": {
-        "params": ["NDVI"],
-        "help": "Normalized Difference Vegetation Index from Sentinel-2"
-    },
-    "Climate": {
-        "params": ["Precipitation", "Land Surface Temp", "Humidity", "Irradiance"],
-        "help": "Daily climate variables"
-    },
-    "Soil Properties": {
-        "params": [
-            "Soil Moisture", "Soil Organic Matter", "Soil pH",
-            "Soil Texture - Clay", "Soil Texture - Silt", "Soil Texture - Sand",
-            "Soil CEC", "Soil Nitrogen"
-        ],
-        "help": "Static soil attributes from SoilGrids"
-    },
-    "Water Use": {
-        "params": ["Evapotranspiration"],
-        "help": "Actual Evapotranspiration from MODIS"
-    },
-    "Hyperspectral": {
-        "params": ["B5", "B6", "B7", "B11", "B12"],
-        "help": "Simulated hyperspectral bands"
-    }
+    "Vegetation":       {"params": ["NDVI"], "help": "NDVI from Sentinel-2"},
+    "Climate":          {"params": ["Precipitation","Land Surface Temp","Humidity","Irradiance"],
+                         "help": "Daily climate variables"},
+    "Soil Properties":  {"params": ["Soil Moisture","Soil Organic Matter","Soil pH",
+                                    "Soil Texture - Clay","Soil Texture - Silt","Soil Texture - Sand",
+                                    "Soil CEC","Soil Nitrogen"],
+                         "help": "Static soil attributes"},
+    "Water Use":        {"params": ["Evapotranspiration"], "help": "MODIS ET"},
+    "Hyperspectral":    {"params": ["B5","B6","B7","B11","B12"],
+                         "help": "Simulated hyperspectral bands"}
 }
 
-PALETTES = {
-    "NDVI": {"min":   0, "max":   1, "palette": ["brown","yellow","green"]},
-    "Precipitation": {"min":   0, "max":  20, "palette": ["white","blue"]},
-    "Land Surface Temp": {"min":   0, "max":  40, "palette": ["blue","yellow","red"]},
-    "Humidity": {"min":   0, "max": 100, "palette": ["white","green"]},
-    "Irradiance": {"min":   0, "max": 300, "palette": ["white","orange"]},
-    "Evapotranspiration": {"min":   0, "max":  50, "palette": ["white","orange"]},
-    "Soil Moisture": {"min":   0, "max":   0.5, "palette": ["white","blue"]},
-    "Soil Organic Matter": {"min":   0, "max":   8, "palette": ["white","black"]},
-    "Soil pH": {"min":   3, "max":   9, "palette": ["red","yellow","green"]},
-    "Soil CEC": {"min":   0, "max":  40, "palette": ["white","blue"]},
-    "Soil Nitrogen": {"min":   0, "max":   0.5, "palette": ["white","green"]},
-    "Soil Texture - Clay": {"min":   0, "max": 100, "palette": ["white","brown"]},
-    "Soil Texture - Silt": {"min":   0, "max": 100, "palette": ["white","grey"]},
-    "Soil Texture - Sand": {"min":   0, "max": 100, "palette": ["white","yellow"]},
-    "B5":  {"min":   0, "max":   1, "palette": ["black","white"]},
-    "B6":  {"min":   0, "max":   1, "palette": ["black","white"]},
-    "B7":  {"min":   0, "max":   1, "palette": ["black","white"]},
-    "B11": {"min":   0, "max":   1, "palette": ["black","white"]},
-    "B12": {"min":   0, "max":   1, "palette": ["black","white"]}
-}
+# Load palettes from external module
+PALETTES = get_palettes()
 
 DATA_AVAILABILITY = {
-    "NDVI": datetime.date(2015, 6, 23),
-    "Precipitation": datetime.date(1981, 1, 1),
-    "Land Surface Temp": datetime.date(2000, 2, 24),
-    "Humidity": datetime.date(2017, 1, 1),
-    "Irradiance": datetime.date(2017, 1, 1),
-    "Evapotranspiration": datetime.date(2000, 2, 24),
+    "NDVI": datetime.date(2015,6,23),
+    "Precipitation": datetime.date(1981,1,1),
+    "Land Surface Temp": datetime.date(2000,2,24),
+    "Humidity": datetime.date(2017,1,1),
+    "Irradiance": datetime.date(2017,1,1),
+    "Evapotranspiration": datetime.date(2000,2,24),
+}
+
+# Parameters that support time series
+TIME_SERIES_PARAMS = {
+    "NDVI","Precipitation","Land Surface Temp",
+    "Humidity","Irradiance","Evapotranspiration","Soil Moisture"
 }
 
 # -------------------------------------------------------------------
@@ -87,9 +62,9 @@ st.set_page_config(layout="wide")
 st.title("📍 Daily Crop Monitoring System (Lesotho)")
 ee.Initialize(project="winged-tenure-464005-p9")
 
-# Load & simplify Lesotho geometry
-shp_path = r"C:\Users\MY PC\Documents\GIS DATA\BOUNDARIES\LSO_adm\LSO_adm1.shp"
-gdf = gpd.read_file(shp_path)
+# Load & simplify country geometry
+shp = r"C:\Users\MY PC\Documents\GIS DATA\BOUNDARIES\LSO_adm\LSO_adm1.shp"
+gdf = gpd.read_file(shp)
 gdf["geometry"] = gdf.geometry.simplify(tolerance=0.01)
 lesotho_shape = unary_union(gdf.geometry)
 country_geom = ee.Geometry(mapping(lesotho_shape))
@@ -99,144 +74,159 @@ country_geom = ee.Geometry(mapping(lesotho_shape))
 # -------------------------------------------------------------------
 def select_parameters():
     st.header("🧩 Controls")
-    category = st.selectbox("Parameter Category", list(PARAM_CATEGORIES.keys()))
-    st.caption(PARAM_CATEGORIES[category]["help"])
-    params = PARAM_CATEGORIES[category]["params"]
-    search = st.text_input("🔍 Filter Parameters")
-    if search:
-        params = [p for p in params if search.lower() in p.lower()]
-    return st.multiselect("Parameters", params, default=params)
+    cat = st.selectbox("Parameter Category", list(PARAM_CATEGORIES.keys()))
+    st.caption(PARAM_CATEGORIES[cat]["help"])
+    opts = PARAM_CATEGORIES[cat]["params"]
+    q = st.text_input("🔍 Filter Parameters")
+    if q:
+        opts = [p for p in opts if q.lower() in p.lower()]
+    return st.multiselect("Parameters", opts, default=opts)
 
 def select_date_range(params):
-    dates = [
-        DATA_AVAILABILITY[p]
-        for p in set(params) & set(DATA_AVAILABILITY.keys())
-    ]
-    min_date = min(dates) if dates else datetime.date(2000, 1, 1)
+    dates = [DATA_AVAILABILITY[p] for p in set(params)&set(DATA_AVAILABILITY)]
+    min_date = min(dates) if dates else datetime.date(2000,1,1)
     today = datetime.date.today()
-    start = st.date_input("Start Date",
-                          today - datetime.timedelta(days=7),
+    start = st.date_input("Start Date", today-datetime.timedelta(days=7),
                           min_value=min_date, max_value=today)
-    end = st.date_input("End Date",
-                        today,
-                        min_value=min_date, max_value=today)
-    if start > end:
-        st.error("Start date must be before end date")
-        st.stop()
-    return start, end
+    end   = st.date_input("End Date", today,
+                          min_value=min_date, max_value=today)
+    if start> end:
+        st.error("Start date must be before end date"); st.stop()
+    return start,end
 
 def select_roi():
-    roi_opt = st.radio("Region of Interest",
-                       ["Whole Country", "Select District"])
-    roi_geom = country_geom
-    sel_district = None
-    if roi_opt == "Select District":
-        sel_district = st.selectbox("Choose District",
-                                    gdf["ADM1_NAME"].unique())
-        shape = (gdf.loc[gdf.ADM1_NAME == sel_district, "geometry"]
-                     .unary_union)
-        roi_geom = ee.Geometry(mapping(shape))
-    return roi_geom, roi_opt, sel_district
+    opt = st.radio("Region of Interest",
+                   ["Whole Country","Select District","Upload ROI"])
+    geom = country_geom
+    district = None
+
+    if opt=="Select District":
+        district = st.selectbox("Choose District", gdf["ADM1_NAME"].unique())
+        shape = gdf.loc[gdf.ADM1_NAME==district,"geometry"].unary_union
+        geom = ee.Geometry(mapping(shape))
+
+    if opt=="Upload ROI":
+        upl = st.file_uploader("Upload GeoJSON or zipped Shapefile", type=["geojson","zip"])
+        if upl:
+            if upl.name.endswith(".geojson"):
+                gdf_u = gpd.read_file(upl)
+            else:
+                tmpd = tempfile.mkdtemp()
+                path = os.path.join(tmpd,upl.name)
+                with open(path,"wb") as f: f.write(upl.read())
+                gdf_u = gpd.read_file(f"zip://{path}")
+            gdf_u["geometry"] = gdf_u.geometry.simplify(0.001)
+            shape = unary_union(gdf_u.geometry)
+            geom = ee.Geometry(mapping(shape))
+
+    return geom, opt, district
 
 def report_settings():
     return st.text_input("Report Name", value="lesotho_report")
 
 with st.sidebar:
     selected_params = select_parameters()
-    start_date, end_date = select_date_range(selected_params)
-    country_geom, roi_option, selected_district = select_roi()
+    start_date,end_date = select_date_range(selected_params)
+    country_geom,roi_option,selected_district = select_roi()
     filename = report_settings()
-    ndvi_buffer = st.slider("NDVI Date Buffer (± days)", 0, 60, 30)
+    ndvi_buffer = st.slider("NDVI Date Buffer (± days)",0,60,30)
 
 with st.sidebar.expander("ℹ️ How to Use"):
     st.markdown("""
-    1. Pick parameters & date range (auto-constrained).
-    2. Filter parameter lists.
-    3. Select ROI: country or district.
-    4. Adjust NDVI buffer if needed.
-    5. Click **Run Monitoring**.
+    1. Pick parameters & date range.  
+    2. Filter list dynamically.  
+    3. Select or upload ROI.  
+    4. Adjust NDVI buffer if needed.  
+    5. Run Monitoring.
     """)
 
 # -------------------------------------------------------------------
 # FETCH LAYERS (parallel + error capture)
 # -------------------------------------------------------------------
 @st.cache_data(show_spinner=False, ttl=1800)
-def fetch_layers(start, end, _geom, params, ndvi_buffer):
-    layers = {}
-    errors = []
+def fetch_layers(start,end,_geom,params,ndvi_buffer):
+    layers, errors = {}, []
     proj500 = ee.Projection("EPSG:4326").atScale(500)
 
-    def fetch_one(param):
+    def fetch_one(p):
         try:
-            if param == "NDVI":
-                coll = get_ndvi(start, end, _geom,
-                                max_expansion_days=ndvi_buffer)
-                img = coll.mean()
-            elif param == "Precipitation":
-                img = get_precipitation(start, end, _geom)
-            elif param == "Land Surface Temp":
-                img = get_land_surface_temperature(start, end, _geom)
-            elif param == "Humidity":
-                img = get_humidity(start, end, _geom)
-            elif param == "Irradiance":
-                img = get_irradiance(start, end, _geom)
-            elif param == "Evapotranspiration":
-                img = get_evapotranspiration(start, end, _geom)
-            elif param == "Soil Moisture":
-                img = get_soil_moisture(start, end, _geom)
-            elif param in ["Soil Organic Matter", "Soil pH",
-                           "Soil CEC", "Soil Nitrogen"]:
-                key = param.lower().replace(" ", "_")
-                img = get_soil_property(key, _geom)
-            elif param.startswith("Soil Texture"):
-                tex = get_soil_texture(_geom)
-                band = param.split(" - ")[1].lower()
-                img = tex.select(band)
-            elif param in ["B5","B6","B7","B11","B12"]:
-                img = (get_simulated_hyperspectral(start, end, _geom)
-                       .select(param))
+            if p=="NDVI":
+                coll = get_ndvi(start,end,_geom,max_expansion_days=ndvi_buffer)
+                img  = coll.mean()
+            elif p=="Precipitation":
+                img = get_precipitation(start,end,_geom)
+            elif p=="Land Surface Temp":
+                img = get_land_surface_temperature(start,end,_geom)
+            elif p=="Humidity":
+                img = get_humidity(start,end,_geom)
+            elif p=="Irradiance":
+                img = get_irradiance(start,end,_geom)
+            elif p=="Evapotranspiration":
+                img = get_evapotranspiration(start,end,_geom)
+            elif p=="Soil Moisture":
+                img = get_soil_moisture(start,end,_geom)
+            elif p in ["Soil Organic Matter","Soil pH","Soil CEC","Soil Nitrogen"]:
+                key = p.lower().replace(" ","_")
+                img = get_soil_property(key,_geom)
+            elif p.startswith("Soil Texture"):
+                tex  = get_soil_texture(_geom)
+                band = p.split(" - ")[1].lower()
+                img  = tex.select(band)
+            elif p in ["B5","B6","B7","B11","B12"]:
+                img = get_simulated_hyperspectral(start,end,_geom).select(p)
             else:
-                return param, None, "Unknown parameter"
+                return p,None,"Unknown parameter"
 
-            img2 = (img.rename(param)
-                      .setDefaultProjection(proj500)
-                      .reduceResolution(ee.Reducer.mean(), maxPixels=1024)
-                      .reproject(crs="EPSG:4326", scale=500))
-            return param, img2, None
-
+            img2 = (img.rename(p)
+                       .setDefaultProjection(proj500)
+                       .reduceResolution(ee.Reducer.mean(), maxPixels=1024)
+                       .reproject(crs="EPSG:4326", scale=500))
+            return p,img2,None
         except Exception as e:
-            return param, None, str(e)
+            return p,None,str(e)
 
-    with ThreadPoolExecutor(max_workers=6) as executor:
-        futures = {executor.submit(fetch_one, p): p for p in params}
-        for future in as_completed(futures):
-            name, img, err = future.result()
-            if img is not None:
-                layers[name] = img
-            else:
-                errors.append((name, err))
+    with ThreadPoolExecutor(max_workers=6) as exe:
+        futures = {exe.submit(fetch_one,p): p for p in params}
+        for f in as_completed(futures):
+            name,img,err = f.result()
+            if img: layers[name]=img
+            else:  errors.append((name,err))
 
     return layers, errors
 
 # -------------------------------------------------------------------
-# NDVI TIME SERIES
+# GENERIC TIME SERIES EXTRACTION
 # -------------------------------------------------------------------
 @st.cache_data(ttl=1800)
-def extract_ndvi_timeseries(start, end, _geom, ndvi_buffer):
-    coll = get_ndvi(start, end, _geom,
-                   max_expansion_days=ndvi_buffer)
-    def to_feature(img):
-        mean = (img.reduceRegion(ee.Reducer.mean(),
-                                 _geom, 500)
-                   .get("NDVI"))
-        date = ee.Date(img.get("system:time_start"))\
-                 .format("YYYY-MM-dd")
-        return ee.Feature(None, {"date": date, "NDVI": mean})
-    feats = coll.map(to_feature)
+def extract_timeseries(start,end,_geom,param,ndvi_buffer):
+    # fetch collection
+    if param=="NDVI":
+        coll = get_ndvi(start,end,_geom,max_expansion_days=ndvi_buffer)
+    elif param=="Precipitation":
+        coll = get_precipitation(start,end,_geom)
+    elif param=="Land Surface Temp":
+        coll = get_land_surface_temperature(start,end,_geom)
+    elif param=="Humidity":
+        coll = get_humidity(start,end,_geom)
+    elif param=="Irradiance":
+        coll = get_irradiance(start,end,_geom)
+    elif param=="Evapotranspiration":
+        coll = get_evapotranspiration(start,end,_geom)
+    elif param=="Soil Moisture":
+        coll = get_soil_moisture(start,end,_geom)
+    else:
+        return pd.DataFrame()
+
+    coll2 = coll.map(lambda img: img.rename(param))
+    def to_feat(img):
+        val  = img.reduceRegion(ee.Reducer.mean(),_geom,500).get(param)
+        date = ee.Date(img.get("system:time_start")).format("YYYY-MM-dd")
+        return ee.Feature(None,{"date":date,param:val})
+
+    feats = coll2.map(to_feat)
     dates = feats.aggregate_array("date").getInfo()
-    vals  = feats.aggregate_array("NDVI").getInfo()
-    df = pd.DataFrame({"Date": pd.to_datetime(dates),
-                       "NDVI": vals}).dropna()
+    vals  = feats.aggregate_array(param).getInfo()
+    df = pd.DataFrame({"Date":pd.to_datetime(dates),param:vals}).dropna()
     return df
 
 # -------------------------------------------------------------------
@@ -245,114 +235,107 @@ def extract_ndvi_timeseries(start, end, _geom, ndvi_buffer):
 if st.button("Run Monitoring"):
     try:
         layers, errors = fetch_layers(
-            str(start_date), str(end_date),
+            str(start_date),str(end_date),
             country_geom, selected_params, ndvi_buffer
         )
 
-        # report parameter errors
+        st.write(f"Fetched layers: {list(layers.keys())}")
+
         if errors:
-            st.error("⚠️ Some layers failed to load:")
-            for param, msg in errors:
-                st.write(f"- {param}: {msg}")
+            st.error("⚠️ Some layers failed:")
+            for p,msg in errors:
+                st.write(f"- {p}: {msg}")
 
         if not layers:
-            st.warning("No data returned for the selected parameters and date range.")
+            st.warning("No data layers returned; try a wider range or different ROI.")
             st.stop()
 
+        # Map viewer
         st.header("🚨 Map Viewer")
-        visible = st.multiselect("Show Layers",
-                                 list(layers), default=list(layers))
+        visible = st.multiselect("Show Layers", list(layers),
+                                 default=list(layers))
         m = geemap.Map(
             center=country_geom.centroid().coordinates().getInfo()[::-1],
             zoom=7
         )
 
-        # highlight district
-        if roi_option == "Select District" and selected_district:
-            shape = (gdf.loc[gdf.ADM1_NAME == selected_district,
-                              "geometry"].unary_union)
-            m.addLayer(
-                ee.Geometry(mapping(shape)),
-                {"color": "red", "fillOpacity": 0},
-                f"{selected_district} Boundary"
-            )
+        if roi_option=="Select District" and selected_district:
+            shape = gdf.loc[gdf.ADM1_NAME==selected_district,"geometry"].unary_union
+            m.addLayer(ee.Geometry(mapping(shape)),
+                       {"color":"red","fillOpacity":0},
+                       f"{selected_district} Boundary")
 
-        # add EE layers + legends
         for name in visible:
             cfg = PALETTES[name]
-            m.addLayer(
-                layers[name],
-                {"min": cfg["min"], "max": cfg["max"],
-                 "palette": cfg["palette"]},
-                name
-            )
-            m.add_legend(
-                title=name,
-                builtin_legend=False,
-                labels=[f"{cfg['min']}", f"{cfg['max']}"],
-                colors=[cfg["palette"][0], cfg["palette"][-1]]
-            )
+            mn,mx = cfg["min"],cfg["max"]
+            pal   = cfg["palette"]
+            mid   = (mn+mx)/2
+            mid_col = pal[len(pal)//2]
+            m.addLayer(layers[name],
+                       {"min":mn,"max":mx,"palette":pal},
+                       name)
+            m.add_legend(title=name,builtin_legend=False,
+                         labels=[f"{mn}",f"{mid}",f"{mx}"],
+                         colors=[pal[0],mid_col,pal[-1]])
 
         m.addLayerControl()
         m.to_streamlit(height=600)
 
-        # parameter means & metrics
+        # Parameter means
         st.subheader("📊 Parameter Means")
         stats = {}
-        for name, img in layers.items():
+        for name,img in layers.items():
+            region = ee.Image(img).reduceRegion(
+                ee.Reducer.mean(), country_geom, 500, maxPixels=1e9
+            ).get(name)
+            val=None
             try:
-                val = (ee.Image(img)
-                       .reduceRegion(ee.Reducer.mean(),
-                                     country_geom, 500, 1e9)
-                       .get(name).getInfo())
-                stats[name] = round(val, 3) if val is not None else "n/a"
+                val = region.getInfo() if region else None
             except:
-                stats[name] = "n/a"
+                val = None
+            stats[name] = round(val,3) if isinstance(val,(int,float)) else "n/a"
 
-        df_stats = pd.DataFrame(stats.items(),
-                                 columns=["Parameter","Mean"])
+        df_stats = pd.DataFrame(stats.items(),columns=["Parameter","Mean"])
         st.dataframe(df_stats)
 
+        # Summary metrics
         st.subheader("📌 Summary Metrics")
-        cols = st.columns(min(3, len(df_stats)))
-        for idx, row in df_stats.iterrows():
-            cols[idx % len(cols)].metric(row.Parameter, row.Mean)
+        cols = st.columns(min(3,len(df_stats)))
+        for i,row in df_stats.iterrows():
+            cols[i%len(cols)].metric(row.Parameter,row.Mean)
 
-        # NDVI time series & CSV
-        if "NDVI" in selected_params:
-            st.subheader("📈 NDVI Time Series")
-            st.caption(f"NDVI imagery auto-expanded ±{ndvi_buffer} days for availability")
-            ndvi_df = extract_ndvi_timeseries(
-                str(start_date), str(end_date),
-                country_geom, ndvi_buffer
-            )
-            fig = px.line(ndvi_df, x="Date", y="NDVI",
-                          title="Daily NDVI Trend", markers=True)
-            st.plotly_chart(fig, use_container_width=True)
-            st.download_button(
-                "⬇️ Download NDVI CSV",
-                ndvi_df.to_csv(index=False),
-                file_name="ndvi_timeseries.csv"
-            )
+        # Time series for all supported params
+        ts_params = [p for p in selected_params if p in TIME_SERIES_PARAMS]
+        if ts_params:
+            st.subheader("📈 Time Series")
+            for p in ts_params:
+                df_ts = extract_timeseries(
+                    str(start_date),str(end_date),
+                    country_geom, p, ndvi_buffer
+                )
+                if df_ts.empty:
+                    st.warning(f"No time series for {p}")
+                    continue
+                fig = px.line(df_ts,x="Date",y=p,
+                              title=f"{p} Trend",markers=True)
+                st.plotly_chart(fig,use_container_width=True)
+                st.download_button(f"⬇️ Download {p} CSV",
+                                   df_ts.to_csv(index=False),
+                                   file_name=f"{p.lower()}_timeseries.csv")
 
         # PDF report
-        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=".pdf",delete=False) as tmp:
             with PdfPages(tmp.name) as pdf:
                 fig, ax = plt.subplots(figsize=(8,4))
-                df_stats.plot(kind="barh", x="Parameter",
-                              y="Mean", ax=ax,
-                              legend=False, color="skyblue")
+                df_stats.plot(kind="barh",x="Parameter",y="Mean",
+                              ax=ax,legend=False,color="skyblue")
                 ax.set_title(f"Parameter Means: {start_date} to {end_date}")
-                pdf.savefig(fig, bbox_inches="tight")
+                pdf.savefig(fig,bbox_inches="tight")
                 plt.close(fig)
-
-            st.download_button(
-                "📄 Download PDF Report",
-                data=open(tmp.name,"rb").read(),
-                file_name=f"{filename}.pdf",
-                mime="application/pdf"
-            )
+            st.download_button("📄 Download PDF Report",
+                               open(tmp.name,"rb").read(),
+                               file_name=f"{filename}.pdf",
+                               mime="application/pdf")
 
     except Exception as e:
         st.error(f"Earth Engine error: {e}")
-        st.stop()

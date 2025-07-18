@@ -65,7 +65,7 @@ def get_ndvi(start, end, geom, max_expansion_days=30):
     def expand_range(days):
         new_start = start_date.advance(-days, "day")
         new_end = end_date.advance(days, "day")
-        return ee.ImageCollection("COPERNICUS/S2")\
+        return ee.ImageCollection("COPERNICUS/S2_SR/HARMONIZED")\
             .filterDate(new_start, new_end)\
             .filterBounds(geom)\
             .select("B8", "B4")
