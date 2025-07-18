@@ -157,6 +157,9 @@ with st.sidebar.expander("ℹ️ How to Use"):
 @st.cache_data(show_spinner=False, ttl=1800)
 def fetch_layers(start, end, _geom, params):
     layers = {}
+    # define a 500 m projection so reduceResolution has a default
+    proj500 = ee.Projection("EPSG:4326").atScale(500)
+
     def fetch_one(param):
         try:
             if param == "NDVI":
@@ -185,9 +188,13 @@ def fetch_layers(start, end, _geom, params):
             else:
                 return (param, None)
 
-            img2 = img.rename(param) \
-                      .reduceResolution(ee.Reducer.mean(), maxPixels=1024) \
-                      .reproject(crs="EPSG:4326", scale=500)
+            # apply default projection before reduceResolution
+            img2 = (
+                img.rename(param)
+                   .setDefaultProjection(proj500)
+                   .reduceResolution(ee.Reducer.mean(), maxPixels=1024)
+                   .reproject(crs="EPSG:4326", scale=500)
+            )
             return (param, img2)
         except Exception:
             return (param, None)
