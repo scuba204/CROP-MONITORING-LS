@@ -53,18 +53,35 @@ def safe_execute(func, **kwargs):
 # -----------------------------------------------------------------------------
 # 4. BASIC ENVIRONMENTAL INDICES
 # -----------------------------------------------------------------------------
+def get_ndvi(start, end, geom, max_expansion_days=30):
+    start_date = ee.Date(start)
+    end_date = ee.Date(end)
+    collection = ee.ImageCollection("COPERNICUS/S2_SR/HARMONIZED")\
+        .filterDate(start_date, end_date)\
+        .filterBounds(geom)\
+        .select("B8", "B4")  # NDVI = (B8 - B4) / (B8 + B4)
 
-def get_ndvi(start: str, end: str, roi: ee.Geometry) -> ee.Image:
-    """
-    Mean NDVI from Sentinel-2.
-    """
-    col = _prepare_collection('COPERNICUS/S2_SR_HARMONIZED', start, end, roi)
-    return (
-        col
-          .map(lambda img: img.normalizedDifference(['B8', 'B4']).rename('NDVI'))
-          .mean()
-          .clip(roi)
+    # If empty, expand the date range
+    def expand_range(days):
+        new_start = start_date.advance(-days, "day")
+        new_end = end_date.advance(days, "day")
+        return ee.ImageCollection("COPERNICUS/S2")\
+            .filterDate(new_start, new_end)\
+            .filterBounds(geom)\
+            .select("B8", "B4")
+
+    size = collection.size()
+    collection = ee.Algorithms.If(
+        size.gt(0),
+        collection,
+        expand_range(max_expansion_days)
     )
+
+    collection = ee.ImageCollection(collection)\
+        .map(lambda img: img.normalizedDifference(["B8", "B4"]).rename("NDVI"))
+
+    return collection
+
 
 def get_precipitation(start: str, end: str, roi: ee.Geometry) -> ee.Image:
     """
