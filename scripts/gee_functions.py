@@ -1,5 +1,4 @@
-
-import argparse
+import argparse 
 import logging
 from typing import Dict, List
 
@@ -53,12 +52,12 @@ def safe_execute(func, **kwargs):
 # -----------------------------------------------------------------------------
 # 4. BASIC ENVIRONMENTAL INDICES
 # -----------------------------------------------------------------------------
-def get_ndvi(start, end, geom, max_expansion_days=30):
+def get_ndvi(start, end, roi, max_expansion_days=30):
     start_date = ee.Date(start)
     end_date = ee.Date(end)
     collection = ee.ImageCollection("COPERNICUS/S2_SR/HARMONIZED")\
         .filterDate(start_date, end_date)\
-        .filterBounds(geom)\
+        .filterBounds(roi)\
         .select("B8", "B4")  # NDVI = (B8 - B4) / (B8 + B4)
 
     # If empty, expand the date range
@@ -67,7 +66,7 @@ def get_ndvi(start, end, geom, max_expansion_days=30):
         new_end = end_date.advance(days, "day")
         return ee.ImageCollection("COPERNICUS/S2_SR/HARMONIZED")\
             .filterDate(new_start, new_end)\
-            .filterBounds(geom)\
+            .filterBounds(roi)\
             .select("B8", "B4")
 
     size = collection.size()
