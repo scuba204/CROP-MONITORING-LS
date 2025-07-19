@@ -95,11 +95,11 @@ def get_ndvi(
     NDVI from Sentinel-2 SR Harmonized, expand date range if no images.
     """
     base = _prepare_collection(
-        'COPERNICUS/S2_SR/HARMONIZED', start, end, roi
+        'COPERNICUS/S2_SR_HARMONIZED', start, end, roi
     ).select(['B8', 'B4'])
 
     buffered = _prepare_collection(
-        'COPERNICUS/S2_SR/HARMONIZED',
+        'COPERNICUS/S2_SR_HARMONIZED',
         (datetime.strptime(start, '%Y-%m-%d')
                  .date()
                  .strftime('%Y-%m-%d')),
@@ -202,7 +202,7 @@ def get_simulated_hyperspectral(start: str, end: str, roi: ee.Geometry) -> ee.Im
     """
     bands = ['B2','B3','B4','B5','B6','B7','B8A','B11','B12']
     col = (
-        _prepare_collection('COPERNICUS/S2_SR/HARMONIZED', start, end, roi)
+        _prepare_collection('COPERNICUS/S2_SR_HARMONIZED', start, end, roi)
           .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 20))
     )
     _log_date_coverage(col, 'Simulated Hyperspectral')
