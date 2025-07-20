@@ -29,8 +29,8 @@ PARAM_CATEGORIES = {
     "Climate":          {"params": ["Precipitation","Land Surface Temp","Humidity","Irradiance"],
                          "help": "Daily climate variables"},
     "Soil Properties":  {"params": ["Soil Moisture","Soil Organic Matter","Soil pH",
-                                    "Soil Texture - Clay","Soil Texture - Silt","Soil Texture - Sand",
-                                    "Soil CEC","Soil Nitrogen"],
+                                     "Soil Texture - Clay","Soil Texture - Silt","Soil Texture - Sand",
+                                     "Soil CEC","Soil Nitrogen"],
                          "help": "Static soil attributes"},
     "Water Use":        {"params": ["Evapotranspiration"], "help": "MODIS ET"},
     "Hyperspectral":    {"params": ["B5","B6","B7","B11","B12"],
@@ -63,7 +63,8 @@ st.title("📍 Daily Crop Monitoring System (Lesotho)")
 ee.Initialize(project="winged-tenure-464005-p9")
 
 # Load & simplify country geometry
-shp = r"C:\Users\MY PC\Documents\GIS DATA\BOUNDARIES\LSO_adm\LSO_adm1.shp"
+# EDIT: Changed to a relative path. Place your shapefile in a 'data' subfolder.
+shp = r"data/LSO_adm/LSO_adm1.shp"
 gdf = gpd.read_file(shp)
 gdf["geometry"] = gdf.geometry.simplify(tolerance=0.01)
 lesotho_shape = unary_union(gdf.geometry)
@@ -127,7 +128,8 @@ def report_settings():
 with st.sidebar:
     selected_params = select_parameters()
     start_date,end_date = select_date_range(selected_params)
-    country_geom,roi_option,selected_district = select_roi()
+    # EDIT: Renamed the geometry variable for clarity
+    selected_geom, roi_option, selected_district = select_roi()
     filename = report_settings()
     ndvi_buffer = st.slider("NDVI Date Buffer (± days)",0,60,30)
 
@@ -190,7 +192,7 @@ def fetch_layers(start,end,_geom,params,ndvi_buffer):
         for f in as_completed(futures):
             name,img,err = f.result()
             if img: layers[name]=img
-            else:  errors.append((name,err))
+            else:   errors.append((name,err))
 
     return layers, errors
 
@@ -234,9 +236,10 @@ def extract_timeseries(start,end,_geom,param,ndvi_buffer):
 # -------------------------------------------------------------------
 if st.button("Run Monitoring"):
     try:
+        # EDIT: Pass the correct user-selected geometry to the fetch function.
         layers, errors = fetch_layers(
             str(start_date),str(end_date),
-            country_geom, selected_params, ndvi_buffer
+            selected_geom, selected_params, ndvi_buffer
         )
 
         st.write(f"Fetched layers: {list(layers.keys())}")
@@ -255,15 +258,17 @@ if st.button("Run Monitoring"):
         visible = st.multiselect("Show Layers", list(layers),
                                  default=list(layers))
         m = geemap.Map(
-            center=country_geom.centroid().coordinates().getInfo()[::-1],
-            zoom=7
+            center=selected_geom.centroid().coordinates().getInfo()[::-1],
+            zoom=8
         )
 
-        if roi_option=="Select District" and selected_district:
-            shape = gdf.loc[gdf.ADM1_NAME==selected_district,"geometry"].unary_union
-            m.addLayer(ee.Geometry(mapping(shape)),
+        # EDIT: Optimized map overlay to avoid recalculating geometry.
+        # This will draw a boundary unless "Whole Country" is selected.
+        if roi_option != "Whole Country":
+            roi_name = selected_district if selected_district else "Custom ROI"
+            m.addLayer(selected_geom,
                        {"color":"red","fillOpacity":0},
-                       f"{selected_district} Boundary")
+                       f"{roi_name} Boundary")
 
         for name in visible:
             cfg = PALETTES[name]
@@ -285,8 +290,9 @@ if st.button("Run Monitoring"):
         st.subheader("📊 Parameter Means")
         stats = {}
         for name,img in layers.items():
+            # EDIT: Use the selected geometry for stats calculation.
             region = ee.Image(img).reduceRegion(
-                ee.Reducer.mean(), country_geom, 500, maxPixels=1e9
+                ee.Reducer.mean(), selected_geom, 500, maxPixels=1e9
             ).get(name)
             val=None
             try:
@@ -309,9 +315,10 @@ if st.button("Run Monitoring"):
         if ts_params:
             st.subheader("📈 Time Series")
             for p in ts_params:
+                # EDIT: Pass the correct user-selected geometry for time series.
                 df_ts = extract_timeseries(
                     str(start_date),str(end_date),
-                    country_geom, p, ndvi_buffer
+                    selected_geom, p, ndvi_buffer
                 )
                 if df_ts.empty:
                     st.warning(f"No time series for {p}")
@@ -333,9 +340,9 @@ if st.button("Run Monitoring"):
                 pdf.savefig(fig,bbox_inches="tight")
                 plt.close(fig)
             st.download_button("📄 Download PDF Report",
-                               open(tmp.name,"rb").read(),
-                               file_name=f"{filename}.pdf",
-                               mime="application/pdf")
+                              open(tmp.name,"rb").read(),
+                              file_name=f"{filename}.pdf",
+                              mime="application/pdf")
 
     except Exception as e:
-        st.error(f"Earth Engine error: {e}")
+        st.error(f"An error occurred: {e}")
