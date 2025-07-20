@@ -88,6 +88,7 @@ def safe_execute(func, **kwargs):
 # -----------------------------------------------------------------------------
 
 
+
 def get_ndvi(
     start: str,
     end: str,
@@ -102,12 +103,19 @@ def get_ndvi(
     start_dt = datetime.datetime.strptime(start, '%Y-%m-%d').date()
     end_dt = datetime.datetime.strptime(end, '%Y-%m-%d').date()
 
-    # 2. Define the expanded date range as ee.Date objects
-    ee_start_expanded = ee.Date(start_dt - datetime.timedelta(days=max_expansion_days))
-    ee_end_expanded = ee.Date(end_dt + datetime.timedelta(days=max_expansion_days))
+    # 2. Define the expanded date range as Python datetime.date objects
+    expanded_start_date_py = start_dt - datetime.timedelta(days=max_expansion_days)
+    expanded_end_date_py = end_dt + datetime.timedelta(days=max_expansion_days)
+
+    # Convert Python datetime.date objects to 'YYYY-MM-DD' strings for ee.Date()
+    ee_start_expanded_str = expanded_start_date_py.strftime('%Y-%m-%d')
+    ee_end_expanded_str = expanded_end_date_py.strftime('%Y-%m-%d')
+
+    # Now create ee.Date objects from the strings
+    ee_start_expanded = ee.Date(ee_start_expanded_str)
+    ee_end_expanded = ee.Date(ee_end_expanded_str)
 
     # 3. Define the core Sentinel-2 SR collection with bounds and the expanded date range
-    #    This simplifies the logic and ensures the expanded range is always considered.
     s2_collection = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
         .filterDate(ee_start_expanded, ee_end_expanded) \
         .filterBounds(roi) \
@@ -138,15 +146,18 @@ def get_ndvi(
     # 6. Check if the masked collection is empty before proceeding
     if s2_masked_collection.size().getInfo() == 0:
         logging.warning("NDVI: No images left after cloud masking. Returning an empty image for visualization.")
-        # Return an empty image with the correct band name and clipped, so geemap can handle it
-        # Or return None and handle it in the Streamlit app
-        return ee.Image().rename('NDVI').clip(roi) # This creates an empty image
+        return ee.Image().rename('NDVI').clip(roi) # Return an empty image
 
     # 7. Calculate NDVI for each image in the masked collection
     ndvi_collection = s2_masked_collection.map(lambda img:
         img.normalizedDifference(['B8', 'B4']).rename('NDVI')
         .copyProperties(img, ['system:time_start']) # Keep time property for time series
     )
+
+    # 8. Compute the mean NDVI for the period and clip to ROI
+    mean_ndvi_image = ndvi_collection.mean().clip(roi)
+
+    return mean_ndvi_image
 
 def get_precipitation(start: str, end: str, roi: ee.Geometry) -> ee.Image:
     """
