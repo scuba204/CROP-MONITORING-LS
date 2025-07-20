@@ -153,8 +153,7 @@ def fetch_layers(start,end,_geom,params,ndvi_buffer):
     def fetch_one(p):
         try:
             if p=="NDVI":
-                coll = get_ndvi(start,end,_geom,max_expansion_days=ndvi_buffer)
-                img  = coll.mean()
+                img= get_ndvi(start,end,_geom,max_expansion_days=ndvi_buffer)    
             elif p=="Precipitation":
                 img = get_precipitation(start,end,_geom)
             elif p=="Land Surface Temp":
@@ -164,7 +163,8 @@ def fetch_layers(start,end,_geom,params,ndvi_buffer):
             elif p=="Irradiance":
                 img = get_irradiance(start,end,_geom)
             elif p=="Evapotranspiration":
-                img = get_evapotranspiration(start,end,_geom)
+                coll = get_evapotranspiration(start,end,_geom)
+                img = coll.mean().rename("Evapotranspiration")
             elif p=="Soil Moisture":
                 img = get_soil_moisture(start,end,_geom)
             elif p in ["Soil Organic Matter","Soil pH","Soil CEC","Soil Nitrogen"]:
