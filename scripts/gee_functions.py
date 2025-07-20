@@ -87,6 +87,7 @@ def safe_execute(func, **kwargs):
 # 4. BASIC ENVIRONMENTAL INDICES
 # -----------------------------------------------------------------------------
 
+
 def get_ndvi(
     start: str,
     end: str,
@@ -95,32 +96,57 @@ def get_ndvi(
 ) -> ee.Image:
     """
     NDVI from Sentinel-2 SR Harmonized, expand date range if no images.
+    Includes robust cloud masking.
     """
-    base = _prepare_collection(
-        'COPERNICUS/S2_SR_HARMONIZED', start, end, roi
-    ).select(['B8', 'B4'])
+    # 1. Convert string dates to datetime.date objects for buffer calculations
+    start_dt = datetime.datetime.strptime(start, '%Y-%m-%d').date()
+    end_dt = datetime.datetime.strptime(end, '%Y-%m-%d').date()
 
-    buffered = _prepare_collection(
-        'COPERNICUS/S2_SR_HARMONIZED',
-        (datetime.strptime(start, '%Y-%m-%d')
-                 .date()
-                 .strftime('%Y-%m-%d')),
-        (datetime.strptime(end, '%Y-%m-%d')
-                 .date()
-                 .strftime('%Y-%m-%d')),
-        roi
-    ).filterDate(
-        ee.Date(start).advance(-max_expansion_days, 'day'),
-        ee.Date(end).advance(max_expansion_days, 'day')
-    ).select(['B8', 'B4'])
+    # 2. Define the expanded date range as ee.Date objects
+    ee_start_expanded = ee.Date(start_dt - datetime.timedelta(days=max_expansion_days))
+    ee_end_expanded = ee.Date(end_dt + datetime.timedelta(days=max_expansion_days))
 
-    col = ee.ImageCollection(
-        ee.Algorithms.If(base.size().gt(0), base, buffered)
-    )
-    _log_date_coverage(col, 'NDVI')
-    return col.map(lambda img:
+    # 3. Define the core Sentinel-2 SR collection with bounds and the expanded date range
+    #    This simplifies the logic and ensures the expanded range is always considered.
+    s2_collection = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
+        .filterDate(ee_start_expanded, ee_end_expanded) \
+        .filterBounds(roi) \
+        .select(['B8', 'B4', 'QA60']) # Select bands for NDVI and cloud mask
+
+    # Log initial collection size (before strict cloud masking)
+    _log_date_coverage(s2_collection, 'NDVI (S2_SR_HARMONIZED, raw)')
+
+    # 4. Define a cloud masking function
+    def mask_s2_clouds(image):
+        """Masks clouds in a Sentinel-2 SR image using the QA60 band."""
+        qa = image.select('QA60')
+        # Bits 10 and 11 are clouds and cirrus, respectively.
+        cloud_bit_mask = 1 << 10
+        cirrus_bit_mask = 1 << 11
+        # Both flags should be set to zero, indicating clear conditions.
+        mask = qa.bitwiseAnd(cloud_bit_mask).eq(0).And(
+               qa.bitwiseAnd(cirrus_bit_mask).eq(0))
+        # Scale reflectance bands and apply the mask
+        return image.updateMask(mask).divide(10000).select(['B8', 'B4'])
+
+    # 5. Apply the cloud mask to the collection
+    s2_masked_collection = s2_collection.map(mask_s2_clouds)
+
+    # Log collection size after cloud masking
+    _log_date_coverage(s2_masked_collection, 'NDVI (S2_SR_HARMONIZED, masked)')
+
+    # 6. Check if the masked collection is empty before proceeding
+    if s2_masked_collection.size().getInfo() == 0:
+        logging.warning("NDVI: No images left after cloud masking. Returning an empty image for visualization.")
+        # Return an empty image with the correct band name and clipped, so geemap can handle it
+        # Or return None and handle it in the Streamlit app
+        return ee.Image().rename('NDVI').clip(roi) # This creates an empty image
+
+    # 7. Calculate NDVI for each image in the masked collection
+    ndvi_collection = s2_masked_collection.map(lambda img:
         img.normalizedDifference(['B8', 'B4']).rename('NDVI')
-    ).mean().clip(roi)
+        .copyProperties(img, ['system:time_start']) # Keep time property for time series
+    )
 
 def get_precipitation(start: str, end: str, roi: ee.Geometry) -> ee.Image:
     """
