@@ -18,10 +18,12 @@ SOIL_LAYERS = {
     'soil_texture_clay': ('projects/soilgrids-isric/clay_mean', 'clay_0-5cm_mean'),
     'soil_texture_silt': ('projects/soilgrids-isric/silt_mean', 'silt_0-5cm_mean'),
     'soil_texture_sand': ('projects/soilgrids-isric/sand_mean', 'sand_0-5cm_mean'),
-    'ph': ('projects/soilgrids-isric/phh2o_mean', 'phh2o_0-5cm_mean'),
-    'ocd': ('projects/soilgrids-isric/ocd_mean', 'ocd_0-5cm_mean'),
-    'cec': ('projects/soilgrids-isric/cec_mean', 'cec_0-5cm_mean'),
+    'soil_ph': ('projects/soilgrids-isric/phh2o_mean', 'phh2o_0-5cm_mean'),
+    'soil_ocd': ('projects/soilgrids-isric/ocd_mean', 'ocd_0-5cm_mean'),
+    'soil_cec': ('projects/soilgrids-isric/cec_mean', 'cec_0-5cm_mean'),   # Added 'soil_cec'
+    'soil_nitrogen': ('projects/soilgrids-isric/nitrogen_mean', 'nitrogen_0-5cm_mean'),  # Also for Soil Nitrogen
 }
+
 
 # -----------------------------------------------------------------------------
 # 2. INITIALIZE EARTH ENGINE & LOGGING

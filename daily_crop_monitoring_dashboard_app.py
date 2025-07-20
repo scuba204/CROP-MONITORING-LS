@@ -102,7 +102,7 @@ def select_roi():
 
     if opt=="Select District":
         district = st.selectbox("Choose District", gdf["ADM1_NAME"].unique())
-        shape = gdf.loc[gdf.ADM1_NAME==district,"geometry"].unary_union
+        shape = gdf.loc[gdf.NAME_1==district,"geometry"].unary_union
         geom = ee.Geometry(mapping(shape))
 
     if opt=="Upload ROI":
