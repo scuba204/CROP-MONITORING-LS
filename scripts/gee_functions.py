@@ -1,6 +1,6 @@
 import argparse
 import logging
-from datetime import datetime
+import datetime
 from typing import Dict, List
 
 import ee
