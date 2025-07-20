@@ -169,20 +169,21 @@ def get_irradiance(start: str, end: str, roi: ee.Geometry) -> ee.Image:
     _log_date_coverage(col, 'Irradiance')
     return _mean_clip(col, ['surface_net_solar_radiation'], roi)
 
-
-def get_evapotranspiration(start: str, end: str, roi: ee.Geometry) -> ee.Image:
+def get_evapotranspiration(start: str, end: str, roi: ee.Geometry) -> ee.ImageCollection:
     """
-    Mean evapotranspiration (mm) from MODIS MOD16A2GF (8-day, 500m).
-    Units: kg/m²/8days ≈ mm/8days.
+    Returns an ImageCollection of evapotranspiration (mm) from MODIS MOD16A2GF.
+    The values are originally in kg/m² per 8-day composite (~1 mm), scaled by 0.1.
     """
-    col = _prepare_collection('MODIS/061/MOD16A2GF', start, end, roi).select('ET')
+    col = (
+        ee.ImageCollection('MODIS/061/MOD16A2GF')
+        .filterDate(start, end)
+        .filterBounds(roi)
+        .select('ET')
+        .map(lambda img: img.multiply(0.1).set('system:time_start', img.get('system:time_start')))
+    )
     _log_date_coverage(col, 'Evapotranspiration')
+    return col
 
-    # Convert ET from kg/m²/8days to mm/day
-    # MOD16 ET is already approximately in mm (1 kg/m² ≈ 1 mm)
-    et_mean = col.mean().clip(roi).rename('ET_mm')
-
-    return et_mean
 
 
 def get_simulated_hyperspectral(start: str, end: str, roi: ee.Geometry) -> ee.Image:
