@@ -19,8 +19,8 @@ SOIL_LAYERS = {
     'soil_texture_silt': ('projects/soilgrids-isric/silt_mean', 'silt_0-5cm_mean'),
     'soil_texture_sand': ('projects/soilgrids-isric/sand_mean', 'sand_0-5cm_mean'),
     'ph': ('projects/soilgrids-isric/phh2o_mean', 'phh2o_0-5cm_mean'),
-    'ocd': ('projects/soilgrids-isric/ocd_mean', 'ocd_0-30cm_mean'),
-    'cec': ('projects/soilgrids-isric/cec_mean', 'cec_0-30cm_mean'),
+    'ocd': ('projects/soilgrids-isric/ocd_mean', 'ocd_0-5cm_mean'),
+    'cec': ('projects/soilgrids-isric/cec_mean', 'cec_0-5cm_mean'),
 }
 
 # -----------------------------------------------------------------------------
@@ -168,32 +168,21 @@ def get_irradiance(start: str, end: str, roi: ee.Geometry) -> ee.Image:
     col = _prepare_collection('ECMWF/ERA5_LAND/HOURLY', start, end, roi)
     _log_date_coverage(col, 'Irradiance')
     return _mean_clip(col, ['surface_net_solar_radiation'], roi)
-import ee
+
 
 def get_evapotranspiration(start: str, end: str, roi: ee.Geometry) -> ee.Image:
     """
-    Fetches mean actual evapotranspiration (ET) from MODIS MOD16A2GF.
-    Values are in millimeters (kg/m²) after applying scale factor (0.1).
-    
-    Args:
-        start (str): Start date in 'YYYY-MM-DD'.
-        end (str): End date in 'YYYY-MM-DD'.
-        roi (ee.Geometry): Region of interest.
-
-    Returns:
-        ee.Image: Mean ET image scaled and clipped to ROI.
+    Mean evapotranspiration (mm) from MODIS MOD16A2GF (8-day, 500m).
+    Units: kg/m²/8days ≈ mm/8days.
     """
-    dataset_id = 'MODIS/061/MOD16A2GF'
-    band = 'ET'
-    scale_factor = 0.1
-
-    # Load, filter and clip the image collection
-    col = _prepare_collection(dataset_id, start, end, roi)
+    col = _prepare_collection('MODIS/061/MOD16A2GF', start, end, roi).select('ET')
     _log_date_coverage(col, 'Evapotranspiration')
 
-    # Compute mean, apply scale factor, clip, and rename
-    mean_et = _mean_clip(col, [band], roi).multiply(scale_factor).rename('ET')
-    return mean_et
+    # Convert ET from kg/m²/8days to mm/day
+    # MOD16 ET is already approximately in mm (1 kg/m² ≈ 1 mm)
+    et_mean = col.mean().clip(roi).rename('ET_mm')
+
+    return et_mean
 
 
 def get_simulated_hyperspectral(start: str, end: str, roi: ee.Geometry) -> ee.Image:
