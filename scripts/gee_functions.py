@@ -135,7 +135,9 @@ def get_ndvi(
         mask = qa.bitwiseAnd(cloud_bit_mask).eq(0).And(
                qa.bitwiseAnd(cirrus_bit_mask).eq(0))
         # Scale reflectance bands and apply the mask
-        return image.updateMask(mask).divide(10000).select(['B8', 'B4'])
+        # IMPORTANT: Use copyProperties to retain system:time_start
+        return image.updateMask(mask).divide(10000).select(['B8', 'B4']) \
+                    .copyProperties(image, ['system:time_start']) # <--- ADDED/ENSURED THIS LINE
 
     # 5. Apply the cloud mask to the collection
     s2_masked_collection = s2_collection.map(mask_s2_clouds)
@@ -146,12 +148,13 @@ def get_ndvi(
     # 6. Check if the masked collection is empty before proceeding
     if s2_masked_collection.size().getInfo() == 0:
         logging.warning("NDVI: No images left after cloud masking. Returning an empty image for visualization.")
-        return ee.Image().rename('NDVI').clip(roi) # Return an empty image
+        return ee.Image().rename('NDVI').clip(roi)
 
     # 7. Calculate NDVI for each image in the masked collection
+    # The copyProperties is already done in mask_s2_clouds, so not strictly needed here again, but harmless
     ndvi_collection = s2_masked_collection.map(lambda img:
         img.normalizedDifference(['B8', 'B4']).rename('NDVI')
-        .copyProperties(img, ['system:time_start']) # Keep time property for time series
+        .copyProperties(img, ['system:time_start']) # Good practice to keep this here too
     )
 
     # 8. Compute the mean NDVI for the period and clip to ROI
