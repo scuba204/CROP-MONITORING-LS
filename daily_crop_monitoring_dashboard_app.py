@@ -101,7 +101,7 @@ def select_roi():
     district = None
 
     if opt=="Select District":
-        district = st.selectbox("Choose District", gdf["ADM1_NAME"].unique())
+        district = st.selectbox("Choose District", gdf["NAME_1"].unique())
         shape = gdf.loc[gdf.NAME_1==district,"geometry"].unary_union
         geom = ee.Geometry(mapping(shape))
 
