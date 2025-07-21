@@ -295,20 +295,33 @@ if st.button("Run Monitoring"):
         m.addLayerControl()
         m.to_streamlit(height=600)
 
+
         # Parameter means
         st.subheader("📊 Parameter Means")
         stats = {}
         for name,img in layers.items():
-            # EDIT: Use the selected geometry for stats calculation.
-            region = ee.Image(img).reduceRegion(
-                ee.Reducer.mean(), selected_geom, 500, maxPixels=1e9
-            ).get(name)
-            val=None
             try:
-                val = region.getInfo() if region else None
-            except:
-                val = None
-            stats[name] = round(val,3) if isinstance(val,(int,float)) else "n/a"
+                # Ensure img is an ee.Image, even if it came from a collection
+                ee_img = ee.Image(img)
+                region_reducer_result = ee_img.reduceRegion(
+                    reducer=ee.Reducer.mean(),
+                    geometry=selected_geom,
+                    scale=500, # Use scale, not maxPixels for default behavior
+                    maxPixels=1e9 # Keep maxPixels for safety
+                ).get(name)
+
+                # Get the value, handling potential None from .get()
+                val = region_reducer_result.getInfo() if region_reducer_result else None
+
+                if isinstance(val, (int, float)):
+                    stats[name] = round(val, 3)
+                else:
+                    stats[name] = "N/A" # Use 'N/A' as a string here for consistency
+
+            except Exception as e:
+                # Log the specific error if a parameter mean calculation fails
+                st.warning(f"Failed to calculate mean for {name}: {e}")
+                stats[name] = "Error" # Indicate an error occurred
 
         df_stats = pd.DataFrame(stats.items(),columns=["Parameter","Mean"])
         st.dataframe(df_stats)
