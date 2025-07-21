@@ -283,7 +283,7 @@ if st.button("Run Monitoring"):
         # Map viewer
         st.header("🚨 Map Viewer")
         visible = st.multiselect("Show Layers", list(layers),
-                                 default=list(layers))
+                                    default=list(layers))
         m = geemap.Map(
             center=selected_geom.centroid().coordinates().getInfo()[::-1],
             zoom=8
@@ -294,8 +294,8 @@ if st.button("Run Monitoring"):
         if roi_option != "Whole Country":
             roi_name = selected_district if selected_district else "Custom ROI"
             m.addLayer(selected_geom,
-                       {"color":"red","fillOpacity":0},
-                       f"{roi_name} Boundary")
+                        {"color":"red","fillOpacity":0},
+                        f"{roi_name} Boundary")
 
         for name in visible:
             cfg = PALETTES[name]
@@ -304,15 +304,17 @@ if st.button("Run Monitoring"):
             mid   = (mn+mx)/2
             mid_col = pal[len(pal)//2]
             m.addLayer(layers[name],
-                       {"min":mn,"max":mx,"palette":pal},
-                       name)
+                        {"min":mn,"max":mx,"palette":pal},
+                        name)
             legend_colors = [hex_to_rgb(pal[0]), hex_to_rgb(mid_col), hex_to_rgb(pal[-1])]
 
-            m.add_legend(title=name,builtin_legend=False,
-                         labels=[f"{mn}",f"{mid}",f"{mx}"],
-                         colors=legend_colors)
+            # IMPORTANT: Keep m.add_legend and m.addLayerControl commented out for this test
+            # m.add_legend(title=name,builtin_legend=False,
+            #              labels=[f"{mn}",f"{mid}",f"{mx}"],
+            #              colors=legend_colors)
 
-        m.addLayerControl()
+        # m.addLayerControl() # COMMENT THIS OUT
+
         m.to_streamlit(height=600)
 
 
@@ -338,9 +340,9 @@ if st.button("Run Monitoring"):
                 else:
                     stats[name] = "N/A" # Use 'N/A' as a string here for consistency
 
-            except Exception as e:
+            except Exception as e_inner: # Renamed inner exception to avoid conflict
                 # Log the specific error if a parameter mean calculation fails
-                st.warning(f"Failed to calculate mean for {name}: {e}")
+                st.warning(f"Failed to calculate mean for {name}: {e_inner}")
                 stats[name] = "Error" # Indicate an error occurred
 
         df_stats = pd.DataFrame(stats.items(),columns=["Parameter","Mean"])
@@ -350,8 +352,8 @@ if st.button("Run Monitoring"):
         st.subheader("📌 Summary Metrics")
         cols = st.columns(min(3,len(df_stats)))
         for i,row in df_stats.iterrows():
-          # cols[i%len(cols)].metric(str(row.Parameter), str(row.Mean))
-          st.write(f"DEBUG: Parameter={row.Parameter}, Mean={row.Mean}, Type={type(row.Mean)}") # ADD THIS DEBUG LINE
+            # cols[i%len(cols)].metric(str(row.Parameter), str(row.Mean)) # STILL COMMENTED OUT
+            st.write(f"DEBUG: Parameter={row.Parameter}, Mean={row.Mean}, Type={type(row.Mean)}") # DEBUG LINE STILL HERE
 
         # Time series for all supported params
         ts_params = [p for p in selected_params if p in TIME_SERIES_PARAMS]
@@ -367,25 +369,26 @@ if st.button("Run Monitoring"):
                     st.warning(f"No time series for {p}")
                     continue
                 fig = px.line(df_ts,x="Date",y=p,
-                              title=f"{p} Trend",markers=True)
+                                title=f"{p} Trend",markers=True)
                 st.plotly_chart(fig,use_container_width=True)
                 st.download_button(f"⬇️ Download {p} CSV",
-                                   df_ts.to_csv(index=False),
-                                   file_name=f"{p.lower()}_timeseries.csv")
+                                    df_ts.to_csv(index=False),
+                                    file_name=f"{p.lower()}_timeseries.csv")
 
         # PDF report
         with tempfile.NamedTemporaryFile(suffix=".pdf",delete=False) as tmp:
             with PdfPages(tmp.name) as pdf:
                 fig, ax = plt.subplots(figsize=(8,4))
                 df_stats.plot(kind="barh",x="Parameter",y="Mean",
-                              ax=ax,legend=False,color="skyblue")
+                                ax=ax,legend=False,color="skyblue")
                 ax.set_title(f"Parameter Means: {start_date} to {end_date}")
                 pdf.savefig(fig,bbox_inches="tight")
                 plt.close(fig)
             st.download_button("📄 Download PDF Report",
-                              open(tmp.name,"rb").read(),
-                              file_name=f"{filename}.pdf",
-                              mime="application/pdf")
+                                open(tmp.name,"rb").read(),
+                                file_name=f"{filename}.pdf",
+                                mime="application/pdf")
 
     except Exception as e:
-        st.error(f"An error occurred: {e}")
+        st.error(f"An error occurred: Type of error: {type(e)}. Error message: {e}")
+        st.exception(e) # This will print the full traceback for the actual error
