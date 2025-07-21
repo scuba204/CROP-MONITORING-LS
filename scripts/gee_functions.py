@@ -89,15 +89,17 @@ def safe_execute(func, **kwargs):
 
 
 
+
 def get_ndvi(
     start: str,
     end: str,
     roi: ee.Geometry,
-    max_expansion_days: int = 30
-) -> ee.Image:
+    max_expansion_days: int = 30,
+    return_collection: bool = False # <--- NEW PARAMETER
+) -> ee.Image: # Or ee.ImageCollection if return_collection is True
     """
     NDVI from Sentinel-2 SR Harmonized, expand date range if no images.
-    Includes robust cloud masking.
+    Includes robust cloud masking. Can return a single mean image or a collection.
     """
     # 1. Convert string dates to datetime.date objects for buffer calculations
     start_dt = datetime.datetime.strptime(start, '%Y-%m-%d').date()
@@ -135,11 +137,11 @@ def get_ndvi(
         mask = qa.bitwiseAnd(cloud_bit_mask).eq(0).And(
                qa.bitwiseAnd(cirrus_bit_mask).eq(0))
         # Scale reflectance bands and apply the mask
-        # IMPORTANT: Use copyProperties to retain system:time_start
         return image.updateMask(mask).divide(10000).select(['B8', 'B4']) \
-                    .copyProperties(image, ['system:time_start']) # <--- ADDED/ENSURED THIS LINE
+                    .copyProperties(image, ['system:time_start', 'system:index']) # Add system:index for robustness
 
     # 5. Apply the cloud mask to the collection
+    # THIS IS WHERE s2_masked_collection IS DEFINED
     s2_masked_collection = s2_collection.map(mask_s2_clouds)
 
     # Log collection size after cloud masking
@@ -147,20 +149,24 @@ def get_ndvi(
 
     # 6. Check if the masked collection is empty before proceeding
     if s2_masked_collection.size().getInfo() == 0:
-        logging.warning("NDVI: No images left after cloud masking. Returning an empty image for visualization.")
-        return ee.Image().rename('NDVI').clip(roi)
+        logging.warning("NDVI: No images left after cloud masking. Returning an empty image/collection.")
+        if return_collection:
+            return ee.ImageCollection([]) # Return empty collection
+        else:
+            return ee.Image().rename('NDVI').clip(roi) # Return empty image for map display
 
     # 7. Calculate NDVI for each image in the masked collection
-    # The copyProperties is already done in mask_s2_clouds, so not strictly needed here again, but harmless
     ndvi_collection = s2_masked_collection.map(lambda img:
         img.normalizedDifference(['B8', 'B4']).rename('NDVI')
-        .copyProperties(img, ['system:time_start']) # Good practice to keep this here too
+        .copyProperties(img, ['system:time_start', 'system:index']) # Keep time property for time series
     )
 
-    # 8. Compute the mean NDVI for the period and clip to ROI
-    mean_ndvi_image = ndvi_collection.mean().clip(roi)
-
-    return mean_ndvi_image
+    # 8. Return either the collection or the mean image
+    if return_collection:
+        return ndvi_collection # <--- Return the collection for time series
+    else:
+        # Compute the mean NDVI for the period and clip to ROI
+        return ndvi_collection.mean().clip(roi) # <--- Return the mean image for map display
 
 def get_precipitation(start: str, end: str, roi: ee.Geometry) -> ee.Image:
     """

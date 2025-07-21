@@ -209,8 +209,10 @@ def fetch_layers(start,end,_geom,params,ndvi_buffer):
 @st.cache_data(ttl=1800)
 def extract_timeseries(start,end,_geom,param,ndvi_buffer):
     # fetch collection
+    coll = None # Initialize coll
     if param=="NDVI":
-        coll = get_ndvi(start,end,_geom,max_expansion_days=ndvi_buffer)
+        # For time series, request the collection from get_ndvi
+        coll = get_ndvi(start,end,_geom,max_expansion_days=ndvi_buffer, return_collection=True)
     elif param=="Precipitation":
         coll = get_precipitation(start,end,_geom)
     elif param=="Land Surface Temp":
@@ -224,20 +226,36 @@ def extract_timeseries(start,end,_geom,param,ndvi_buffer):
     elif param=="Soil Moisture":
         coll = get_soil_moisture(start,end,_geom)
     else:
+        return pd.DataFrame() # Should not happen given TIME_SERIES_PARAMS filter
+
+    if not coll or coll.size().getInfo() == 0: # Check if the collection is empty
         return pd.DataFrame()
 
-    coll2 = coll.map(lambda img: img.rename(param))
+    # No need for coll2 = coll.map(lambda img: img.rename(param)) if the bands are already named
+    # Ensure the parameter band exists in the collection images
+    coll_with_param_band = coll.select([param]) # Select the relevant band for time series extraction
+
     def to_feat(img):
+        # Use img.get(param) directly, as we selected the band
         val  = img.reduceRegion(ee.Reducer.mean(),_geom,500).get(param)
         date = ee.Date(img.get("system:time_start")).format("YYYY-MM-dd")
         return ee.Feature(None,{"date":date,param:val})
 
-    feats = coll2.map(to_feat)
+    # Apply the map to the collection that has the band selected
+    feats = coll_with_param_band.map(to_feat)
+    # Ensure getInfo() is called on the list of features, not the FeatureCollection directly if it was not aggregate_array
     dates = feats.aggregate_array("date").getInfo()
     vals  = feats.aggregate_array(param).getInfo()
-    df = pd.DataFrame({"Date":pd.to_datetime(dates),param:vals}).dropna()
-    return df
 
+    # Filter out None values from vals (if any, from masked pixels)
+    cleaned_data = [(d, v) for d, v in zip(dates, vals) if v is not None]
+    if not cleaned_data:
+        return pd.DataFrame() # Return empty if no valid data points
+
+    df = pd.DataFrame(cleaned_data, columns=["Date", param])
+    df["Date"] = pd.to_datetime(df["Date"]) # Convert Date column
+    df = df.dropna() # Drop rows where value might still be NaN
+    return df
 # -------------------------------------------------------------------
 # RUN & VISUALIZE
 # -------------------------------------------------------------------
@@ -330,7 +348,7 @@ if st.button("Run Monitoring"):
         st.subheader("📌 Summary Metrics")
         cols = st.columns(min(3,len(df_stats)))
         for i,row in df_stats.iterrows():
-            cols[i%len(cols)].metric(row.Parameter,row.Mean), str(row.Mean)
+            cols[i%len(cols)].metric(str(row.Parameter), str(row.Mean))
 
         # Time series for all supported params
         ts_params = [p for p in selected_params if p in TIME_SERIES_PARAMS]
