@@ -348,7 +348,7 @@ if st.button("Run Monitoring"):
         st.subheader("📌 Summary Metrics")
         cols = st.columns(min(3,len(df_stats)))
         for i,row in df_stats.iterrows():
-            cols[i%len(cols)].metric(str(row.Parameter), str(row.Mean))
+           cols[i%len(cols)].metric(str(row.Parameter), str(row.Mean))
 
         # Time series for all supported params
         ts_params = [p for p in selected_params if p in TIME_SERIES_PARAMS]
