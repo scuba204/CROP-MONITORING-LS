@@ -70,6 +70,13 @@ gdf["geometry"] = gdf.geometry.simplify(tolerance=0.01)
 lesotho_shape = unary_union(gdf.geometry)
 country_geom = ee.Geometry(mapping(lesotho_shape))
 
+# Convert hex palettes to RGB
+
+def hex_to_rgb(hex_color):
+    hex_color = hex_color.lstrip('#')
+    return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+#
+
 # -------------------------------------------------------------------
 # SIDEBAR COMPONENTS
 # -------------------------------------------------------------------
@@ -279,9 +286,11 @@ if st.button("Run Monitoring"):
             m.addLayer(layers[name],
                        {"min":mn,"max":mx,"palette":pal},
                        name)
+            legend_colors = [hex_to_rgb(pal[0]), hex_to_rgb(mid_col), hex_to_rgb(pal[-1])]
+
             m.add_legend(title=name,builtin_legend=False,
                          labels=[f"{mn}",f"{mid}",f"{mx}"],
-                         colors=[pal[0],mid_col,pal[-1]])
+                         colors=legend_colors)
 
         m.addLayerControl()
         m.to_streamlit(height=600)
