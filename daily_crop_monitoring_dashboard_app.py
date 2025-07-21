@@ -21,6 +21,8 @@ from scripts.gee_functions import (
 )
 from palettes import get_palettes
 
+PALETTES= get_palettes()
+
 # -------------------------------------------------------------------
 # CONFIGURATION
 # -------------------------------------------------------------------
