@@ -308,12 +308,12 @@ if st.button("Run Monitoring"):
                         name)
             legend_colors = [hex_to_rgb(pal[0]), hex_to_rgb(mid_col), hex_to_rgb(pal[-1])]
 
-            # IMPORTANT: Keep m.add_legend and m.addLayerControl commented out for this test
-            # m.add_legend(title=name,builtin_legend=False,
-            #              labels=[f"{mn}",f"{mid}",f"{mx}"],
-            #              colors=legend_colors)
+            # Add legend with min, mid, max values
+            m.add_legend(title=name,builtin_legend=False,
+                         labels=[f"{mn}",f"{mid}",f"{mx}"],
+                         colors=legend_colors)
 
-        # m.addLayerControl() # COMMENT THIS OUT
+            m.addLayerControl()
 
         m.to_streamlit(height=600)
 
@@ -352,7 +352,7 @@ if st.button("Run Monitoring"):
         st.subheader("📌 Summary Metrics")
         cols = st.columns(min(3,len(df_stats)))
         for i,row in df_stats.iterrows():
-            # cols[i%len(cols)].metric(str(row.Parameter), str(row.Mean)) # STILL COMMENTED OUT
+            cols[i%len(cols)].metric(str(row.Parameter), str(row.Mean)) 
             st.write(f"DEBUG: Parameter={row.Parameter}, Mean={row.Mean}, Type={type(row.Mean)}") # DEBUG LINE STILL HERE
 
         # Time series for all supported params
