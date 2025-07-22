@@ -9,6 +9,7 @@ import plotly.express as px
 import geemap.foliumap as geemap
 import ee
 import tempfile
+import folium
 from shapely.ops import unary_union
 from shapely.geometry import mapping
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -296,6 +297,13 @@ if st.button("Run Monitoring"):
             m.addLayer(selected_geom,
                         {"color":"red","fillOpacity":0},
                         f"{roi_name} Boundary")
+            
+
+        # Prepare for a single custom HTML legend
+        legend_html_parts = []
+        if visible: # Only build legend if there are visible layers
+            legend_html_parts.append('<h4>Legend</h4>')
+
 
         for name in visible:
             cfg = PALETTES[name]
@@ -303,23 +311,51 @@ if st.button("Run Monitoring"):
             pal   = cfg["palette"]
             mid   = (mn+mx)/2
             mid_col = pal[len(pal)//2]
+
             m.addLayer(layers[name],
                         {"min":mn,"max":mx,"palette":pal},
                         name)
-            legend_colors = [hex_to_rgb(pal[0]), hex_to_rgb(mid_col), hex_to_rgb(pal[-1])]
 
-            # --- ADD THESE DEBUG LINES ---
-            st.write(f"DEBUG Legend for {name}:")
-            st.write(f"  title: {name}, Type: {type(name)}")
-            st.write(f"  labels: {[f'{mn}',f'{mid}',f'{mx}']}, Types: {type(mn)}, {type(mid)}, {type(mx)}")
-            st.write(f"  colors: {legend_colors}, Types: {[type(c) for c in legend_colors]}")
-            # --- END DEBUG LINES ---
+            # Generate HTML for each legend entry
+            # Example: <i style="background:rgb(255,0,0)"></i> Red
+            # We need a gradient-like representation or min/mid/max for each parameter
 
-            m.add_legend(title=name,builtin_legend=False,
-                         labels=[f"{mn}",f"{mid}",f"{mx}"],
-                         colors=legend_colors)
+            # For simplicity and to avoid the geemap bug, let's create a linear gradient representation
+            # This is a common way to display continuous legends in Folium/HTML
+            gradient_css = f"linear-gradient(to right, {pal[0]}, {pal[len(pal)//2]}, {pal[-1]})"
+            legend_html_parts.append(f"""
+                <p>{name}:</p>
+                <div style="width: 100%; height: 20px; background: {gradient_css};"></div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>{mn}</span>
+                    <span>{mid}</span>
+                    <span>{mx}</span>
+                </div>
+                <br>
+            """)
 
-        m.addLayerControl()
+            # # COMMENT OUT OR DELETE ALL THE FOLLOWING LINES FOR m.add_legend
+            # legend_colors = [hex_to_rgb(pal[0]), hex_to_rgb(mid_col), hex_to_rgb(pal[-1])]
+            # m.add_legend(title=name,builtin_legend=False,
+            #              labels=[f"{mn}",f"{mid}",f"{mx}"],
+            #              colors=legend_colors)
+
+        # Add the overall custom HTML legend to the map after the loop
+        if legend_html_parts:
+            legend_html = """
+            <div style="position: fixed;
+                         bottom: 50px; left: 50px; width: 250px; height: auto;
+                         border:2px solid grey; z-index:9999; font-size:14px;
+                         background-color:white; opacity:0.9; padding:10px;">
+                {}
+            </div>
+            """.format("".join(legend_html_parts))
+
+            m.get_root().html.add_child(folium.Element(legend_html))
+
+
+        m.addLayerControl() # Keep this as it's useful for toggling layers
+
         m.to_streamlit(height=600)
 
 
