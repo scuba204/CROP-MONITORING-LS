@@ -308,13 +308,18 @@ if st.button("Run Monitoring"):
                         name)
             legend_colors = [hex_to_rgb(pal[0]), hex_to_rgb(mid_col), hex_to_rgb(pal[-1])]
 
-            # Add legend with min, mid, max values
+            # --- ADD THESE DEBUG LINES ---
+            st.write(f"DEBUG Legend for {name}:")
+            st.write(f"  title: {name}, Type: {type(name)}")
+            st.write(f"  labels: {[f'{mn}',f'{mid}',f'{mx}']}, Types: {type(mn)}, {type(mid)}, {type(mx)}")
+            st.write(f"  colors: {legend_colors}, Types: {[type(c) for c in legend_colors]}")
+            # --- END DEBUG LINES ---
+
             m.add_legend(title=name,builtin_legend=False,
                          labels=[f"{mn}",f"{mid}",f"{mx}"],
                          colors=legend_colors)
 
-            m.addLayerControl()
-
+        m.addLayerControl()
         m.to_streamlit(height=600)
 
 
