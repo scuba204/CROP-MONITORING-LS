@@ -15,8 +15,8 @@ ee.Initialize(project='winged-tenure-464005-p9')
 logging.basicConfig(level=logging.INFO)
 
 # Date range & ROI for testing
-START_DATE = '2025-06-14'
-END_DATE   = '2025-06-22'
+START_DATE = '2025-06-1'
+END_DATE   = '2025-06-30'
 ROI = ee.Geometry.BBox(26.999, -30.5, 29.5, -28.5)
 
 def summarize_image(img: ee.Image, label: str):
@@ -24,19 +24,39 @@ def summarize_image(img: ee.Image, label: str):
     Compute summary stats for the image in the ROI.
     """
     try:
-        band_names = img.bandNames().getInfo()
+        # First, check if the image object itself is valid (not None)
+        if img is None:
+            logging.warning(f"[{label}] Skipping summary: Image object is None.")
+            return
+
+        # Attempt to get band names and check if the image truly has bands
+        try:
+            # Use bandNames() and getInfo() to ensure it's a list of actual bands
+            band_names = img.bandNames().getInfo()
+            if not band_names: # If band_names is an empty list, the image has no bands
+                logging.warning(f"[{label}] Skipping summary: Image has no bands (likely from an empty collection).")
+                return
+        except Exception as e:
+            # Catch errors if img.bandNames() itself fails on an invalid GEE object
+            logging.warning(f"[{label}] Skipping summary: Failed to get band names (possible invalid image object). Error: {e}")
+            return
+
+        # If we reach here, the image is valid and has bands. Proceed with summarization.
         stats = img.reduceRegion(
             reducer=ee.Reducer.mean(),
             geometry=ROI,
             scale=500,
             maxPixels=1e9
         ).getInfo()
+
         logging.info(f"[{label}] Bands: {band_names}")
         for b in band_names:
-            logging.info(f"  {b}: mean = {round(stats.get(b, 'n/a'), 3)}")
-    except Exception as e:
-        logging.error(f"[{label}] Failed to summarize: {e}")
+            # Use .get(b, 'N/A') to handle cases where a band might not be in stats if reduceRegion failed for it
+            logging.info(f"   {b}: mean = {round(stats.get(b, 'N/A'), 3)}")
 
+    except Exception as e:
+        # This outer catch is for any other unexpected errors during summarization
+        logging.error(f"[{label}] Failed to summarize: {e}")
 def test_all():
     logging.info("📦 Testing NDVI")
     summarize_image(get_ndvi(START_DATE, END_DATE, ROI), "NDVI")
