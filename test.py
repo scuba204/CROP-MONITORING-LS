@@ -15,8 +15,8 @@ ee.Initialize(project='winged-tenure-464005-p9')
 logging.basicConfig(level=logging.INFO)
 
 # Date range & ROI for testing
-START_DATE = '2025-07-14'
-END_DATE   = '2025-07-22'
+START_DATE = '2025-06-14'
+END_DATE   = '2025-06-22'
 ROI = ee.Geometry.BBox(26.999, -30.5, 29.5, -28.5)
 
 def summarize_image(img: ee.Image, label: str):
@@ -65,7 +65,7 @@ def test_all():
     logging.info("📦 Testing Soil Texture")
     summarize_image(gee_functions.get_soil_texture(START_DATE, END_DATE, ROI), "Soil Texture")
 
-    for key in ['ph', 'ocd', 'cec']:
+    for key in ['soil_ph', 'soil_ocd', 'soil_cec', 'soil_nitrogen']:
         label = f"Soil Property - {key.upper()}"
         logging.info(f"📦 Testing {label}")
         summarize_image(gee_functions.get_soil_property(key, ROI), label)

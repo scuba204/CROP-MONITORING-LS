@@ -10,8 +10,8 @@ import ee
 # -----------------------------------------------------------------------------
 
 EE_PROJECT        = 'winged-tenure-464005-p9'
-DEFAULT_START     = '2024-07-01'
-DEFAULT_END       = '2024-07-10'
+DEFAULT_START     = '2025-06-01'
+DEFAULT_END       = '2025-07-22'
 DEFAULT_ROI_BBOX  = [26.999, -30.5, 29.5, -28.5]  # [minLon, minLat, maxLon, maxLat]
 
 SOIL_LAYERS = {
@@ -217,21 +217,26 @@ def get_irradiance(start: str, end: str, roi: ee.Geometry) -> ee.Image:
     _log_date_coverage(col, 'Irradiance')
     return _mean_clip(col, ['surface_net_solar_radiation'], roi)
 
-def get_evapotranspiration(start: str, end: str, roi: ee.Geometry) -> ee.ImageCollection:
-    """
-    Returns an ImageCollection of evapotranspiration (mm) from MODIS MOD16A2GF.
-    The values are originally in kg/m² per 8-day composite (~1 mm), scaled by 0.1.
-    """
-    col = (
-        ee.ImageCollection('MODIS/061/MOD16A2GF')
-        .filterDate(start, end)
-        .filterBounds(roi)
-        .select('ET')
-        .map(lambda img: img.multiply(0.1).set('system:time_start', img.get('system:time_start')))
-    )
-    _log_date_coverage(col, 'Evapotranspiration')
-    return col
+def get_evapotranspiration(start_date_str, end_date_str, geometry):
+    # ... (your existing code to define the dataset and initial filter) ...
+    collection = ee.ImageCollection("MODIS/006/MOD16A2") # Example dataset ID, use yours
+    ee.filterDate(start_date_str, end_date_str)
+    ee.filterBounds(geometry)
 
+    # --- ADD THESE DEBUG LINES ---
+    initial_size = collection.size().getInfo()
+    logging.info(f"Evapotranspiration collection (initial) size: {initial_size}")
+    if initial_size == 0:
+        logging.warning(f"Evapotranspiration: Collection is empty before further processing for dates {start_date_str} to {end_date_str} in ROI.")
+        return ee.ImageCollection([]) # Return an empty collection if it's already empty
+    # --- END DEBUG LINES ---
+
+    # ... (rest of your filtering and processing, e.g., select bands, apply scaling) ...
+
+    # If you have specific band selection or mapping functions, check those too.
+    # Example:
+    et = collection.select('ET').mean() # Ensure the band name 'ET' exists in your chosen dataset.
+    return et
 
 
 def get_simulated_hyperspectral(start: str, end: str, roi: ee.Geometry) -> ee.Image:
@@ -254,11 +259,35 @@ def get_soil_moisture(start: str, end: str, roi: ee.Geometry) -> ee.Image:
     """
     Mean soil moisture (0–10 cm) from FLDAS/NOAH.
     """
-    col = ee.ImageCollection('NASA/FLDAS/NOAH01/C/GL/M/V001') \
-        .filterDate(start, end) \
-        .filterBounds(roi)
-    _log_date_coverage(col, 'Soil Moisture')
-    return _mean_clip(col, ['SoilMoi00_10cm_tavg'], roi)
+    logging.info(f"DEBUG: get_soil_moisture called with start={start}, end={end}")
+
+    col = ee.ImageCollection('NASA/FLDAS/NOAH01/C/GL/M/V001')
+
+    logging.info(f"DEBUG: Initial FLDAS/NOAH collection created for Soil Moisture.")
+
+    # Filter by date
+    col_filtered_date = col.filterDate(start, end)
+    date_filtered_size = col_filtered_date.size().getInfo()
+    logging.info(f"DEBUG: Soil Moisture collection size after date filter ({start} to {end}): {date_filtered_size}")
+
+    if date_filtered_size == 0:
+        logging.warning(f"Soil Moisture: Collection is empty after date filtering. No data for {start} to {end}.")
+        return ee.Image([]) # Return an empty image to prevent errors downstream
+
+    # Filter by bounds (ROI)
+    col_filtered_bounds = col_filtered_date.filterBounds(roi)
+    bounds_filtered_size = col_filtered_bounds.size().getInfo()
+    logging.info(f"DEBUG: Soil Moisture collection size after bounds filter: {bounds_filtered_size}")
+
+    if bounds_filtered_size == 0:
+        logging.warning(f"Soil Moisture: Collection is empty after bounds filtering for ROI. No data in this region for {start} to {end}.")
+        return ee.Image([]) # Return an empty image to prevent errors downstream
+
+    _log_date_coverage(col_filtered_bounds, 'Soil Moisture')
+
+    # Ensure _mean_clip can handle an empty collection gracefully if it reaches it
+    # (though our checks above should prevent that now)
+    return _mean_clip(col_filtered_bounds, ['SoilMoi00_10cm_tavg'], roi)
 
 def get_soil_property(key: str, roi: ee.Geometry) -> ee.Image:
     """
