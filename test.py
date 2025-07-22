@@ -15,8 +15,8 @@ ee.Initialize(project='winged-tenure-464005-p9')
 logging.basicConfig(level=logging.INFO)
 
 # Date range & ROI for testing
-START_DATE = '2024-07-01'
-END_DATE   = '2024-07-10'
+START_DATE = '2025-07-14'
+END_DATE   = '2025-07-22'
 ROI = ee.Geometry.BBox(26.999, -30.5, 29.5, -28.5)
 
 def summarize_image(img: ee.Image, label: str):
