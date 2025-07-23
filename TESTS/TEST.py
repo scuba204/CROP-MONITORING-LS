@@ -1,18 +1,39 @@
 import ee
-import sys
-import os 
-from scripts import gee_functions # Import your gee_functions script
 import logging
+import sys
+import os
+
+# --- CRITICAL FIX START ---
+# Get the absolute path of the directory containing the current script (TEST.py)
+current_script_dir = os.path.dirname(os.path.abspath(__file__))
+# Get the parent directory of the current script's directory (i.e., the project root)
+project_root_dir = os.path.abspath(os.path.join(current_script_dir, '..'))
+
+# Add the project root to sys.path if it's not already there.
+# Inserting at the beginning gives it priority.
+if project_root_dir not in sys.path:
+    sys.path.insert(0, project_root_dir)
+# --- CRITICAL FIX END ---
+
+# --- DEBUGGING LINES (keep for now, then remove if successful) ---
+print(f"Current Working Directory (os.getcwd()): {os.getcwd()}")
+print("Python System Path (sys.path) AFTER MODIFICATION:")
+for p in sys.path:
+    print(f"  - {p}")
+print("-" * 30) # Separator
+# --- DEBUGGING LINES END ---
+
+
+ee.Initialize(project='winged-tenure-464005-p9')
+
+# This import should now work correctly
+from scripts import gee_functions # Import your gee_functions script
 
 # Set up basic logging to see INFO messages from gee_functions
 logging.basicConfig(
     format='%(asctime)s %(levelname)s %(message)s',
     level=logging.INFO
 )
-
-# Initialize Earth Engine
-# Using your specified project
-ee.Initialize(project='winged-tenure-464005-p9')
 
 # Define your Region of Interest
 roi = ee.Geometry.Polygon([
@@ -26,11 +47,8 @@ roi = ee.Geometry.Polygon([
 ])
 
 # Define date range for temporal indices
-# Use a current/recent date range where data is likely available.
-# Current date is July 22, 2025.
-# Let's use a recent past period for real data availability.
 start_date = '2025-06-01'
-end_date = '2025-06-30' # End date needs to be before current time
+end_date = '2025-06-30'
 
 def validate_image(img_or_col, name, is_collection=False):
     """
@@ -82,16 +100,11 @@ def validate_image(img_or_col, name, is_collection=False):
                 maxPixels=1e9
             ).getInfo()
             print(f"  Sample pixel values: {stats}")
-            # info = img_or_col.getInfo() # getInfo() can be very verbose, only use if specific info is needed
-            # print(f"  ℹ️ Image info keys: {list(info.keys())}\n")
             print("\n")
 
     except Exception as e:
         print(f"  ❌ ERROR validating {name}: {e}\n")
 
-
-# --- Call functions from gee_functions.py for validation ---
-# We'll get the mean image for map display validation, and a collection for time series validation.
 
 print(f"--- Validating Mean Images for ROI {roi.bounds().getInfo()} from {start_date} to {end_date} ---")
 
@@ -155,8 +168,6 @@ ndmi_col = gee_functions.safe_execute(gee_functions.get_ndmi,
 validate_image(ndmi_col, "NDMI (Collection)", is_collection=True)
 
 # Existing functions from your gee_functions.py (validation)
-# Note: For MODIS/061/MOD16A2GF, I'll use MODIS/061/MOD16A2 as that's what was in gee_functions.
-# If you explicitly want GF, you need to adjust gee_functions.py
 et_mean = gee_functions.safe_execute(gee_functions.get_evapotranspiration,
                                      start_date_str=start_date, end_date_str=end_date, geometry=roi,
                                      return_collection=False)
@@ -168,7 +179,6 @@ et_col = gee_functions.safe_execute(gee_functions.get_evapotranspiration,
 validate_image(et_col, "Evapotranspiration (MOD16A2, Collection)", is_collection=True)
 
 # For static soil properties, get the image directly.
-# These don't have start/end dates or return_collection options in gee_functions.
 print("\n--- Validating Static Soil Layers ---")
 
 soil_organic_matter_img = gee_functions.safe_execute(gee_functions.get_soil_property,
@@ -188,7 +198,7 @@ soil_nitrogen_img = gee_functions.safe_execute(gee_functions.get_soil_property,
 validate_image(soil_nitrogen_img, "Soil Nitrogen")
 
 soil_texture_img = gee_functions.safe_execute(gee_functions.get_soil_texture,
-                                             start=start_date, end=end_date, roi=roi) # start/end are dummy
+                                             start=start_date, end=end_date, roi=roi)
 validate_image(soil_texture_img, "Soil Texture (Clay, Silt, Sand)")
 
 # Validate other time-series data
