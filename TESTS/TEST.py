@@ -1,7 +1,7 @@
 import ee
 import sys
 import os 
-import gee_functions # Import your gee_functions script
+from scripts import gee_functions # Import your gee_functions script
 import logging
 
 # Set up basic logging to see INFO messages from gee_functions
