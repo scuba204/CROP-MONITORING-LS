@@ -7,11 +7,15 @@ import matplotlib.pyplot as plt
 from shapely.geometry import mapping
 from datetime import datetime, timedelta
 from matplotlib.backends.backend_pdf import PdfPages
+
+# Updated imports: Soil Organic Matter and Soil CEC are back
 from scripts.gee_functions import (
     get_ndvi, get_soil_moisture, get_precipitation,
     get_land_surface_temperature, get_humidity, get_irradiance, get_simulated_hyperspectral,
-    get_soil_organic_matter, get_soil_ph, get_soil_texture, get_evapotranspiration,
-    get_soil_nitrogen, get_soil_phosphorus, get_soil_potassium
+    get_evapotranspiration,
+    # Soil property functions
+    get_soil_organic_matter, get_soil_ph, get_soil_nitrogen, get_soil_cec, # <-- Re-added get_soil_cec
+    get_soil_texture
 )
 
 # Initialize Earth Engine
@@ -22,7 +26,7 @@ end_date = datetime.today().strftime('%Y-%m-%d')
 start_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
 
 # Load district boundaries
-shp_path = r'C:\Users\MY PC\Documents\GIS DATA\BOUNDARIES\LSO_adm\LSO_adm1.shp'
+shp_path =r"data/LSO_adm/LSO_adm1.shp"
 district_gdf = gpd.read_file(shp_path)
 district_features = [(i + 1, ee.Geometry(mapping(geom))) for i, geom in enumerate(district_gdf.geometry)]
 
@@ -42,7 +46,7 @@ with open(log_path, 'a', newline='') as log_file:
     if write_header:
         writer.writerow([
             'date', 'district_id', 'NDVI', 'SoilMoisture', 'Precipitation', 'LST', 'Humidity',
-            'Irradiance', 'SOM', 'Soil_pH', 'Soil_Texture', 'ET', 'Nitrogen', 'Phosphorus', 'Potassium',
+            'Irradiance', 'SOM', 'Soil_pH', 'Soil_Texture', 'ET', 'Nitrogen', 'Soil_CEC', # <-- Re-added Soil_CEC
             'B5', 'B6', 'B7', 'B11', 'B12'
         ])
 
@@ -56,13 +60,12 @@ with open(log_path, 'a', newline='') as log_file:
             lst = get_land_surface_temperature(start_date, end_date, district_geom)
             humidity = get_humidity(start_date, end_date, district_geom)
             irradiance = get_irradiance(start_date, end_date, district_geom)
-            som = get_soil_organic_matter(district_geom)
+            som = get_soil_organic_matter(district_geom) # <-- SOM call is back
             soil_ph = get_soil_ph(district_geom)
-            texture = get_soil_texture(district_geom)
+            texture = get_soil_texture(start_date, end_date, district_geom)
             et = get_evapotranspiration(start_date, end_date, district_geom)
             nitrogen = get_soil_nitrogen(district_geom)
-            phosphorus = get_soil_phosphorus(district_geom)
-            potassium = get_soil_potassium(district_geom)
+            cec = get_soil_cec(district_geom) # <-- Soil CEC call is back
             hyper = get_simulated_hyperspectral(start_date, end_date, district_geom)
 
             # Select hyperspectral bands
@@ -77,8 +80,8 @@ with open(log_path, 'a', newline='') as log_file:
                 ndvi.rename("NDVI"), soil.rename("SoilMoisture"), precip.rename("Precipitation"),
                 lst.rename("LST"), humidity.rename("Humidity"), irradiance.rename("Irradiance"),
                 som.rename("SOM"), soil_ph.rename("Soil_pH"), texture.rename("Soil_Texture"),
-                et.rename("ET"), nitrogen.rename("Nitrogen"), phosphorus.rename("Phosphorus"),
-                potassium.rename("Potassium"), b5.rename("B5"), b6.rename("B6"),
+                et.rename("ET"), nitrogen.rename("Nitrogen"), cec.rename("CEC"), # <-- Re-added CEC rename
+                b5.rename("B5"), b6.rename("B6"),
                 b7.rename("B7"), b11.rename("B11"), b12.rename("B12")
             ])
 
@@ -96,10 +99,10 @@ with open(log_path, 'a', newline='') as log_file:
                 round(stats.get("NDVI", 0), 3), round(stats.get("SoilMoisture", 0), 3),
                 round(stats.get("Precipitation", 0), 3), round(stats.get("LST", 0), 3),
                 round(stats.get("Humidity", 0), 3), round(stats.get("Irradiance", 0), 3),
-                round(stats.get("SOM", 0), 3), round(stats.get("Soil_pH", 0), 3),
+                round(stats.get("SOM", 0), 3), round(stats.get("Soil_pH", 0), 3), # <-- SOM value is back
                 round(stats.get("Soil_Texture", 0), 3), round(stats.get("ET", 0), 3),
-                round(stats.get("Nitrogen", 0), 3), round(stats.get("Phosphorus", 0), 3),
-                round(stats.get("Potassium", 0), 3), round(stats.get("B5", 0), 2),
+                round(stats.get("Nitrogen", 0), 3), round(stats.get("CEC", 0), 3), # <-- CEC value is back
+                round(stats.get("B5", 0), 2),
                 round(stats.get("B6", 0), 2), round(stats.get("B7", 0), 2),
                 round(stats.get("B11", 0), 2), round(stats.get("B12", 0), 2)
             ]
