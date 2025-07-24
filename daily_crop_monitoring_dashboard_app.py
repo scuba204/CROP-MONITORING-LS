@@ -133,7 +133,7 @@ def select_parameters():
         opts,
         default=[p for p in opts if p in st.session_state.selected_params_session_state.get('last_selected', [])]
     )
-    st.session_state.selected_params_session_state.last_selected = selected
+    st.session_state.selected_params_session_state['last_selected'] = selected
     return selected
 
 def select_date_range(params):
