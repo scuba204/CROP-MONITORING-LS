@@ -15,49 +15,88 @@ from shapely.ops import unary_union
 from shapely.geometry import mapping
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+# --- Import all necessary GEE functions ---
 from scripts.gee_functions import (
-    get_ndvi, get_soil_moisture, get_precipitation,
+    get_ndvi, get_savi, get_evi, get_ndwi, get_ndmi,
+    get_soil_moisture, get_precipitation,
     get_land_surface_temperature, get_humidity, get_irradiance,
     get_simulated_hyperspectral, get_soil_texture,
     get_evapotranspiration, get_soil_property
 )
 from palettes import get_palettes
 
-PALETTES= get_palettes()
-
-# -------------------------------------------------------------------
-# CONFIGURATION
-# -------------------------------------------------------------------
-PARAM_CATEGORIES = {
-    "Vegetation":       {"params": ["NDVI"], "help": "NDVI from Sentinel-2"},
-    "Climate":          {"params": ["Precipitation","Land Surface Temp","Humidity","Irradiance"],
-                         "help": "Daily climate variables"},
-    "Soil Properties":  {"params": ["Soil Moisture","Soil Organic Matter","Soil pH",
-                                     "Soil Texture - Clay","Soil Texture - Silt","Soil Texture - Sand",
-                                     "Soil CEC","Soil Nitrogen"],
-                         "help": "Static soil attributes"},
-    "Water Use":        {"params": ["Evapotranspiration"], "help": "MODIS ET"},
-    "Hyperspectral":    {"params": ["B5","B6","B7","B11","B12"],
-                         "help": "Simulated hyperspectral bands"}
-}
-
-# Load palettes from external module
 PALETTES = get_palettes()
 
-DATA_AVAILABILITY = {
-    "NDVI": datetime.date(2015,6,23),
-    "Precipitation": datetime.date(1981,1,1),
-    "Land Surface Temp": datetime.date(2000,2,24),
-    "Humidity": datetime.date(2017,1,1),
-    "Irradiance": datetime.date(2017,1,1),
-    "Evapotranspiration": datetime.date(2000,2,24),
+# -------------------------------------------------------------------
+# CONFIGURATION - CENTRALIZED AND EXTENDED
+# -------------------------------------------------------------------
+# This dictionary now holds all the information for each parameter
+# including its GEE function, default parameters for that function,
+# and how to map it to an EE band name if different from the display name.
+# 'type': 'time_series' or 'static' helps to determine if date ranges apply.
+PARAM_CONFIG = {
+    "NDVI":              {"func": get_ndvi,               "args": {"return_collection": False}, "band_name": "NDVI", "type": "time_series", "category": "Vegetation", "help": "Vegetation index from Sentinel-2"},
+    "SAVI":              {"func": get_savi,               "args": {"return_collection": False}, "band_name": "SAVI", "type": "time_series", "category": "Vegetation", "help": "Soil-adjusted vegetation index from Sentinel-2"},
+    "EVI":               {"func": get_evi,                "args": {"return_collection": False}, "band_name": "EVI", "type": "time_series", "category": "Vegetation", "help": "Enhanced vegetation index from Sentinel-2"},
+    "NDWI":              {"func": get_ndwi,               "args": {"return_collection": False}, "band_name": "NDWI", "type": "time_series", "category": "Water", "help": "Normalized Difference Water Index"},
+    "NDMI":              {"func": get_ndmi,               "args": {"return_collection": False}, "band_name": "NDMI", "type": "time_series", "category": "Water", "help": "Normalized Difference Moisture Index"},
+    "Soil Moisture":     {"func": get_soil_moisture,      "args": {"return_collection": False}, "band_name": "SoilMoi00_10cm_tavg", "type": "time_series", "category": "Water", "help": "Soil moisture content (0-10cm)"},
+    "Precipitation":     {"func": get_precipitation,      "args": {"return_collection": False}, "band_name": "precipitation", "type": "time_series", "category": "Climate", "help": "Daily accumulated precipitation"},
+    "Land Surface Temp": {"func": get_land_surface_temperature, "args": {"return_collection": False}, "band_name": "LST_C", "type": "time_series", "category": "Climate", "help": "Daily land surface temperature in Celsius"},
+    "Humidity":          {"func": get_humidity,           "args": {"return_collection": False}, "band_name": "RH", "type": "time_series", "category": "Climate", "help": "Daily relative humidity"},
+    "Irradiance":        {"func": get_irradiance,         "args": {"return_collection": False}, "band_name": "surface_net_solar_radiation", "type": "time_series", "category": "Climate", "help": "Daily surface net solar radiation"},
+    "Evapotranspiration":{"func": get_evapotranspiration, "args": {}, "band_name": "ET", "type": "time_series", "category": "Climate", "help": "Daily actual evapotranspiration"},
+    "Soil Organic Matter": {"func": get_soil_property,    "args": {"property_key": "ocd_0-5cm_mean"}, "band_name": "ocd_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil organic carbon density (0-5cm)"},
+    "Soil pH":           {"func": get_soil_property,      "args": {"property_key": "phh2o_0-5cm_mean"}, "band_name": "phh2o_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil pH in H2O (0-5cm)"},
+    "Soil CEC":          {"func": get_soil_property,      "args": {"property_key": "cec_0-5cm_mean"}, "band_name": "cec_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Cation Exchange Capacity (0-5cm)"},
+    "Soil Nitrogen":     {"func": get_soil_property,      "args": {"property_key": "nitrogen_0-5cm_mean"}, "band_name": "nitrogen_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Nitrogen (0-5cm)"},
+    "Soil Texture - Clay": {"func": get_soil_texture,     "args": {}, "band_name": "clay", "type": "static", "category": "Soil Texture", "help": "Clay content of soil"},
+    "Soil Texture - Silt": {"func": get_soil_texture,     "args": {}, "band_name": "silt", "type": "static", "category": "Soil Texture", "help": "Silt content of soil"},
+    "Soil Texture - Sand": {"func": get_soil_texture,     "args": {}, "band_name": "sand", "type": "static", "category": "Soil Texture", "help": "Sand content of soil"},
+    # Simulated hyperspectral bands (assuming these come from get_simulated_hyperspectral)
+    "B2": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B2", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 2 (Blue)"},
+    "B3": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B3", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 3 (Green)"},
+    "B4": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B4", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 4 (Red)"},
+    "B5": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B5", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 5 (Red Edge 1)"},
+    "B6": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B6", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 6 (Red Edge 2)"},
+    "B7": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B7", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 7 (Red Edge 3)"},
+    "B8A": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B8A", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 8A (Narrow NIR)"},
+    "B11": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B11", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 11 (SWIR 1)"},
+    "B12": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B12", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 12 (SWIR 2)"},
 }
 
-# Parameters that support time series
-TIME_SERIES_PARAMS = {
-    "NDVI","Precipitation","Land Surface Temp",
-    "Humidity","Irradiance","Evapotranspiration","Soil Moisture"
+# Dynamically create PARAM_CATEGORIES from PARAM_CONFIG
+PARAM_CATEGORIES = {}
+for param, data in PARAM_CONFIG.items():
+    category = data["category"]
+    if category not in PARAM_CATEGORIES:
+        PARAM_CATEGORIES[category] = {"params": [], "help": ""}
+    PARAM_CATEGORIES[category]["params"].append(param)
+    # Assign help text from the first parameter in a category, or refine manually if needed
+    if not PARAM_CATEGORIES[category]["help"]:
+        PARAM_CATEGORIES[category]["help"] = f"{category} related parameters."
+
+# Dynamically create DATA_AVAILABILITY and TIME_SERIES_PARAMS from PARAM_CONFIG
+DATA_AVAILABILITY = {
+    "NDVI": datetime.date(2015, 6, 23),
+    "SAVI": datetime.date(2015, 6, 23),
+    "EVI": datetime.date(2015, 6, 23),
+    "NDWI": datetime.date(2015, 6, 23),
+    "NDMI": datetime.date(2015, 6, 23),
+    "Precipitation": datetime.date(1981, 1, 1),
+    "Land Surface Temp": datetime.date(2000, 2, 24),
+    "Humidity": datetime.date(2017, 1, 1),
+    "Irradiance": datetime.date(2017, 1, 1),
+    "Evapotranspiration": datetime.date(2000, 2, 24),
+    "Soil Moisture": datetime.date(2000, 1, 1),
+    # Hyperspectral bands are based on Sentinel-2 availability
+    "B2": datetime.date(2015, 6, 23), "B3": datetime.date(2015, 6, 23), "B4": datetime.date(2015, 6, 23),
+    "B5": datetime.date(2015, 6, 23), "B6": datetime.date(2015, 6, 23), "B7": datetime.date(2015, 6, 23),
+    "B8A": datetime.date(2015, 6, 23), "B11": datetime.date(2015, 6, 23), "B12": datetime.date(2015, 6, 23),
 }
+
+TIME_SERIES_PARAMS = {p for p, data in PARAM_CONFIG.items() if data["type"] == "time_series"}
+
 
 # -------------------------------------------------------------------
 # INITIALIZE
@@ -67,70 +106,81 @@ st.title("📍 Daily Crop Monitoring System (Lesotho)")
 ee.Initialize(project="winged-tenure-464005-p9")
 
 # Load & simplify country geometry
-# EDIT: Changed to a relative path. Place your shapefile in a 'data' subfolder.
 shp = r"data/LSO_adm/LSO_adm1.shp"
 gdf = gpd.read_file(shp)
 gdf["geometry"] = gdf.geometry.simplify(tolerance=0.01)
 lesotho_shape = unary_union(gdf.geometry)
 country_geom = ee.Geometry(mapping(lesotho_shape))
 
-# Convert hex palettes to RGB
-
-def hex_to_rgb(hex_color):
-    hex_color = hex_color.lstrip('#')
-    return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
-#
-
 # -------------------------------------------------------------------
 # SIDEBAR COMPONENTS
 # -------------------------------------------------------------------
+if 'selected_params_session_state' not in st.session_state:
+    st.session_state.selected_params_session_state = {'last_selected': []}
+
 def select_parameters():
     st.header("🧩 Controls")
     cat = st.selectbox("Parameter Category", list(PARAM_CATEGORIES.keys()))
     st.caption(PARAM_CATEGORIES[cat]["help"])
     opts = PARAM_CATEGORIES[cat]["params"]
+
     q = st.text_input("🔍 Filter Parameters")
     if q:
         opts = [p for p in opts if q.lower() in p.lower()]
-    return st.multiselect("Parameters", opts, default=opts)
+
+    selected = st.multiselect(
+        "Parameters",
+        opts,
+        default=[p for p in opts if p in st.session_state.selected_params_session_state.get('last_selected', [])]
+    )
+    st.session_state.selected_params_session_state.last_selected = selected
+    return selected
 
 def select_date_range(params):
-    dates = [DATA_AVAILABILITY[p] for p in set(params)&set(DATA_AVAILABILITY)]
-    min_date = min(dates) if dates else datetime.date(2000,1,1)
+    relevant_dates = [DATA_AVAILABILITY[p] for p in set(params) & set(DATA_AVAILABILITY.keys()) if PARAM_CONFIG[p]["type"] == "time_series"]
+
+    min_date = max(relevant_dates) if relevant_dates else datetime.date(2000, 1, 1)
+    if not relevant_dates:
+        st.info("No time-series parameters selected. Date range will be broad.")
+
     today = datetime.date.today()
-    start = st.date_input("Start Date", today-datetime.timedelta(days=7),
+    default_start = today - datetime.timedelta(days=7)
+    start = st.date_input("Start Date", value=max(default_start, min_date),
                           min_value=min_date, max_value=today)
-    end   = st.date_input("End Date", today,
+    end   = st.date_input("End Date", value=today,
                           min_value=min_date, max_value=today)
-    if start> end:
-        st.error("Start date must be before end date"); st.stop()
-    return start,end
+
+    if start > end:
+        st.error("Start date must be before or equal to end date"); st.stop()
+    return start, end
 
 def select_roi():
-    opt = st.radio("Region of Interest",
-                   ["Whole Country","Select District","Upload ROI"])
+    opt = st.radio("Region of Interest", ["Whole Country","Select District","Upload ROI"])
     geom = country_geom
     district = None
 
     if opt=="Select District":
         district = st.selectbox("Choose District", gdf["NAME_1"].unique())
-        shape = gdf.loc[gdf.NAME_1==district,"geometry"].union_all()
+        shape = gdf.loc[gdf.NAME_1==district,"geometry"].unary_union
         geom = ee.Geometry(mapping(shape))
 
     if opt=="Upload ROI":
         upl = st.file_uploader("Upload GeoJSON or zipped Shapefile", type=["geojson","zip"])
         if upl:
-            if upl.name.endswith(".geojson"):
-                gdf_u = gpd.read_file(upl)
-            else:
-                tmpd = tempfile.mkdtemp()
-                path = os.path.join(tmpd,upl.name)
-                with open(path,"wb") as f: f.write(upl.read())
-                gdf_u = gpd.read_file(f"zip://{path}")
+            with tempfile.TemporaryDirectory() as tmpd:
+                if upl.name.endswith(".geojson"):
+                    filepath = os.path.join(tmpd, upl.name)
+                    with open(filepath, "wb") as f: f.write(upl.read())
+                    gdf_u = gpd.read_file(filepath)
+                else: # zipped shapefile
+                    filepath = os.path.join(tmpd, upl.name)
+                    with open(filepath, "wb") as f: f.write(upl.read())
+                    gdf_u = gpd.read_file(f"zip://{filepath}")
             gdf_u["geometry"] = gdf_u.geometry.simplify(0.001)
-            shape = unary_union(gdf_u.geometry)
-            geom = ee.Geometry(mapping(shape))
-
+            geom = ee.Geometry(mapping(unary_union(gdf_u.geometry)))
+        else:
+            st.info("Please upload a GeoJSON or zipped Shapefile to use 'Upload ROI'.")
+            st.stop()
     return geom, opt, district
 
 def report_settings():
@@ -139,115 +189,104 @@ def report_settings():
 with st.sidebar:
     selected_params = select_parameters()
     start_date,end_date = select_date_range(selected_params)
-    # EDIT: Renamed the geometry variable for clarity
     selected_geom, roi_option, selected_district = select_roi()
     filename = report_settings()
-    ndvi_buffer = st.slider("NDVI Date Buffer (± days)",0,60,30)
+    ndvi_buffer = st.slider("NDVI/S2 Date Buffer (± days)",0,60,30)
 
 with st.sidebar.expander("ℹ️ How to Use"):
     st.markdown("""
-    1. Pick parameters & date range.  
-    2. Filter list dynamically.  
-    3. Select or upload ROI.  
-    4. Adjust NDVI buffer if needed.  
+    1. Pick parameters & date range.
+    2. Filter list dynamically.
+    3. Select or upload ROI.
+    4. Adjust NDVI/S2 buffer if needed.
     5. Run Monitoring.
     """)
 
-# This is crucial for consistent band selection and metric display.
-PARAM_BAND_MAPPING = {
-    "NDVI": "NDVI",
-    "Precipitation": "precipitation",
-    "Land Surface Temp": "LST_C", # Based on your test output
-    "Humidity": "RH",
-    "Irradiance": "surface_net_solar_radiation",
-    "Evapotranspiration": "ET",
-    "Soil Moisture": "SoilMoi00_10cm_tavg",
-    # Soil Properties and Soil Texture might have different band names depending on which is selected
-    # For now, we'll assume the get_soil_property and get_soil_texture functions handle their band selection internally
-    # For time series, we'll need to be more explicit for these.
-}
+# Helper function to get GEE image/collection
+def get_gee_data(param_name, start_date_str, end_date_str, geometry, ndvi_buffer, return_collection=False):
+    config = PARAM_CONFIG.get(param_name)
+    if not config:
+        return None, f"Configuration missing for {param_name}"
+
+    gee_func = config["func"]
+    func_args = config["args"].copy() # Copy to avoid modifying the original config
+    band_name = config["band_name"]
+    param_type = config["type"]
+
+    # Common arguments
+    if param_type == "time_series":
+        func_args.update({"start": start_date_str, "end": end_date_str})
+        if "max_expansion_days" in func_args: # Apply buffer only if relevant for the function
+            func_args["max_expansion_days"] = ndvi_buffer
+        if "return_collection" in func_args: # Override return_collection based on caller's need
+            func_args["return_collection"] = return_collection
+    
+    func_args["_geom"] = geometry # Always pass geometry
+
+    try:
+        # Special handling for functions that don't need `start`, `end`, or might return mean of collection
+        if gee_func == get_soil_property:
+            result = gee_func(_geom=geometry, property_key=func_args["property_key"])
+        elif gee_func == get_soil_texture:
+            # get_soil_texture returns an image with multiple bands (clay, silt, sand)
+            # We select the specific band later, so we just call the function here.
+            result = gee_func(_geom=geometry)
+        elif gee_func == get_evapotranspiration:
+            # Evapotranspiration always returns a collection, which needs to be reduced
+            collection = gee_func(start=start_date_str, end=end_date_str, _geom=geometry)
+            if collection.size().getInfo() == 0:
+                return None, f"No data available for {param_name} collection."
+            result = collection if return_collection else collection.mean()
+        else: # Standard time-series or single-image functions
+            result = gee_func(**func_args)
+
+        if result is None:
+            return None, "GEE function returned None"
+
+        # For static image functions like soil_texture, they return a multi-band image.
+        # Ensure we select the correct band if not already handled by the function itself.
+        if param_type == "static" and gee_func == get_soil_texture and band_name:
+             result = result.select(band_name) # Select the specific texture band
+
+        return result, None
+
+    except ee.EEException as ee_ex:
+        return None, f"GEE Error: {ee_ex}"
+    except Exception as ex:
+        return None, f"General Error: {ex}"
 
 #@st.cache_data(show_spinner=False, ttl=1800)
 def fetch_layers(start, end, _geom, params, ndvi_buffer):
     layers, errors = {}, []
-    proj500 = ee.Projection("EPSG:4326").atScale(500)
+    proj_crs = "EPSG:4326"
+    display_scale = 500
 
     def fetch_one(p):
-        img = None # Initialize img to None
+        img_or_coll, error_msg = get_gee_data(p, start, end, _geom, ndvi_buffer, return_collection=False)
+
+        if error_msg:
+            logging.warning(f"{p}: {error_msg}")
+            return p, None, error_msg
+
         try:
-            if p == "NDVI":
-                # get_ndvi should return an ee.Image (mean/median of collection) for map display
-                img = get_ndvi(start, end, _geom, max_expansion_days=ndvi_buffer)
-            elif p == "Precipitation":
-                img = get_precipitation(start, end, _geom)
-            elif p == "Land Surface Temp":
-                img = get_land_surface_temperature(start, end, _geom)
-            elif p == "Humidity":
-                img = get_humidity(start, end, _geom)
-            elif p == "Irradiance":
-                img = get_irradiance(start, end, _geom)
-            elif p == "Evapotranspiration":
-                # get_evapotranspiration returns an ImageCollection, so we mean() it here
-                coll = get_evapotranspiration(start, end, _geom)
-                if coll.size().getInfo() == 0:
-                    logging.warning(f"{p}: Empty collection, returning None image.")
-                    return p, None, f"No data available for {p}."
-                img = coll.mean().rename(PARAM_BAND_MAPPING[p]) # Rename to generic param name
-            elif p == "Soil Moisture":
-                img = get_soil_moisture(start, end, _geom) # Should return an ee.Image
-            elif p in ["Soil Organic Matter", "Soil pH", "Soil CEC", "Soil Nitrogen"]:
-                key = p.lower().replace(" ","_")
-                img = get_soil_property(key, _geom) # Should return an ee.Image
-            elif p.startswith("Soil Texture"):
-                tex = get_soil_texture(_geom)
-                band = p.split(" - ")[1].lower() # e.g., 'clay', 'silt', 'sand'
-                img = tex.select(band) # Select specific band from the texture image
-            elif p in ["B2", "B3", "B4", "B5", "B6", "B7", "B8A", "B11", "B12"]: # Include all hyperspectral bands
-                # get_simulated_hyperspectral returns an ee.Image (mean/median of collection)
-                img = get_simulated_hyperspectral(start, end, _geom).select(p)
+            # Ensure it's an Image for display (get_gee_data already handles collection.mean() for map layers)
+            img = ee.Image(img_or_coll)
+            ee_band_name = PARAM_CONFIG[p]["band_name"]
+            band_names = img.bandNames().getInfo()
+
+            if ee_band_name not in band_names:
+                # Fallback to first band if specific band not found (should be rare with good configs)
+                logging.warning(f"{p}: Expected band '{ee_band_name}' not found. Using first band: {band_names[0]}")
+                img = img.select([band_names[0]])
+                ee_band_name = band_names[0]
             else:
-                return p, None, "Unknown parameter"
+                img = img.select([ee_band_name])
 
-            # --- Robust checks for the returned image ---
-            if img is None:
-                logging.warning(f"{p}: get_ function returned None.")
-                return p, None, f"No data (None image) for {p}."
-
-            try:
-                # Ensure the image actually has bands
-                band_names = img.bandNames().getInfo()
-                if not band_names:
-                    logging.warning(f"{p}: Image has no bands, likely empty data for selected range/ROI.")
-                    return p, None, f"No band data available for {p}."
-                # If the image has multiple bands but we only want one for display,
-                # ensure it's explicitly selected/renamed. This is handled by PARAM_BAND_MAPPING logic.
-                if p in PARAM_BAND_MAPPING and PARAM_BAND_MAPPING[p] not in band_names:
-                     logging.warning(f"{p}: Expected band '{PARAM_BAND_MAPPING[p]}' not found in image bands: {band_names}")
-                     # Try to select the default first band if the specific one isn't found
-                     img = img.select([band_names[0]]) # Select the first available band
-                     logging.warning(f"{p}: Selected first available band '{band_names[0]}' for display.")
-
-            except ee.EEException as ee_ex:
-                 # Catch specific GEE exceptions if bandNames() fails on truly invalid EE objects
-                 logging.error(f"{p}: GEE Error getting band names or processing image: {ee_ex}")
-                 return p, None, f"GEE Error processing {p} data."
-            except Exception as ex:
-                 # Catch general Python exceptions
-                 logging.error(f"{p}: Unexpected error checking image bands: {ex}")
-                 return p, None, f"Unexpected error processing {p} data."
-
-            # Apply common processing (rename, projection, reduceResolution, reproject)
-            # Make sure the image is renamed to the generic parameter name for consistency
-            final_img = img.rename(p) \
-                           .setDefaultProjection(proj500) \
-                           .reduceResolution(ee.Reducer.mean(), maxPixels=1024) \
-                           .reproject(crs="EPSG:4326", scale=500)
-
+            final_img = img.rename(p).reproject(crs=proj_crs, scale=display_scale)
             return p, final_img, None
-        except Exception as e:
-            # Catch any other unexpected errors during the fetch_one process
-            logging.error(f"Error fetching {p}: {e}")
-            return p, None, str(e)
+        except Exception as ex:
+            logging.error(f"{p}: Error processing fetched image for map: {ex}")
+            return p, None, f"Error preparing image for map: {ex}"
 
     with ThreadPoolExecutor(max_workers=6) as exe:
         futures = {exe.submit(fetch_one, p): p for p in params}
@@ -255,293 +294,196 @@ def fetch_layers(start, end, _geom, params, ndvi_buffer):
             name, img, err = f.result()
             if img: layers[name] = img
             else: errors.append((name, err))
-
     return layers, errors
 
-# -------------------------------------------------------------------
-# GENERIC TIME SERIES EXTRACTION
-# -------------------------------------------------------------------
 @st.cache_data(ttl=1800)
 def extract_timeseries(start, end, _geom, param, ndvi_buffer):
-    coll = None # Initialize coll
-
-    # Define a mapping for the band name to extract for each parameter
-    # This is important because the parameter name (e.g., "Land Surface Temp")
-    # might not be the same as the actual band name (e.g., "LST_C")
-    band_to_extract = PARAM_BAND_MAPPING.get(param, param) # Default to param if not in map
-
-    if param == "NDVI":
-        # For time series, get_ndvi needs to return the collection itself
-        coll = get_ndvi(start, end, _geom, max_expansion_days=ndvi_buffer, return_collection=True)
-    elif param == "Precipitation":
-        coll = get_precipitation(start, end, _geom, return_collection=True) # Assuming get_precipitation also has return_collection
-    elif param == "Land Surface Temp":
-        coll = get_land_surface_temperature(start, end, _geom, return_collection=True) # Assuming return_collection
-    elif param == "Humidity":
-        coll = get_humidity(start, end, _geom, return_collection=True) # Assuming return_collection
-    elif param == "Irradiance":
-        coll = get_irradiance(start, end, _geom, return_collection=True) # Assuming return_collection
-    elif param == "Evapotranspiration":
-        # get_evapotranspiration already returns an ImageCollection
-        coll = get_evapotranspiration(start, end, _geom)
-    elif param == "Soil Moisture":
-        # get_soil_moisture already returns an ImageCollection (if you modified it to do so for TS)
-        # If get_soil_moisture returns an Image for single date/mean, you need a different get_soil_moisture_collection
-        coll = get_soil_moisture(start, end, _geom, return_collection=True) # Assuming return_collection
-    # Soil properties and texture are usually static or single images, not time series collections.
-    # So, they generally won't be in TIME_SERIES_PARAMS. If they are, their handling would be different.
-    elif param.startswith("Soil Texture") or param in ["Soil Organic Matter", "Soil pH", "Soil CEC", "Soil Nitrogen"]:
-        # These are generally not time series. If param is one of these, it's likely an error
-        # in the TIME_SERIES_PARAMS definition or an assumption mismatch.
-        # For simplicity, returning empty DataFrame here.
-        logging.warning(f"Attempted to extract time series for non-time-series parameter: {param}")
-        return pd.DataFrame()
-    elif param in ["B2", "B3", "B4", "B5", "B6", "B7", "B8A", "B11", "B12"]: # Hyperspectral bands
-        # get_simulated_hyperspectral should return collection for time series
-        coll = get_simulated_hyperspectral(start, end, _geom, return_collection=True)
-        # If the simulated hyperspectral collection's images' bands are named differently,
-        # you'll need to map 'B5' -> 'B5' etc., which is already happening with `coll.select([param])`.
-        band_to_extract = param # The band name is directly the parameter name for hyperspectral
-
-    else:
-        logging.warning(f"Unknown parameter for time series extraction: {param}")
-        return pd.DataFrame() # Should not happen given TIME_SERIES_PARAMS filter
-
-    # --- Robust check for empty collection before mapping ---
-    if not coll: # Check if coll is None
-        logging.warning(f"Time series: No collection object created for {param}.")
+    if PARAM_CONFIG[param]["type"] != "time_series":
+        logging.warning(f"Parameter {param} is not a time series parameter.")
         return pd.DataFrame()
 
-    try:
-        if coll.size().getInfo() == 0: # Check if the collection is empty
-            logging.warning(f"Time series: Empty collection for {param} for dates {start} to {end}.")
-            return pd.DataFrame()
-    except Exception as e:
-        logging.error(f"Time series: Error checking collection size for {param}: {e}")
+    coll, error_msg = get_gee_data(param, start, end, _geom, ndvi_buffer, return_collection=True)
+
+    if error_msg:
+        logging.error(f"Time series for {param}: {error_msg}")
         return pd.DataFrame()
 
-    # Ensure the parameter band exists in the collection images
-    # Use the mapped band name for selection
-    coll_with_param_band = coll.select([band_to_extract])
+    if coll is None or coll.size().getInfo() == 0:
+        logging.warning(f"Time series: Empty or no collection for {param} for dates {start} to {end}.")
+        return pd.DataFrame()
+
+    band_to_extract = PARAM_CONFIG[param]["band_name"]
 
     def to_feat(img):
-        # Use img.get(band_to_extract) to get the value for the specific band
-        # Also ensure the scale is appropriate.
         try:
             val = img.reduceRegion(ee.Reducer.mean(), _geom, 500).get(band_to_extract).getInfo()
             date = ee.Date(img.get("system:time_start")).format("YYYY-MM-dd").getInfo()
-            return ee.Feature(None, {"date": date, "value": val}) # Use generic "value" key
-        except ee.EEException as ee_ex:
-            logging.warning(f"Time series: GEE Error processing image in map for {param}: {ee_ex}")
-            return ee.Feature(None, {"date": None, "value": None}) # Return a feature that will be filtered out
-        except Exception as ex:
-            logging.warning(f"Time series: General error processing image in map for {param}: {ex}")
+            return ee.Feature(None, {"date": date, "value": val})
+        except Exception as e:
+            logging.warning(f"Time series: Error processing image in map for {param}: {e}")
             return ee.Feature(None, {"date": None, "value": None})
 
-
-    # Apply the map to the collection that has the band selected
-    # Filter out features where value might be None from reduction errors
-    feats = coll_with_param_band.map(to_feat).filter(ee.Filter.notNull(['value']))
+    feats = coll.map(to_feat).filter(ee.Filter.notNull(['value']))
 
     try:
-        # Use aggregate_array on the filtered feature collection
-        dates_ee = feats.aggregate_array("date")
-        vals_ee = feats.aggregate_array("value")
-
-        # Get results from Earth Engine
-        dates = dates_ee.getInfo()
-        vals = vals_ee.getInfo()
-
-    except ee.EEException as ee_ex:
-        logging.error(f"Time series: GEE Error aggregating results for {param}: {ee_ex}")
-        return pd.DataFrame()
-    except Exception as ex:
-        logging.error(f"Time series: Unexpected error aggregating results for {param}: {ex}")
+        dates = feats.aggregate_array("date").getInfo()
+        vals = feats.aggregate_array("value").getInfo()
+    except Exception as e:
+        logging.error(f"Time series: Error aggregating results for {param}: {e}")
         return pd.DataFrame()
 
     cleaned_data = [(d, v) for d, v in zip(dates, vals) if d is not None and v is not None]
     if not cleaned_data:
-        logging.warning(f"Time series: No valid data points found for {param} after aggregation.")
+        logging.warning(f"No valid data points found for {param} after aggregation.")
         return pd.DataFrame()
 
     df = pd.DataFrame(cleaned_data, columns=["Date", "Value"])
-    df["Date"] = pd.to_datetime(df["Date"]) # Convert Date column
-    df = df.dropna() # Drop rows where value might still be NaN
-    df = df.rename(columns={"Value": param}) # Rename the 'Value' column to the parameter name
-
+    df["Date"] = pd.to_datetime(df["Date"])
+    df = df.dropna()
+    df = df.rename(columns={"Value": param})
     return df
 
 # -------------------------------------------------------------------
 # RUN & VISUALIZE
 # -------------------------------------------------------------------
 if st.button("Run Monitoring"):
+    st.markdown("---")
     try:
-        # EDIT: Pass the correct user-selected geometry to the fetch function.
-        layers, errors = fetch_layers(
-            str(start_date),str(end_date),
-            selected_geom, selected_params, ndvi_buffer
-        )
+        with st.spinner("Fetching Earth Engine data and preparing layers..."):
+            layers, errors = fetch_layers(
+                str(start_date), str(end_date),
+                selected_geom, selected_params, ndvi_buffer
+            )
 
-        st.write(f"Fetched layers: {list(layers.keys())}")
-
+        st.write(f"Layers processed: {list(layers.keys())}")
         if errors:
-            st.error("⚠️ Some layers failed:")
-            for p,msg in errors:
-                st.write(f"- {p}: {msg}")
-
+            st.error("⚠️ Some layers failed to load or had issues:")
+            for p, msg in errors: st.write(f"- **{p}**: {msg}")
         if not layers:
-            st.warning("No data layers returned; try a wider range or different ROI.")
+            st.warning("No data layers could be returned; try a wider date range, a different ROI, or check your parameters.")
             st.stop()
 
         # Map viewer
         st.header("🚨 Map Viewer")
-        visible = st.multiselect("Show Layers", list(layers),
-                                    default=list(layers))
-        m = geemap.Map(
-            center=selected_geom.centroid().coordinates().getInfo()[::-1],
-            zoom=8
-        )
+        visible_options = list(layers.keys())
+        visible = st.multiselect("Select layers to display on map", visible_options, default=visible_options[:1] if visible_options else [])
 
-        # EDIT: Optimized map overlay to avoid recalculating geometry.
-        # This will draw a boundary unless "Whole Country" is selected.
+        map_center = selected_geom.centroid().coordinates().getInfo()[::-1]
+        m = geemap.Map(center=map_center, zoom=8, plugin_Draw=False, minimap=True)
+        m.add_basemap(folium.TileLayer('OpenStreetMap', name='OpenStreetMap'))
+        m.add_basemap(folium.TileLayer('Esri.WorldImagery', name='Esri Satellite'))
+
         if roi_option != "Whole Country":
             roi_name = selected_district if selected_district else "Custom ROI"
-            m.addLayer(selected_geom,
-                        {"color":"red","fillOpacity":0},
-                        f"{roi_name} Boundary")
-            
+            m.addLayer(selected_geom, {"color":"red","fillOpacity":0.1, "weight": 3}, f"{roi_name} Boundary")
+            m.centerObject(selected_geom, zoom=m.get_zoom_level(selected_geom))
 
-        # Prepare for a single custom HTML legend
         legend_html_parts = []
-        if visible: # Only build legend if there are visible layers
-            legend_html_parts.append('<h4>Legend</h4>')
-
+        if visible: legend_html_parts.append('<h4>Legend</h4>')
 
         for name in visible:
-            cfg = PALETTES[name]
-            mn,mx = cfg["min"],cfg["max"]
-            pal   = cfg["palette"]
-            mid   = (mn+mx)/2
-            mid_col = pal[len(pal)//2]
+            if name in PALETTES:
+                cfg = PALETTES[name]
+                mn, mx, pal = cfg["min"], cfg["max"], cfg["palette"]
+                if not isinstance(pal, list) or len(pal) < 2:
+                    logging.warning(f"Invalid palette for {name}: {pal}. Skipping legend entry.")
+                    continue
+                m.addLayer(layers[name], {"min":mn,"max":mx,"palette":pal}, name)
+                gradient_css = f"linear-gradient(to right, {pal[0]}, {pal[len(pal)//2]}, {pal[-1]})"
+                legend_html_parts.append(f"""
+                    <p style="margin-bottom: 2px;"><b>{name}:</b></p>
+                    <div style="width: 100%; height: 15px; background: {gradient_css}; border: 0.5px solid #ccc;"></div>
+                    <div style="display: flex; justify-content: space-between; font-size:10px;">
+                        <span>{mn}</span>
+                        <span>{mx}</span>
+                    </div>
+                    <br style="margin-top: 5px;">
+                """)
+            else:
+                logging.warning(f"No palette defined for {name}. Layer added but no legend entry.")
 
-            m.addLayer(layers[name],
-                        {"min":mn,"max":mx,"palette":pal},
-                        name)
-
-            # Generate HTML for each legend entry
-            # Example: <i style="background:rgb(255,0,0)"></i> Red
-            # We need a gradient-like representation or min/mid/max for each parameter
-
-            # For simplicity and to avoid the geemap bug, let's create a linear gradient representation
-            # This is a common way to display continuous legends in Folium/HTML
-            gradient_css = f"linear-gradient(to right, {pal[0]}, {pal[len(pal)//2]}, {pal[-1]})"
-            legend_html_parts.append(f"""
-                <p>{name}:</p>
-                <div style="width: 100%; height: 20px; background: {gradient_css};"></div>
-                <div style="display: flex; justify-content: space-between;">
-                    <span>{mn}</span>
-                    <span>{mid}</span>
-                    <span>{mx}</span>
-                </div>
-                <br>
-            """)
-
-            # # COMMENT OUT OR DELETE ALL THE FOLLOWING LINES FOR m.add_legend
-            # legend_colors = [hex_to_rgb(pal[0]), hex_to_rgb(mid_col), hex_to_rgb(pal[-1])]
-            # m.add_legend(title=name,builtin_legend=False,
-            #              labels=[f"{mn}",f"{mid}",f"{mx}"],
-            #              colors=legend_colors)
-
-        # Add the overall custom HTML legend to the map after the loop
         if legend_html_parts:
             legend_html = """
-            <div style="position: fixed;
-                         bottom: 50px; left: 50px; width: 250px; height: auto;
+            <div style="position: fixed; bottom: 50px; left: 10px; width: 200px; max-height: 80%; overflow-y: auto;
                          border:2px solid grey; z-index:9999; font-size:14px;
                          background-color:white; opacity:0.9; padding:10px;">
                 {}
             </div>
             """.format("".join(legend_html_parts))
-
             m.get_root().html.add_child(folium.Element(legend_html))
-
-
-        m.addLayerControl() # Keep this as it's useful for toggling layers
-
+        m.addLayerControl()
         m.to_streamlit(height=600)
-
 
         # Parameter means
         st.subheader("📊 Parameter Means")
         stats = {}
-        for name,img in layers.items():
+        for name, img in layers.items():
             try:
-                # Ensure img is an ee.Image, even if it came from a collection
                 ee_img = ee.Image(img)
-                region_reducer_result = ee_img.reduceRegion(
-                    reducer=ee.Reducer.mean(),
-                    geometry=selected_geom,
-                    scale=500, # Use scale, not maxPixels for default behavior
-                    maxPixels=1e9 # Keep maxPixels for safety
-                ).get(name)
+                actual_band_name = PARAM_CONFIG[name]["band_name"] # Get the original band name from config
+                
+                # Check if band exists, if not, fallback (though `fetch_layers` should prevent this)
+                if actual_band_name not in ee_img.bandNames().getInfo():
+                    actual_band_name = ee_img.bandNames().getInfo()[0]
 
-                # Get the value, handling potential None from .get()
-                val = region_reducer_result.getInfo() if region_reducer_result else None
-
-                if isinstance(val, (int, float)):
-                    stats[name] = round(val, 3)
-                else:
-                    stats[name] = "N/A" # Use 'N/A' as a string here for consistency
-
-            except Exception as e_inner: # Renamed inner exception to avoid conflict
-                # Log the specific error if a parameter mean calculation fails
+                val = ee_img.reduceRegion(reducer=ee.Reducer.mean(), geometry=selected_geom, scale=500, maxPixels=1e9).get(actual_band_name).getInfo()
+                stats[name] = round(val, 3) if isinstance(val, (int, float)) else "N/A"
+            except Exception as e_inner:
                 st.warning(f"Failed to calculate mean for {name}: {e_inner}")
-                stats[name] = "Error" # Indicate an error occurred
+                stats[name] = "Error"
 
-        df_stats = pd.DataFrame(stats.items(),columns=["Parameter","Mean"])
+        df_stats = pd.DataFrame(stats.items(), columns=["Parameter", "Mean"])
         st.dataframe(df_stats)
 
         # Summary metrics
         st.subheader("📌 Summary Metrics")
-        cols = st.columns(min(3,len(df_stats)))
-        for i,row in df_stats.iterrows():
-            cols[i%len(cols)].metric(str(row.Parameter), str(row.Mean)) 
-            st.write(f"DEBUG: Parameter={row.Parameter}, Mean={row.Mean}, Type={type(row.Mean)}") # DEBUG LINE STILL HERE
+        if not df_stats.empty:
+            cols = st.columns(min(3, len(df_stats)))
+            for i, row in df_stats.iterrows():
+                cols[i % len(cols)].metric(str(row.Parameter), str(row.Mean))
+        else:
+            st.info("No parameters to display summary metrics for.")
 
-        # Time series for all supported params
-        ts_params = [p for p in selected_params if p in TIME_SERIES_PARAMS]
+        # Time series
+        ts_params = [p for p in selected_params if PARAM_CONFIG[p]["type"] == "time_series"]
         if ts_params:
             st.subheader("📈 Time Series")
             for p in ts_params:
-                # EDIT: Pass the correct user-selected geometry for time series.
-                df_ts = extract_timeseries(
-                    str(start_date),str(end_date),
-                    selected_geom, p, ndvi_buffer
-                )
+                with st.spinner(f"Extracting time series for {p}..."):
+                    df_ts = extract_timeseries(
+                        str(start_date), str(end_date),
+                        selected_geom, p, ndvi_buffer
+                    )
                 if df_ts.empty:
-                    st.warning(f"No time series for {p}")
+                    st.warning(f"No time series data available for {p} in the selected range/ROI.")
                     continue
-                fig = px.line(df_ts,x="Date",y=p,
-                                title=f"{p} Trend",markers=True)
-                st.plotly_chart(fig,use_container_width=True)
+                fig = px.line(df_ts, x="Date", y=p, title=f"{p} Trend", markers=True)
+                st.plotly_chart(fig, use_container_width=True)
                 st.download_button(f"⬇️ Download {p} CSV",
-                                    df_ts.to_csv(index=False),
-                                    file_name=f"{p.lower()}_timeseries.csv")
+                                    df_ts.to_csv(index=False).encode('utf-8'),
+                                    file_name=f"{p.lower().replace(' ', '_')}_timeseries.csv",
+                                    mime="text/csv")
+        else:
+            st.info("No time-series parameters selected or available for the given criteria.")
 
         # PDF report
-        with tempfile.NamedTemporaryFile(suffix=".pdf",delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
             with PdfPages(tmp.name) as pdf:
-                fig, ax = plt.subplots(figsize=(8,4))
-                df_stats.plot(kind="barh",x="Parameter",y="Mean",
-                                ax=ax,legend=False,color="skyblue")
-                ax.set_title(f"Parameter Means: {start_date} to {end_date}")
-                pdf.savefig(fig,bbox_inches="tight")
+                fig, ax = plt.subplots(figsize=(8, 4))
+                if not df_stats.empty:
+                    df_stats.plot(kind="barh", x="Parameter", y="Mean", ax=ax, legend=False, color="skyblue")
+                    ax.set_title(f"Parameter Means: {start_date} to {end_date}")
+                    pdf.savefig(fig, bbox_inches="tight")
+                else:
+                    fig.text(0.5, 0.5, "No data for PDF report.", ha='center', va='center')
+                    pdf.savefig(fig, bbox_inches="tight")
                 plt.close(fig)
             st.download_button("📄 Download PDF Report",
-                                open(tmp.name,"rb").read(),
+                                open(tmp.name, "rb").read(),
                                 file_name=f"{filename}.pdf",
                                 mime="application/pdf")
+            os.unlink(tmp.name)
 
     except Exception as e:
-        st.error(f"An error occurred: Type of error: {type(e)}. Error message: {e}")
-        st.exception(e) # This will print the full traceback for the actual error
+        st.error(f"An unexpected error occurred: {type(e).__name__}. Error message: {e}")
+        st.exception(e)
