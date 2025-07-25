@@ -203,50 +203,50 @@ with st.sidebar.expander("ℹ️ How to Use"):
     """)
 
 # Helper function to get GEE image/collection
+# Helper function to get GEE image/collection
+# Helper function to get GEE image/collection
 def get_gee_data(param_name, start_date_str, end_date_str, geometry, ndvi_buffer, return_collection=False):
     config = PARAM_CONFIG.get(param_name)
     if not config:
         return None, f"Configuration missing for {param_name}"
 
     gee_func = config["func"]
-    func_args = config["args"].copy() # Copy to avoid modifying the original config
-    band_name = config["band_name"]
+    func_specific_args = config["args"].copy()
     param_type = config["type"]
 
-    # Common arguments
+    # Initialize call_args with only 'roi'. Dates added conditionally.
+    call_args = {"roi": geometry}
+
+    # Add date parameters ONLY if the current parameter is a time_series type
     if param_type == "time_series":
-        func_args.update({"start": start_date_str, "end": end_date_str})
-        if "max_expansion_days" in func_args: # Apply buffer only if relevant for the function
-            func_args["max_expansion_days"] = ndvi_buffer
-        if "return_collection" in func_args: # Override return_collection based on caller's need
-            func_args["return_collection"] = return_collection
-    
-    func_args["_geom"] = geometry # Always pass geometry
+        call_args.update({"start": start_date_str, "end": end_date_str})
+        if "max_expansion_days" in func_specific_args:
+            call_args["max_expansion_days"] = ndvi_buffer
+        if "return_collection" in func_specific_args:
+            call_args["return_collection"] = return_collection
+
+    call_args.update(func_specific_args)
 
     try:
-        # Special handling for functions that don't need `start`, `end`, or might return mean of collection
         if gee_func == get_soil_property:
-            result = gee_func(_geom=geometry, property_key=func_args["property_key"])
+            # Assumes get_soil_property now only needs roi and property_key
+            result = gee_func(roi=geometry, property_key=config["args"]["property_key"])
         elif gee_func == get_soil_texture:
-            # get_soil_texture returns an image with multiple bands (clay, silt, sand)
-            # We select the specific band later, so we just call the function here.
-            result = gee_func(_geom=geometry)
+            # Now, get_soil_texture only needs roi as per the new definition
+            result = gee_func(roi=geometry)
         elif gee_func == get_evapotranspiration:
-            # Evapotranspiration always returns a collection, which needs to be reduced
-            collection = gee_func(start=start_date_str, end=end_date_str, _geom=geometry)
+            collection = gee_func(start=start_date_str, end=end_date_str, roi=geometry)
             if collection.size().getInfo() == 0:
                 return None, f"No data available for {param_name} collection."
             result = collection if return_collection else collection.mean()
-        else: # Standard time-series or single-image functions
-            result = gee_func(**func_args)
+        else:
+            result = gee_func(**call_args)
 
         if result is None:
             return None, "GEE function returned None"
 
-        # For static image functions like soil_texture, they return a multi-band image.
-        # Ensure we select the correct band if not already handled by the function itself.
-        if param_type == "static" and gee_func == get_soil_texture and band_name:
-             result = result.select(band_name) # Select the specific texture band
+        if param_type == "static" and gee_func == get_soil_texture and config["band_name"]:
+             result = result.select(config["band_name"])
 
         return result, None
 

@@ -613,7 +613,7 @@ def get_soil_property(key: str, roi: ee.Geometry) -> ee.Image:
     asset, band = SOIL_LAYERS[key]
     return ee.Image(asset).select(band).clip(roi)
 
-def get_soil_texture(start: str, end: str, roi: ee.Geometry) -> ee.Image:
+def get_soil_texture(roi: ee.Geometry) -> ee.Image:
     """
     Concatenate clay, silt & sand fractions into one 3-band image.
     start/end are ignored.
