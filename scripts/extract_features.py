@@ -71,7 +71,7 @@ def extract_spectral_features(gdf: gpd.GeoDataFrame,
 csv_path = "data/crop_weed_training.csv"
 df_raw = pd.read_csv(csv_path)
 
-geometry = [Point(xy) for xy in zip(df_raw.x, df_raw.y)] # Or df_raw.longitude, df_raw.latitude
+geometry = [Point(xy) for xy in zip(df_raw.longitude, df_raw.latitude)] # Or df_raw.longitude, df_raw.latitude
 gdf = gpd.GeoDataFrame(df_raw, geometry=geometry, crs="EPSG:4326")
 
 # === New Step: Extract Features from Earth Engine ===
