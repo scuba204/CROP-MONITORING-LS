@@ -38,8 +38,8 @@ csv_file_name = "crop_weed_training.csv"
 model_dir = "models"
 label_mapping = {'crop': 0, 'weed': 1}
 spectral_bands = ["B2", "B3", "B4", "B5", "B6", "B7", "B8A", "B11", "B12"]
-training_start_date = "2024-05-01"
-training_end_date = "2024-07-31"
+training_start_date = "2025-07-17"
+training_end_date = "2025-07-27"
 
 # Use os.path.join for better cross-OS compatibility
 csv_path = os.path.join("data", csv_file_name)
