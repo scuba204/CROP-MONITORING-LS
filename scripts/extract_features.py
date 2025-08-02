@@ -1,4 +1,4 @@
-# In your main app script or a new feature_extractor.py
+
 import ee
 import pandas as pd
 import geopandas as gpd

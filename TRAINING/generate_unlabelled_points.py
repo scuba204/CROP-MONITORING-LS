@@ -17,7 +17,7 @@ if project_root not in sys.path:
 
 # Initialize the Earth Engine API
 try:
-    ee.Initialize()
+    ee.Initialize(project="winged-tenure-464005-p9")
     print("Google Earth Engine initialized successfully.")
 except Exception as e:
     print(f"Error initializing Google Earth Engine: {e}")
@@ -34,14 +34,12 @@ output_csv_path = "data/unlabelled_field_data.csv"
 # ==============================================================================
 
 # === STEP 1: Define Your Area of Interest (AOI) ===
-# You can define a polygon to represent your field or a larger region.
-# Here's an example of a simple rectangular polygon.
 # The coordinates are a list of [longitude, latitude] pairs for the vertices.
 # This uses a region in Lesotho(ROMA).
 aoi_polygon = ee.Geometry.Polygon([
     [27.732592, -29.454724],
     [27.733199, -29.454641],
-    [27.733412, -29.45511],
+    [27.733412, -29.455111],
     [27.732618, -29.455123]
 ])
 
