@@ -1,99 +1,195 @@
-# In your main app script or a new feature_extractor.py
+import sys
+import os
 import ee
+import numpy as np # Import numpy for array operations
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
-# Assuming _mask_s2_clouds is available, perhaps from gee_functions.py
-from .gee_functions import _mask_s2_clouds # Adjust import path as needed
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split, GridSearchCV # Import GridSearchCV
+from sklearn.metrics import classification_report
+import joblib
+import json
 
-def extract_spectral_features(gdf: gpd.GeoDataFrame,
-                              start_date: str,
-                              end_date: str,
-                              bands: list) -> pd.DataFrame:
+# ==============================================================================
+# Step 0: Initial Configuration and Path Setup
+# ==============================================================================
+
+# Get the path of the directory containing the currently executed script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+# Get the parent directory of the script's directory (the project root)
+project_root = os.path.dirname(script_dir)
+
+# Add the project root to sys.path if it's not already there
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+# Import the feature extraction function from your scripts directory
+from scripts.extract_features import extract_spectral_features
+
+# --- Configuration ---
+csv_file_name = "crop_weed_training.csv"
+model_dir = "models"
+label_mapping = {'crop': 0, 'weed': 1}
+
+# Define the core spectral bands you need for your model
+# These are the bands that will be extracted directly from GEE
+spectral_bands = ["B2", "B3", "B4", "B5", "B6", "B7", "B8", "B8A", "B11", "B12"]
+# Note: B8 is now included for NDVI/NDWI calculation
+
+# Define the date range for your training data
+training_start_date = "2025-07-26"
+training_end_date = "2025-08-01"
+
+# ==============================================================================
+# Helper Function for Feature Engineering
+# ==============================================================================
+
+def calculate_vegetation_indices(df):
     """
-    Extracts spectral band values from Sentinel-2 for a given GeoDataFrame of points
-    within a specified date range.
+    Calculates key vegetation indices (NDVI, EVI, NDWI) and adds them to the DataFrame.
+    
+    Args:
+        df (pd.DataFrame): DataFrame containing Sentinel-2 spectral bands.
+
+    Returns:
+        pd.DataFrame: The DataFrame with new vegetation index columns.
     """
-    ee.Initialize(project="winged-tenure-464005-p9") # Ensure GEE is initialized
+    # Ensure all required bands are present before calculation
+    required_bands = ["B2", "B3", "B4", "B8"]
+    if not all(band in df.columns for band in required_bands):
+        print("Warning: Missing bands for vegetation index calculation. Skipping.")
+        return df
 
-    # Convert GeoDataFrame to Earth Engine FeatureCollection
-    # Ensure your GDF has a unique ID column, e.g., 'id' if not already present
-    # For now, let's assume the original index can serve as an ID if no other exists.
-    # It's better to explicitly add one if not guaranteed unique and present.
-    features_ee = ee.FeatureCollection([
-        ee.Feature(p.geometry.__geo_interface__, p.drop('geometry').to_dict())
-        for idx, p in gdf.iterrows()
-    ])
+    # Normalize the band values (often good practice)
+    # GEE provides SR data, which is already scaled, but explicit normalization can help.
+    df = df.astype(float)
+    
+    # Calculate NDVI (Normalized Difference Vegetation Index)
+    df['NDVI'] = (df['B8'] - df['B4']) / (df['B8'] + df['B4'])
+    
+    # Calculate EVI (Enhanced Vegetation Index)
+    # The constants L, C1, C2 are typically 1, 6, and 7.5 for Sentinel-2
+    L = 1
+    C1 = 6
+    C2 = 7.5
+    df['EVI'] = 2.5 * (df['B8'] - df['B4']) / (df['B8'] + C1 * df['B4'] - C2 * df['B2'] + L)
 
-    # Define Sentinel-2 Image Collection
-    s2_collection = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
-        .filterDate(start_date, end_date) \
-        .filterBounds(features_ee.geometry()) # Filter by the extent of your points
+    # Calculate NDWI (Normalized Difference Water Index)
+    # Uses B3 (Green) and B8 (NIR) for Sentinel-2
+    df['NDWI'] = (df['B3'] - df['B8']) / (df['B3'] + df['B8'])
+    
+    # Replace any inf or NaN values that might result from the division
+    df.replace([np.inf, -np.inf], np.nan, inplace=True)
+    df.fillna(0, inplace=True) # Fill NaNs with a neutral value
+    
+    return df
 
-    # Apply cloud masking
-    s2_masked_collection = s2_collection.map(_mask_s2_clouds)
+# ==============================================================================
+# Main Training Pipeline
+# ==============================================================================
 
-    # Check if there are images after filtering and masking
-    if s2_masked_collection.size().getInfo() == 0:
-        print(f"Warning: No Sentinel-2 images found for date range {start_date} to {end_date} after cloud masking.")
-        # Return an empty DataFrame or handle as appropriate
-        return pd.DataFrame(columns=['id', 'label'] + bands) # Example empty df
+# === STEP 1: Load Labeled Field Data and Structure for GEE ===
+csv_path = os.path.join("data", csv_file_name)
 
-    # Reduce images to a single image (e.g., median) for feature extraction
-    # Using .median() is often better than .mean() for outlier resistance
-    # You might consider .mean() if you prefer.
-    composite_image = s2_masked_collection.median().select(bands)
-
-    # Extract values at each point
-    # Properties from input features will be retained.
-    # `scale` is crucial - use Sentinel-2's native resolution (e.g., 10m for visible/NIR, 20m for SWIR)
-    extracted_features_ee = composite_image.reduceRegions(
-        collection=features_ee,
-        reducer=ee.Reducer.mean(), # Mean value if a point covers multiple pixels
-        scale=10 # Sentinel-2's resolution for most bands (B2,B3,B4,B8). Adjust for SWIR (B11,B12) if needed or use composite scale.
-                 # For consistent features, 10m is often chosen, resulting in resampling for 20m/60m bands.
-    )
-
-    # Convert to a client-side list of dictionaries and then to a Pandas DataFrame
-    features_list = extracted_features_ee.getInfo()['features']
-    extracted_df = pd.DataFrame([f['properties'] for f in features_list])
-
-    # Ensure original 'label' column is carried over, and any point identifiers
-    # It's good practice to merge back with the original GDF if you need all its columns.
-    # For simplicity here, we assume 'label' is in the properties extracted.
-    return extracted_df
-
-# --- Integration into your train_crop_classifier.py ---
-
-# ... (Previous imports) ...
-
-# === STEP 1: Load Labeled Field Data ===
-csv_path = "data/crop_weed_training.csv"
-df_raw = pd.read_csv(csv_path)
-
-geometry = [Point(xy) for xy in zip(df_raw.longitude, df_raw.latitude)] # Or df_raw.longitude, df_raw.latitude
-gdf = gpd.GeoDataFrame(df_raw, geometry=geometry, crs="EPSG:4326")
-
-# === New Step: Extract Features from Earth Engine ===
-training_start_date = "2024-05-01" # Adjust this to your ground truth collection period
-training_end_date = "2024-07-31"   # Adjust this to your ground truth collection period
-
-# Define the bands you need for your model
-spectral_bands = ["B2", "B3", "B4", "B5", "B6", "B7", "B8A", "B11", "B12"]
-
-print(f"Extracting {len(spectral_bands)} spectral features for {len(gdf)} points from Earth Engine...")
-# The returned `df_features` will contain your original columns (e.g., 'label')
-# plus the new spectral band columns (e.g., 'B2', 'B3', etc.)
-df_features = extract_spectral_features(gdf, training_start_date, training_end_date, spectral_bands)
-
-# Ensure the 'label' column is present in the extracted DataFrame
-if 'label' not in df_features.columns:
-    print("Error: 'label' column missing after feature extraction. Check your GEE feature properties.")
+try:
+    df_raw = pd.read_csv(csv_path)
+    print(f"Successfully loaded {len(df_raw)} records from {csv_path}")
+    print("Initial DataFrame head:")
+    print(df_raw.head())
+except FileNotFoundError:
+    print(f"Error: CSV file not found at {csv_path}. Please ensure it's in the 'data' folder.")
     exit()
 
-# === STEP 2: Prepare Features and Labels for ML ===
-# Now, X and y are derived from the DataFrame that includes GEE-extracted features.
-X = df_features[spectral_bands] # Use the bands extracted from GEE
+if 'longitude' in df_raw.columns and 'latitude' in df_raw.columns:
+    geometry = [Point(xy) for xy in zip(df_raw.longitude, df_raw.latitude)]
+    gdf = gpd.GeoDataFrame(df_raw, geometry=geometry, crs="EPSG:4326")
+else:
+    print("Error: Expected 'longitude' and 'latitude' columns not found in the CSV.")
+    exit()
+
+if 'label' in gdf.columns:
+    gdf['label'] = gdf['label'].map(label_mapping)
+else:
+    print("Error: 'label' column not found in the GeoDataFrame after initial load.")
+    exit()
+
+# === STEP 2: Extract Spectral Features from Earth Engine ===
+print(f"\nExtracting {len(spectral_bands)} spectral features for {len(gdf)} points from Earth Engine...")
+df_features = extract_spectral_features(gdf, training_start_date, training_end_date, spectral_bands)
+
+if df_features.empty:
+    print("No features were extracted from Earth Engine. Exiting.")
+    exit()
+
+# === STEP 3: Feature Engineering - Calculate Vegetation Indices ===
+print("Calculating vegetation indices (NDVI, EVI, NDWI)...")
+df_features = calculate_vegetation_indices(df_features)
+
+# Define the final list of features for the model
+# Includes the original spectral bands plus the new VIs
+final_features = spectral_bands + ['NDVI', 'EVI', 'NDWI']
+
+# Ensure all final features are present after calculations
+missing_features = [f for f in final_features if f not in df_features.columns]
+if missing_features:
+    print(f"Warning: The following features are missing and will be excluded: {missing_features}")
+    final_features = [f for f in final_features if f in df_features.columns]
+    if not final_features:
+        print("Error: No valid features to train the model. Exiting.")
+        exit()
+
+print(f"Using a total of {len(final_features)} features for training.")
+print("\nFinal features DataFrame head:")
+print(df_features[final_features + ['label']].head())
+
+# === STEP 4: Prepare Features (X) and Labels (y) for ML ===
+X = df_features[final_features]
 y = df_features["label"]
 
-# ... (Continue with Step 3: Train-Test Split, Step 4: Train Classifier, etc.) ...
+# === STEP 5: Train-Test Split ===
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
+
+# === STEP 6: Hyperparameter Tuning with GridSearchCV ===
+print("\nStarting hyperparameter tuning for RandomForestClassifier...")
+
+# Define the parameter grid to search over
+param_grid = {
+    'n_estimators': [100, 200], # Number of trees in the forest
+    'max_depth': [None, 10, 20], # Maximum depth of the tree
+    'min_samples_split': [2, 5], # Minimum number of samples to split a node
+    'min_samples_leaf': [1, 2] # Minimum number of samples at a leaf node
+}
+
+# Create a GridSearchCV object
+grid_search = GridSearchCV(
+    estimator=RandomForestClassifier(random_state=42),
+    param_grid=param_grid,
+    cv=5, # 5-fold cross-validation
+    n_jobs=-1, # Use all available CPU cores
+    verbose=2 # Verbosity level
+)
+
+# Run the grid search to find the best model
+grid_search.fit(X_train, y_train)
+
+# Get the best model from the search
+best_clf = grid_search.best_estimator_
+print(f"\nBest hyperparameters found: {grid_search.best_params_}")
+
+# === STEP 7: Evaluate Best Model ===
+y_pred = best_clf.predict(X_test)
+print("\n=== Model Evaluation Report ===")
+print(classification_report(y_test, y_pred, target_names=["Crop", "Weed"]))
+
+# === STEP 8: Save Best Model and Features ===
+os.makedirs(model_dir, exist_ok=True)
+
+model_path = os.path.join(model_dir, "crop_classifier_model.pkl")
+joblib.dump(best_clf, model_path)
+print(f"\nBest model saved to {model_path}")
+
+features_path = os.path.join(model_dir, "crop_classifier_features.json")
+with open(features_path, "w") as f:
+    json.dump(list(X.columns), f)
+print(f"Feature names saved to {features_path}")
