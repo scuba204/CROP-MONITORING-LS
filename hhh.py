@@ -4,7 +4,7 @@ from shapely.geometry import Point
 import os
 
 # --- Configuration ---
-csv_file_name = "crop_weed_training.csv" # Your uploaded file
+csv_file_name = r"data/crop_weed_training.csv" # Your uploaded file
 # Define a mapping for your labels to numerical values
 label_mapping = {'crop': 0, 'weed': 1}
 

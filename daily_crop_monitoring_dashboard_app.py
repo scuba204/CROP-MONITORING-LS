@@ -376,7 +376,7 @@ if st.button("Run Monitoring"):
         if roi_option != "Whole Country":
             roi_name = selected_district if selected_district else "Custom ROI"
             m.addLayer(selected_geom, {"color":"red","fillOpacity":0.1, "weight": 3}, f"{roi_name} Boundary")
-            m.centerObject(selected_geom, zoom=m.get_zoom_level(selected_geom))
+            m.centerObject(selected_geom) # Geemap will automatically determine the best zoom level
 
         legend_html_parts = []
         if visible: legend_html_parts.append('<h4>Legend</h4>')
