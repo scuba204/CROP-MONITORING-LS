@@ -1,13 +1,13 @@
 import sys
 import os
 import ee
-import numpy as np # Import numpy for array operations
+import numpy as np
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split, GridSearchCV # Import GridSearchCV
-from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.metrics import classification_report, balanced_accuracy_score
 import joblib
 import json
 
@@ -33,12 +33,10 @@ model_dir = "models"
 label_mapping = {'crop': 0, 'weed': 1}
 
 # Define the core spectral bands you need for your model
-# These are the bands that will be extracted directly from GEE
 spectral_bands = ["B2", "B3", "B4", "B5", "B6", "B7", "B8", "B8A", "B11", "B12"]
-# Note: B8 is now included for NDVI/NDWI calculation
 
 # Define the date range for your training data
-training_start_date = "2025-07-26"
+training_start_date = "2025-07-25"
 training_end_date = "2025-08-01"
 
 # ==============================================================================
@@ -51,7 +49,7 @@ def calculate_vegetation_indices(df):
     The indices are added as new columns to the DataFrame.
     
     Args:
-        df (pd.DataFrame): DataFrame containing Sentinel-2 band data (B3, B4, B8, B5, B11).
+        df (pd.DataFrame): DataFrame containing Sentinel-2 band data.
 
     Returns:
         pd.DataFrame: The original DataFrame with new vegetation index columns.
@@ -69,24 +67,19 @@ def calculate_vegetation_indices(df):
 
     # --- New Indices ---
     # Normalized Difference Red Edge Index (NDRE)
-    # Uses NIR (B8) and a Red Edge band (B5)
-    # Formula: (NIR - RedEdge) / (NIR + RedEdge)
     df['NDRE'] = (df['B8'] - df['B5']) / (df['B8'] + df['B5'])
 
     # Green Normalized Difference Vegetation Index (GNDVI)
-    # Uses NIR (B8) and the Green band (B3)
-    # Formula: (NIR - Green) / (NIR + Green)
     df['GNDVI'] = (df['B8'] - df['B3']) / (df['B8'] + df['B3'])
     
     # Moisture Stress Index (MSI)
-    # Uses SWIR (B11) and NIR (B8)
-    # Formula: SWIR / NIR
     df['MSI'] = df['B11'] / df['B8']
 
     # Handle potential division by zero
     df.replace([float('inf'), float('-inf')], 0, inplace=True)
     
     return df
+
 # ==============================================================================
 # Main Training Pipeline
 # ==============================================================================
@@ -125,12 +118,11 @@ if df_features.empty:
     exit()
 
 # === STEP 3: Feature Engineering - Calculate Vegetation Indices ===
-print("Calculating vegetation indices (NDVI, EVI, NDWI)...")
+print("Calculating vegetation indices (NDVI, EVI, NDWI, NDRE, GNDVI, MSI)...")
 df_features = calculate_vegetation_indices(df_features)
 
 # Define the final list of features for the model
-# Includes the original spectral bands plus the new VIs
-final_features = spectral_bands + ['NDVI', 'EVI', 'NDWI']
+final_features = spectral_bands + ['NDVI', 'EVI', 'NDWI', 'NDRE', 'GNDVI', 'MSI']
 
 # Ensure all final features are present after calculations
 missing_features = [f for f in final_features if f not in df_features.columns]
@@ -152,22 +144,23 @@ y = df_features["label"]
 # === STEP 5: Train-Test Split ===
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
 
-# === STEP 6: Hyperparameter Tuning with GridSearchCV ===
+# === STEP 6: Hyperparameter Tuning with GridSearchCV (UPDATED SECTION) ===
 print("\nStarting hyperparameter tuning for RandomForestClassifier...")
 
-# Define the parameter grid to search over
+# Expanded the parameter grid to search a wider range of values
 param_grid = {
-    'n_estimators': [100, 200], # Number of trees in the forest
-    'max_depth': [None, 10, 20], # Maximum depth of the tree
-    'min_samples_split': [2, 5], # Minimum number of samples to split a node
-    'min_samples_leaf': [1, 2] # Minimum number of samples at a leaf node
+    'n_estimators': [50, 100, 200, 500],
+    'max_depth': [None, 5, 10, 20],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4]
 }
 
-# Create a GridSearchCV object
+# Create a GridSearchCV object with balanced accuracy as the scoring metric
 grid_search = GridSearchCV(
     estimator=RandomForestClassifier(random_state=42),
     param_grid=param_grid,
     cv=5, # 5-fold cross-validation
+    scoring='balanced_accuracy', # Use balanced accuracy to handle class imbalance
     n_jobs=-1, # Use all available CPU cores
     verbose=2 # Verbosity level
 )
@@ -178,10 +171,12 @@ grid_search.fit(X_train, y_train)
 # Get the best model from the search
 best_clf = grid_search.best_estimator_
 print(f"\nBest hyperparameters found: {grid_search.best_params_}")
+print(f"Best balanced accuracy score from cross-validation: {grid_search.best_score_:.4f}")
 
 # === STEP 7: Evaluate Best Model ===
 y_pred = best_clf.predict(X_test)
 print("\n=== Model Evaluation Report ===")
+print(f"Balanced Accuracy Score on Test Set: {balanced_accuracy_score(y_test, y_pred):.4f}")
 print(classification_report(y_test, y_pred, target_names=["Crop", "Weed"]))
 
 # === STEP 8: Save Best Model and Features ===
