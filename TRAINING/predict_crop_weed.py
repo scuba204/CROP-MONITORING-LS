@@ -27,8 +27,11 @@ features_file = "anomaly_features.json"
 predictions_output_csv = "predictions_output.csv"
 
 # Define the date range for your prediction data
-prediction_start_date = "2024-07-26"
+prediction_start_date = "2025-07-26"
 prediction_end_date = "2025-08-02"
+
+# Define the core spectral bands you need for your model
+spectral_bands = ["B2", "B3", "B4", "B5", "B6", "B7", "B8", "B8A", "B11", "B12"]
 
 # ==============================================================================
 # Helper Function for Feature Engineering
@@ -59,9 +62,10 @@ try:
 
     features_path = os.path.join(model_dir, features_file)
     with open(features_path, 'r') as f:
+        # Load the full list of features the model expects
         features = json.load(f)
     print(f"Loaded {len(features)} feature names.")
-    
+
 except FileNotFoundError as e:
     print(f"Error: Model or features file not found. Please ensure you have run 'train_anomaly_detector.py' first.")
     print(e)
@@ -72,7 +76,7 @@ csv_path = os.path.join("data", field_data_csv)
 try:
     df_raw = pd.read_csv(csv_path)
     print(f"Successfully loaded {len(df_raw)} records from {csv_path}")
-    
+
     if 'longitude' not in df_raw.columns or 'latitude' not in df_raw.columns:
         print("Error: The CSV file must contain 'longitude' and 'latitude' columns.")
         sys.exit(1)
@@ -83,9 +87,9 @@ except FileNotFoundError:
     print(f"Error: CSV file not found at {csv_path}. Please ensure it's in the 'data' folder.")
     sys.exit(1)
 
-# === STEP 3: Extract Spectral Features from Earth Engine ===
-print("\nExtracting spectral features for unlabeled data from Earth Engine...")
-df_features = extract_spectral_features(gdf, prediction_start_date, prediction_end_date, features)
+# === STEP 3: Extract ONLY RAW Spectral Features from Earth Engine ===
+print("\nExtracting RAW spectral features for unlabeled data from Earth Engine...")
+df_features = extract_spectral_features(gdf, prediction_start_date, prediction_end_date, spectral_bands)
 
 if df_features.empty:
     print("No features were extracted from Earth Engine. Exiting.")
@@ -96,6 +100,8 @@ print("Calculating vegetation indices (NDVI, EVI, NDWI, NDRE, GNDVI, MSI)...")
 df_features = calculate_vegetation_indices(df_features)
 
 # Ensure the features are in the same order as the trained model
+# The `features` variable loaded from the JSON file contains the correct list
+# The `df_features` DataFrame now has all the required columns
 X_to_predict = df_features[features]
 
 # === STEP 5: Make Predictions with the Anomaly Detector ===
@@ -120,4 +126,4 @@ output_df.to_csv(output_path, index=False)
 
 print(f"\nPredictions saved to {output_path}")
 print("Prediction Summary:")
-print(output_df['predicted_label'].value_counts()) 
+print(output_df['predicted_label'].value_counts())
