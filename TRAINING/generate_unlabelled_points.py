@@ -37,10 +37,10 @@ output_csv_path = "data/unlabelled_field_data.csv"
 # The coordinates are a list of [longitude, latitude] pairs for the vertices.
 # This uses a region in Lesotho(ROMA).
 aoi_polygon = ee.Geometry.Polygon([
-    [27.732592, -29.454724],
-    [27.733199, -29.454641],
-    [27.733412, -29.455111],
-    [27.732618, -29.455123]
+    [27.732616, -29.455383],
+    [27.733171, -29.455296],
+    [27.733304, -29.454817],
+    [27.732545, -29.454891]
 ])
 
 # For a real-world application, you would replace this with the coordinates of your field.
