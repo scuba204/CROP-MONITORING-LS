@@ -25,8 +25,8 @@ model_dir = "models"
 model_name = "crop_anomaly_detector.pkl"
 
 spectral_bands = ["B2", "B3", "B4", "B5", "B6", "B7", "B8", "B8A", "B11", "B12"]
-training_start_date = "2024-05-01"
-training_end_date = "2024-07-31"
+training_start_date = "2025-07-26"
+training_end_date = "2025-08-02"
 
 # ==============================================================================
 # Helper Function for Feature Engineering

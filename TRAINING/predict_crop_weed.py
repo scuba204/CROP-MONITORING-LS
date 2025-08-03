@@ -20,7 +20,7 @@ if project_root not in sys.path:
 from scripts.extract_features import extract_spectral_features
 
 # --- Configuration ---
-field_data_csv = "field_data_unlabeled.csv"
+field_data_csv = "unlabelled_field_data.csv"
 model_dir = "models"
 model_name = "crop_anomaly_detector.pkl"  # Change to the anomaly detector model
 features_file = "anomaly_features.json"
