@@ -37,35 +37,46 @@ prediction_end_date = "2025-08-01"   # Example date
 
 def calculate_vegetation_indices(df):
     """
-    Calculates key vegetation indices (NDVI, EVI, NDWI) and adds them to the DataFrame.
+    Calculates various vegetation indices from Sentinel-2 band data.
+    The indices are added as new columns to the DataFrame.
     
     Args:
-        df (pd.DataFrame): DataFrame containing Sentinel-2 spectral bands.
+        df (pd.DataFrame): DataFrame containing Sentinel-2 band data (B3, B4, B8, B5, B11).
 
     Returns:
-        pd.DataFrame: The DataFrame with new vegetation index columns.
+        pd.DataFrame: The original DataFrame with new vegetation index columns.
     """
-    # Ensure all required bands are present before calculation
-    required_bands = ["B2", "B3", "B4", "B8"]
-    if not all(band in df.columns for band in required_bands):
-        print("Warning: Missing bands for vegetation index calculation. Skipping.")
-        return df
-
-    df = df.astype(float)
+    # --- Existing Indices ---
+    # Normalized Difference Vegetation Index (NDVI)
     df['NDVI'] = (df['B8'] - df['B4']) / (df['B8'] + df['B4'])
     
-    L = 1
-    C1 = 6
-    C2 = 7.5
-    df['EVI'] = 2.5 * (df['B8'] - df['B4']) / (df['B8'] + C1 * df['B4'] - C2 * df['B2'] + L)
-
-    df['NDWI'] = (df['B3'] - df['B8']) / (df['B3'] + df['B8'])
+    # Enhanced Vegetation Index (EVI)
+    # C1=6, C2=7.5, L=1 based on Sentinel-2 recommended constants
+    df['EVI'] = 2.5 * (df['B8'] - df['B4']) / (df['B8'] + 6 * df['B4'] - 7.5 * df['B3'] + 1)
     
-    df.replace([np.inf, -np.inf], np.nan, inplace=True)
-    df.fillna(0, inplace=True)
+    # Normalized Difference Water Index (NDWI)
+    df['NDWI'] = (df['B8'] - df['B11']) / (df['B8'] + df['B11'])
+
+    # --- New Indices ---
+    # Normalized Difference Red Edge Index (NDRE)
+    # Uses NIR (B8) and a Red Edge band (B5)
+    # Formula: (NIR - RedEdge) / (NIR + RedEdge)
+    df['NDRE'] = (df['B8'] - df['B5']) / (df['B8'] + df['B5'])
+
+    # Green Normalized Difference Vegetation Index (GNDVI)
+    # Uses NIR (B8) and the Green band (B3)
+    # Formula: (NIR - Green) / (NIR + Green)
+    df['GNDVI'] = (df['B8'] - df['B3']) / (df['B8'] + df['B3'])
+    
+    # Moisture Stress Index (MSI)
+    # Uses SWIR (B11) and NIR (B8)
+    # Formula: SWIR / NIR
+    df['MSI'] = df['B11'] / df['B8']
+
+    # Handle potential division by zero
+    df.replace([float('inf'), float('-inf')], 0, inplace=True)
     
     return df
-
 # ==============================================================================
 # Main Prediction Pipeline
 # ==============================================================================
