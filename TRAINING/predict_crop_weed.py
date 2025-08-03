@@ -3,150 +3,127 @@ import os
 import ee
 import pandas as pd
 import geopandas as gpd
-import numpy as np
 from shapely.geometry import Point
 import joblib
 import json
+import numpy as np
 
 # ==============================================================================
 # Step 0: Initial Configuration and Path Setup
 # ==============================================================================
 
-# Get the project root directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(script_dir)
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-# Import the feature extraction function from your scripts directory
 from scripts.extract_features import extract_spectral_features
 
 # --- Configuration ---
-# The path to your unlabelled data CSV file
-new_data_csv = "data/unlabelled_field_data.csv"
+field_data_csv = "unlabelled_field_data.csv"
 model_dir = "models"
+model_name = "crop_anomaly_detector.pkl"  # Change to the anomaly detector model
+features_file = "anomaly_features.json"
+predictions_output_csv = "predictions_output.csv"
 
-# Define the date range for the satellite imagery for your new data
-# Make sure this date range is relevant to the new data's collection period.
-prediction_start_date = "2025-07-27" # Example date
-prediction_end_date = "2025-08-01"   # Example date
+# Define the date range for your prediction data
+prediction_start_date = "2025-07-26"
+prediction_end_date = "2025-08-02"
+
+# Define the core spectral bands you need for your model
+spectral_bands = ["B2", "B3", "B4", "B5", "B6", "B7", "B8", "B8A", "B11", "B12"]
 
 # ==============================================================================
-# Helper Function for Feature Engineering (same as in training script)
+# Helper Function for Feature Engineering
 # ==============================================================================
 
 def calculate_vegetation_indices(df):
     """
     Calculates various vegetation indices from Sentinel-2 band data.
-    The indices are added as new columns to the DataFrame.
-    
-    Args:
-        df (pd.DataFrame): DataFrame containing Sentinel-2 band data (B3, B4, B8, B5, B11).
-
-    Returns:
-        pd.DataFrame: The original DataFrame with new vegetation index columns.
     """
-    # --- Existing Indices ---
-    # Normalized Difference Vegetation Index (NDVI)
     df['NDVI'] = (df['B8'] - df['B4']) / (df['B8'] + df['B4'])
-    
-    # Enhanced Vegetation Index (EVI)
-    # C1=6, C2=7.5, L=1 based on Sentinel-2 recommended constants
     df['EVI'] = 2.5 * (df['B8'] - df['B4']) / (df['B8'] + 6 * df['B4'] - 7.5 * df['B3'] + 1)
-    
-    # Normalized Difference Water Index (NDWI)
     df['NDWI'] = (df['B8'] - df['B11']) / (df['B8'] + df['B11'])
-
-    # --- New Indices ---
-    # Normalized Difference Red Edge Index (NDRE)
-    # Uses NIR (B8) and a Red Edge band (B5)
-    # Formula: (NIR - RedEdge) / (NIR + RedEdge)
     df['NDRE'] = (df['B8'] - df['B5']) / (df['B8'] + df['B5'])
-
-    # Green Normalized Difference Vegetation Index (GNDVI)
-    # Uses NIR (B8) and the Green band (B3)
-    # Formula: (NIR - Green) / (NIR + Green)
     df['GNDVI'] = (df['B8'] - df['B3']) / (df['B8'] + df['B3'])
-    
-    # Moisture Stress Index (MSI)
-    # Uses SWIR (B11) and NIR (B8)
-    # Formula: SWIR / NIR
     df['MSI'] = df['B11'] / df['B8']
-
-    # Handle potential division by zero
     df.replace([float('inf'), float('-inf')], 0, inplace=True)
-    
     return df
+
 # ==============================================================================
 # Main Prediction Pipeline
 # ==============================================================================
 
-# === STEP 1: Load the Trained Model and Feature Names ===
-model_path = os.path.join(model_dir, "crop_classifier_model.pkl")
-features_path = os.path.join(model_dir, "crop_classifier_features.json")
-
+# === STEP 1: Load Pre-trained Anomaly Detection Model and Features ===
 try:
-    print("Loading trained model and features...")
-    clf = joblib.load(model_path)
-    with open(features_path, "r") as f:
-        feature_names = json.load(f)
-    print(f"Model loaded successfully. The model was trained on {len(feature_names)} features.")
-except FileNotFoundError:
-    print(f"Error: Model or feature file not found in '{model_dir}'. Please run the training script first.")
-    exit()
+    model_path = os.path.join(model_dir, model_name)
+    model = joblib.load(model_path)
+    print(f"Successfully loaded anomaly detection model from {model_path}")
 
-# === STEP 2: Load New Unlabelled Data ===
+    features_path = os.path.join(model_dir, features_file)
+    with open(features_path, 'r') as f:
+        # Load the full list of features the model expects
+        features = json.load(f)
+    print(f"Loaded {len(features)} feature names.")
+
+except FileNotFoundError as e:
+    print(f"Error: Model or features file not found. Please ensure you have run 'train_anomaly_detector.py' first.")
+    print(e)
+    sys.exit(1)
+
+# === STEP 2: Load Unlabeled Field Data ===
+csv_path = os.path.join("data", field_data_csv)
 try:
-    df_raw = pd.read_csv(new_data_csv)
-    print(f"\nSuccessfully loaded {len(df_raw)} unlabelled records from {new_data_csv}")
-    print("Unlabelled DataFrame head:")
-    print(df_raw.head())
-except FileNotFoundError:
-    print(f"Error: New data CSV file not found at '{new_data_csv}'.")
-    exit()
+    df_raw = pd.read_csv(csv_path)
+    print(f"Successfully loaded {len(df_raw)} records from {csv_path}")
 
-# Convert to GeoDataFrame
-if 'longitude' in df_raw.columns and 'latitude' in df_raw.columns:
+    if 'longitude' not in df_raw.columns or 'latitude' not in df_raw.columns:
+        print("Error: The CSV file must contain 'longitude' and 'latitude' columns.")
+        sys.exit(1)
+
     geometry = [Point(xy) for xy in zip(df_raw.longitude, df_raw.latitude)]
-    gdf_unlabelled = gpd.GeoDataFrame(df_raw, geometry=geometry, crs="EPSG:4326")
-else:
-    print("Error: Expected 'longitude' and 'latitude' columns not found in the new data CSV.")
-    exit()
+    gdf = gpd.GeoDataFrame(df_raw, geometry=geometry, crs="EPSG:4326")
+except FileNotFoundError:
+    print(f"Error: CSV file not found at {csv_path}. Please ensure it's in the 'data' folder.")
+    sys.exit(1)
 
-# === STEP 3: Extract Spectral Features for New Data ===
-# The bands list must be the same as the one used for training
-spectral_bands_for_extraction = ["B2", "B3", "B4", "B5", "B6", "B7", "B8", "B8A", "B11", "B12"]
-print(f"\nExtracting {len(spectral_bands_for_extraction)} spectral features for {len(gdf_unlabelled)} unlabelled points from Earth Engine...")
-df_new_features = extract_spectral_features(gdf_unlabelled, prediction_start_date, prediction_end_date, spectral_bands_for_extraction)
+# === STEP 3: Extract ONLY RAW Spectral Features from Earth Engine ===
+print("\nExtracting RAW spectral features for unlabeled data from Earth Engine...")
+df_features = extract_spectral_features(gdf, prediction_start_date, prediction_end_date, spectral_bands)
 
-if df_new_features.empty:
-    print("No features were extracted for the new data. Exiting.")
-    exit()
+if df_features.empty:
+    print("No features were extracted from Earth Engine. Exiting.")
+    sys.exit(1)
 
-# === STEP 4: Feature Engineering - Calculate Vegetation Indices for New Data ===
-print("Calculating vegetation indices for new data...")
-df_new_features = calculate_vegetation_indices(df_new_features)
+# === STEP 4: Feature Engineering - Calculate Vegetation Indices ===
+print("Calculating vegetation indices (NDVI, EVI, NDWI, NDRE, GNDVI, MSI)...")
+df_features = calculate_vegetation_indices(df_features)
 
-# === STEP 5: Make Predictions ===
-# Ensure the new data has the exact same features as the training data, in the same order
-X_predict = df_new_features[feature_names]
+# Ensure the features are in the same order as the trained model
+# The `features` variable loaded from the JSON file contains the correct list
+# The `df_features` DataFrame now has all the required columns
+X_to_predict = df_features[features]
 
-print("\nMaking predictions on the new data...")
-predictions = clf.predict(X_predict)
+# === STEP 5: Make Predictions with the Anomaly Detector ===
+print("\nMaking predictions using the anomaly detection model...")
 
-# === STEP 6: Display Results ===
-# Add the predictions back to the original DataFrame
-df_raw['predicted_label'] = predictions
+# The Isolation Forest model returns 1 for an inlier (normal) and -1 for an outlier (anomaly)
+predictions = model.predict(X_to_predict)
 
-# Map numerical predictions back to original labels for readability
-inverse_label_mapping = {0: 'crop', 1: 'weed'}
-df_raw['predicted_label'] = df_raw['predicted_label'].map(inverse_label_mapping)
+# Map the numerical predictions to human-readable labels
+# 1 -> inlier -> 'crop'
+# -1 -> anomaly -> 'weed'
+df_features['predicted_label'] = np.where(predictions == 1, 'crop', 'weed')
 
-print("\n=== Predictions Complete ===")
-print("New data with predicted labels:")
-print(df_raw.head())
+# === STEP 6: Save Predictions to CSV ===
+# Create the output directory if it doesn't exist
+os.makedirs("data", exist_ok=True)
 
-# Optional: Save the results to a new CSV file
-output_path = os.path.join("data", "predictions_output.csv")
-df_raw.to_csv(output_path, index=False)
+# Select and save the relevant columns
+output_df = df_features[['longitude', 'latitude', 'predicted_label']]
+output_path = os.path.join("data", predictions_output_csv)
+output_df.to_csv(output_path, index=False)
+
 print(f"\nPredictions saved to {output_path}")
+print("Prediction Summary:")
+print(output_df['predicted_label'].value_counts())
