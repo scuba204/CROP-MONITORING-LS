@@ -1,50 +1,84 @@
 data:
   csv_path: "data/crop_weed_training.csv"
-  bands: ["B2","B3","B4","B5","B6","B7","B8","B8A","B11","B12"]
+  bands:
+    - B2
+    - B3
+    - B4
+    - B5
+    - B6
+    - B7
+    - B8
+    - B8A
+    - B11
+    - B12
   date_range:
     start: "2025-07-25"
     end:   "2025-08-01"
 
-
 gee:
-  collection: "COPERNICUS/S2_SR_HARMONIZED"      # Sentinel-2 surface reflectance
-  cloud_threshold: 20                            # max cloud cover %
-  buffer_radius: 30                              # in meters around each point
+  collection: "COPERNICUS/S2_SR_HARMONIZED"
+  cloud_threshold: 20
+  buffer_radius: 30
 
 indices:
   - name: NDVI
     expression: "(B8 - B4) / (B8 + B4)"
+    vars:
+      B8: "B8"
+      B4: "B4"
 
   - name: SAVI
     expression: "((B8 - B4) / (B8 + B4 + 0.5)) * (1.0 + 0.5)"
-    # the 0.5 here is the soil-adjustment factor L
+    vars:
+      B8: "B8"
+      B4: "B4"
 
   - name: EVI
     expression: "2.5 * ((B8 - B4) / (B8 + 6 * B4 - 7.5 * B2 + 1))"
+    vars:
+      B8: "B8"
+      B4: "B4"
+      B2: "B2"
 
   - name: NDRE
     expression: "(B8 - B5) / (B8 + B5)"
+    vars:
+      B8: "B8"
+      B5: "B5"
 
   - name: MSI
     expression: "B11 / B8"
+    vars:
+      B11: "B11"
+      B8: "B8"
 
   - name: OSAVI
     expression: "((B8 - B4) / (B8 + B4 + 0.16)) * (1 + 0.16)"
-    # here L = 0.16
+    vars:
+      B8: "B8"
+      B4: "B4"
 
   - name: GNDVI
     expression: "(B8 - B3) / (B8 + B3)"
+    vars:
+      B8: "B8"
+      B3: "B3"
 
   - name: NDWI
     expression: "(B3 - B8) / (B3 + B8)"
+    vars:
+      B3: "B3"
+      B8: "B8"
 
   - name: RVI
     expression: "B8 / B4"
+    vars:
+      B8: "B8"
+      B4: "B4"
 
 model:
   name: "crop_classifier_model.pkl"
   features_file: "crop_classifier_features.json"
-
 
 training:
   test_size: 0.2
@@ -52,8 +86,8 @@ training:
   cv_folds: 5
 
 grid_search:
-  n_estimators: [50,100,200,500]
-  max_depth: [null,5,10,20]
-  min_samples_split: [2,5,10]
-  min_samples_leaf: [1,2,4]
+  n_estimators: [50, 100, 200, 500]
+  max_depth: [null, 5, 10, 20]
+  min_samples_split: [2, 5, 10]
+  min_samples_leaf: [1, 2, 4]
   scoring: "balanced_accuracy"
