@@ -1,0 +1,22 @@
+data:
+  csv_path: "data/crop_weed_training.csv"
+  bands: ["B2","B3","B4","B5","B6","B7","B8","B8A","B11","B12"]
+  date_range:
+    start: "2025-07-25"
+    end:   "2025-08-01"
+
+model:
+  name: "crop_classifier_model.pkl"
+  features_file: "crop_classifier_features.json"
+
+training:
+  test_size: 0.2
+  random_state: 42
+  cv_folds: 5
+
+grid_search:
+  n_estimators: [50,100,200,500]
+  max_depth: [null,5,10,20]
+  min_samples_split: [2,5,10]
+  min_samples_leaf: [1,2,4]
+  scoring: "balanced_accuracy"
