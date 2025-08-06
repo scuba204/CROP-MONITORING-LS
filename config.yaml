@@ -5,9 +5,46 @@ data:
     start: "2025-07-25"
     end:   "2025-08-01"
 
+
+gee:
+  collection: "COPERNICUS/S2_SR_HARMONIZED"      # Sentinel-2 surface reflectance
+  cloud_threshold: 20                            # max cloud cover %
+  buffer_radius: 30                              # in meters around each point
+
+indices:
+  - name: NDVI
+    expression: "(B8 - B4) / (B8 + B4)"
+
+  - name: SAVI
+    expression: "((B8 - B4) / (B8 + B4 + 0.5)) * (1.0 + 0.5)"
+    # the 0.5 here is the soil-adjustment factor L
+
+  - name: EVI
+    expression: "2.5 * ((B8 - B4) / (B8 + 6 * B4 - 7.5 * B2 + 1))"
+
+  - name: NDRE
+    expression: "(B8 - B5) / (B8 + B5)"
+
+  - name: MSI
+    expression: "B11 / B8"
+
+  - name: OSAVI
+    expression: "((B8 - B4) / (B8 + B4 + 0.16)) * (1 + 0.16)"
+    # here L = 0.16
+
+  - name: GNDVI
+    expression: "(B8 - B3) / (B8 + B3)"
+
+  - name: NDWI
+    expression: "(B3 - B8) / (B3 + B8)"
+
+  - name: RVI
+    expression: "B8 / B4"
+
 model:
   name: "crop_classifier_model.pkl"
   features_file: "crop_classifier_features.json"
+
 
 training:
   test_size: 0.2
