@@ -6,7 +6,7 @@ import pandas as pd
 import ee
 import geopandas as gpd
 from shapely.geometry import mapping
-from shapely.set_operations import union_all  # Shapely 2.x
+from shapely.set_operations import union_all # Shapely 2.x
 
 # Project root import hack
 project_root = os.path.dirname(os.path.dirname(__file__))
@@ -38,9 +38,9 @@ def get_collection(cfg: dict, roi_geojson: dict) -> ee.ImageCollection:
     roi = ee.Geometry(roi_geojson)
     coll = (
         ee.ImageCollection(col)
-          .filterDate(start, end)
-          .filterBounds(roi)
-          .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", ct))
+        .filterDate(start, end)
+        .filterBounds(roi)
+        .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", ct))
     )
     print(f"Loaded EE collection '{col}' {start}→{end}, cloud≤{ct}%")
     return coll
@@ -93,7 +93,8 @@ def sample_time_series(
                 scale=10,
                 bestEffort=True
             )
-            return stats.set("system:time_start", img.get("system:time_start"))
+            # FIX: Wrap the dictionary in an ee.Feature to satisfy the .map() requirement
+            return ee.Feature(None, stats.set("system:time_start", img.get("system:time_start")))
 
         ts = ee_col.map(mapper).getInfo().get("features", [])
         if not ts:
@@ -101,7 +102,7 @@ def sample_time_series(
 
         df = pd.json_normalize([f["properties"] for f in ts])
         df["date"] = pd.to_datetime(df["system:time_start"], unit="ms")
-        df["id"]   = idx
+        df["id"] = idx
         rows.append(df[["id", "date"] + idx_names])
 
     if not rows:
