@@ -97,6 +97,7 @@ def setup_logging():
         datefmt="%Y-%m-%d %H:%M:%S",
         force=True                  # ← drop any old handlers
     )
+logging.info("✅ setup_logging() was called and logger is live")
 
 # ------------------------------------------------------------------------------
 # Data loading, pivoting, and feature engineering
