@@ -10,6 +10,7 @@ Features:
   - SHAP-based feature importance summary
   - Persisted classification report and SHAP summary as CSV
 """
+print("🚀 Script start! __name__ =", __name__)   # ← sanity check
 
 import os
 import sys
@@ -89,22 +90,14 @@ def parse_args():
 # Logging setup
 # ------------------------------------------------------------------------------
 
-import sys
-
 def setup_logging():
-    root = logging.getLogger()
-    root.setLevel(logging.INFO)
-    # remove any old handlers
-    if root.hasHandlers():
-        root.handlers.clear()
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s ▶ %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        force=True                  # ← drop any old handlers
+    )
 
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.INFO)
-    fmt = logging.Formatter("%(asctime)s %(levelname)s ▶ %(message)s",
-                            datefmt="%Y-%m-%d %H:%M:%S")
-    ch.setFormatter(fmt)
-    root.addHandler(ch)
-    logging.info("Logging initialized")
 # ------------------------------------------------------------------------------
 # Data loading, pivoting, and feature engineering
 # ------------------------------------------------------------------------------
