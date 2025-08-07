@@ -20,7 +20,24 @@ df = pd.read_csv(csv_path)
 # Center the map on the field
 center_lat = df['latitude'].mean()
 center_lon = df['longitude'].mean()
-m = folium.Map(location=[center_lat, center_lon], zoom_start=20, tiles='OpenStreetMap')
+
+# Satellite base map using ESRI (no API key needed)
+m = folium.Map(
+    location=[center_lat, center_lon],
+    zoom_start=22,
+    tiles=None  # Disable default tiles
+)
+
+# Add satellite tiles
+folium.TileLayer(
+    tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    attr="Esri",
+    name="Esri Satellite",
+    overlay=False,
+    control=True
+).add_to(m)
+
+# m = folium.Map(location=[center_lat, center_lon], zoom_start=20, tiles='OpenStreetMap')
 
 # Create feature groups
 # crop_layer = folium.FeatureGroup(name='Crop', show=True)
