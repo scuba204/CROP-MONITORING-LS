@@ -1,88 +1,114 @@
-
+import os
+import sys
 import ee
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
 # Assuming _mask_s2_clouds is available, perhaps from gee_functions.py
-from scripts.gee_functions import _mask_s2_clouds # Adjust import path as needed
 
-def extract_spectral_features(gdf: gpd.GeoDataFrame,
-                              start_date: str,
-                              end_date: str,
-                              bands: list) -> pd.DataFrame:
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(script_dir)
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from  scripts.gee_functions import _mask_s2_clouds # Adjust import path as needed
+
+def extract_spectral_features(gdf, start_date, end_date, bands, scale=10, cloud_filter=10):
     """
-    Extracts spectral band values from Sentinel-2 for a given GeoDataFrame of points
-    within a specified date range.
+    Extracts spectral features from Sentinel-2 imagery for a given set of points
+    and date range.
+
+    Args:
+        gdf (geopandas.GeoDataFrame): GeoDataFrame with point geometries and unique IDs.
+        start_date (str): The start date for the image collection filter (YYYY-MM-DD).
+        end_date (str): The end date for the image collection filter (YYYY-MM-DD).
+        bands (list): List of Sentinel-2 band names to extract.
+        scale (int): The scale in meters for the image data to be sampled at.
+        cloud_filter (int): The maximum percentage of cloud cover allowed.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the extracted band values for each point
+                      and each available date.
     """
-    # GEE Initialization:
-    # It's good practice to pass your project ID for billing/quota management.
-    ee.Initialize(project="winged-tenure-464005-p9")
+    print("Connecting to Google Earth Engine...")
+    try:
+        ee.Initialize(project="winged-tenure-464005-p9")
+    except Exception as e:
+        print(f"Error initializing Earth Engine: {e}")
+        return pd.DataFrame()
 
-    # Convert GeoDataFrame to Earth Engine FeatureCollection
-    # This loop correctly converts each row of your GeoDataFrame (properties + geometry)
-    # into an ee.Feature, which is then collected into an ee.FeatureCollection.
-    # The `p.drop('geometry').to_dict()` ensures all non-geometry columns (like 'label', 'latitude', 'longitude')
-    # are passed as properties to the ee.Feature.
-    features_ee = ee.FeatureCollection([
-        ee.Feature(p.geometry.__geo_interface__, p.drop('geometry').to_dict())
-        for idx, p in gdf.iterrows()
-    ])
-
-    # Define Sentinel-2 Image Collection
-    s2_collection = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
-        .filterDate(start_date, end_date) \
-        .filterBounds(features_ee.geometry()) # Filters the collection to only images that overlap your ROI.
-
-    # Apply cloud masking
-    # Relies on the correctness of _mask_s2_clouds from gee_functions.py.
-    s2_masked_collection = s2_collection.map(_mask_s2_clouds)
-
-    # Check if there are images after filtering and masking
-    # Excellent error handling! Prevents crashes if no valid imagery is found.
-    if s2_masked_collection.size().getInfo() == 0:
-        print(f"Warning: No Sentinel-2 images found for date range {start_date} to {end_date} after cloud masking.")
-        # Returns an empty DataFrame with expected columns, which is a robust way to handle this.
-        # Ensure 'id' is a column if you intend to return it, otherwise adjust.
-        # Your previous `gdf` has 'latitude', 'longitude', 'label'. So, perhaps:
-        # return pd.DataFrame(columns=['latitude', 'longitude', 'label'] + bands)
-        # Or even better: create a new dataframe from gdf, add nan columns for bands.
-        empty_df = gdf.copy()
-        for band in bands:
-            empty_df[band] = float('nan')
-        return empty_df.drop(columns='geometry') # Drop geometry as we return a pandas df
-        # The current return is fine if you're sure about 'id' presence or just using it as a template.
-
-    # Reduce images to a single image (e.g., median) for feature extraction
-    # Using .median() is generally robust for time-series composites as it's less sensitive to outliers
-    # than .mean(). `.select(bands)` ensures only the desired bands are in the composite.
-    composite_image = s2_masked_collection.median().select(bands)
-
-    # Extract values at each point
-    # `reduceRegions` is the correct and efficient way to extract values for multiple points.
-    # `reducer=ee.Reducer.mean()`: This will calculate the mean pixel value within the specified scale
-    # at each point. You could also use `ee.Reducer.median()` for consistency with the composite.
-    # `scale=10`: This is crucial. Sentinel-2 has native resolutions of 10m (B2, B3, B4, B8)
-    # and 20m (B5, B6, B7, B8A, B11, B12). By setting scale=10, all 20m bands will be
-    # resampled to 10m before extraction. This is a common and acceptable practice for consistency,
-    # but be aware that it involves resampling.
-    extracted_features_ee = composite_image.reduceRegions(
-        collection=features_ee,
-        reducer=ee.Reducer.mean(),
-        scale=10
+    points_fc = ee.FeatureCollection(
+        [ee.Feature(ee.Geometry.Point([p.x, p.y]), {'id': i}) for i, p in zip(gdf['id'], gdf.geometry)]
     )
 
-    # Convert to a client-side list of dictionaries and then to a Pandas DataFrame
-    # .getInfo() fetches the data from GEE to your local machine.
-    # This loop correctly extracts the 'properties' dictionary for each feature,
-    # which should contain your original 'label', 'latitude', 'longitude', and the new band values.
-    features_list = extracted_features_ee.getInfo()['features']
-    extracted_df = pd.DataFrame([f['properties'] for f in features_list])
+    s2_collection = (
+        ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
+        .filterDate(start_date, end_date)
+        .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', cloud_filter))
+        .select(bands)
+        .map(lambda image: image.addBands(image.metadata('system:time_start')))
+        .sort('system:time_start')
+    )
 
-    # Ensure original 'label' column is carried over, and any point identifiers
-    # The `extracted_df` will automatically include 'latitude', 'longitude', 'label'
-    # if they were present in your original `gdf` and passed as properties during `ee.Feature` creation.
-    # This function is well-designed to handle that.
-    return extracted_df
+    # --- CORRECTION STARTS HERE ---
+    # Retrieve a list of all images in the collection
+    image_list = s2_collection.toList(s2_collection.size())
+    num_images = image_list.size().getInfo()
+    print(f"Found {num_images} images in the collection.")
+
+    if num_images == 0:
+        return pd.DataFrame()
+
+    results = []
+    
+    # Process each image in the list
+    for i in range(num_images):
+        image = ee.Image(image_list.get(i))
+        date_millis = image.get('system:time_start').getInfo()
+        date_str = pd.to_datetime(date_millis, unit='ms').strftime('%Y-%m-%d')
+        
+        # Define a reducer to get a dictionary of values for each point
+        def reduce_region_function(feature):
+            point = feature.geometry()
+            # Use a try-except to handle cases where a point might not be within an image.
+            try:
+                values = image.reduceRegion(
+                    reducer=ee.Reducer.first(),
+                    geometry=point,
+                    scale=scale
+                ).getInfo()
+                # Check for None values and replace with a placeholder (e.g., -9999)
+                if values:
+                    values = {key: values[key] if values[key] is not None else -9999 for key in values}
+                else:
+                    values = {band: -9999 for band in bands}
+            except ee.EEException:
+                values = {band: -9999 for band in bands}
+            
+            return feature.set(values)
+
+        # Map the reduction function over the points
+        extracted_features = points_fc.map(reduce_region_function)
+        
+        # Convert the results to a DataFrame
+        data = extracted_features.getInfo()['features']
+        df = pd.json_normalize(data)
+        
+        # Clean up the DataFrame
+        df = df.rename(columns={f'properties.{b}': b for b in bands})
+        df = df.rename(columns={'properties.id': 'id'})
+        df = df.drop(columns=['type', 'geometry.type', 'geometry.coordinates'])
+        
+        # Add the date column and append to results
+        df['date'] = pd.to_datetime(date_str)
+        results.append(df)
+    
+    # Concatenate all results into a single DataFrame
+    final_df = pd.concat(results, ignore_index=True)
+    # --- CORRECTION ENDS HERE ---
+
+    print(f"Extracted features for {len(final_df['id'].unique())} points on {len(final_df['date'].unique())} unique dates.")
+    return final_df
 
 # --- Integration into your train_crop_classifier.py (This part is outside the function) ---
 
