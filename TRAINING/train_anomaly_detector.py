@@ -91,7 +91,7 @@ print("\nTraining the Isolation Forest anomaly detection model...")
 # The contamination parameter is the expected proportion of outliers in the data.
 # A small value (e.g., 0.01) is a good starting point assuming weeds are rare.
 # You can tune this parameter later based on your field observations.
-model = IsolationForest(contamination=0.01, random_state=42)
+model = IsolationForest(contamination=0.1, random_state=42)
 model.fit(df_features[final_features])
 
 print("Model training complete.")
