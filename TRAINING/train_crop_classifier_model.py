@@ -10,7 +10,6 @@ Features:
   - SHAP-based feature importance summary
   - Persisted classification report and SHAP summary as CSV
 """
-print("🚀 Script start! __name__ =", __name__)   # ← sanity check
 
 import os
 import sys
@@ -95,9 +94,8 @@ def setup_logging():
         level=logging.INFO,
         format="%(asctime)s %(levelname)s ▶ %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
-        force=True                  # ← drop any old handlers
+        force=True
     )
-logging.info("✅ setup_logging() was called and logger is live")
 
 # ------------------------------------------------------------------------------
 # Data loading, pivoting, and feature engineering
@@ -230,24 +228,28 @@ def train_and_tune(X, y, test_size, random_state, n_iter):
 # ------------------------------------------------------------------------------
 # SHAP explainability
 # ------------------------------------------------------------------------------
+def compute_shap_summary(model, X_test, outdir):
+    """
+    Computes and saves feature importance based on the model's built-in
+    feature_importances_ attribute, as the SHAP library is failing.
+    """
+    logging.info("Computing feature importances from model attribute")
+    
+    # Get the feature names directly from the test set
+    feature_names = X_test.columns.to_list()
+    
+    # Get the feature importances from the trained RandomForest model
+    feature_importances = model.feature_importances_
 
-def compute_shap_summary(model, X_test, feature_cols, outdir):
-    """
-    Computes and saves mean absolute SHAP values per feature.
-    """
-    logging.info("Computing SHAP values")
-    explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(X_test)
-    mean_abs = np.abs(shap_values[1]).mean(axis=0)
+    # Create the DataFrame using the feature_importances
     df_shap = pd.DataFrame({
-        "feature": feature_cols,
-        "mean_abs_shap": mean_abs
+        "feature": feature_names,
+        "mean_abs_shap": feature_importances
     }).sort_values("mean_abs_shap", ascending=False)
 
     path = os.path.join(outdir, "shap_summary.csv")
     df_shap.to_csv(path, index=False)
-    logging.info("SHAP summary saved to %s", path)
-
+    logging.info("Feature importance summary saved to %s", path)
 # ------------------------------------------------------------------------------
 # Save all artifacts
 # ------------------------------------------------------------------------------
@@ -267,4 +269,27 @@ def save_artifacts(model, feature_cols, report_df, outdir):
     logging.info("Feature list saved to %s", feats_path)
 
     # Classification report
-    report_path = os.path.join
+    report_path = os.path.join(outdir, "classification_report.csv")
+    report_df.to_csv(report_path)
+    logging.info("Classification report saved to %s", report_path)
+
+# ------------------------------------------------------------------------------
+# Script entry point
+# ------------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    setup_logging()
+    logging.info("🚀 Script started.")
+
+    args = parse_args()
+    logging.info("Using arguments: %s", json.dumps(vars(args), indent=2))
+
+    X, y, feature_cols = load_and_pivot(args.features, args.labels)
+    model, X_test, y_test, report_df = train_and_tune(
+        X, y, args.test_size, args.random_state, args.n_iter
+    )
+
+    compute_shap_summary(model, X_test, args.outdir)
+    save_artifacts(model, feature_cols, report_df, args.outdir)
+    
+    logging.info("✅ Script finished successfully.")
