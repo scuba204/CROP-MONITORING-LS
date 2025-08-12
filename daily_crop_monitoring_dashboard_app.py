@@ -41,28 +41,28 @@ PARAM_CONFIG = {
     "EVI":                    {"func": get_evi,                   "args": {"return_collection": False}, "band_name": "EVI", "type": "time_series", "category": "Vegetation Indices", "help": "Enhanced vegetation index from Sentinel-2"},
     "NDWI":                   {"func": get_ndwi,                  "args": {"return_collection": False}, "band_name": "NDWI", "type": "time_series", "category": "Water Indices", "help": "Normalized Difference Water Index"},
     "NDMI":                   {"func": get_ndmi,                  "args": {"return_collection": False}, "band_name": "NDMI", "type": "time_series", "category": "Water Indices", "help": "Normalized Difference Moisture Index"},
-    # New Indices
+    
     "NDRE":                   {"func": get_ndre,                  "args": {"return_collection": False}, "band_name": "NDRE", "type": "time_series", "category": "Vegetation Indices", "help": "Normalized Difference Red Edge Index from Sentinel-2"},
     "MSI":                    {"func": get_msi,                   "args": {"return_collection": False}, "band_name": "MSI", "type": "time_series", "category": "Vegetation Indices", "help": "Moisture Stress Index from Sentinel-2"},
     "OSAVI":                  {"func": get_osavi,                 "args": {"return_collection": False}, "band_name": "OSAVI", "type": "time_series", "category": "Vegetation Indices", "help": "Optimized Soil-Adjusted Vegetation Index from Sentinel-2"},
     "GNDVI":                  {"func": get_gndvi,                 "args": {"return_collection": False}, "band_name": "GNDVI", "type": "time_series", "category": "Vegetation Indices", "help": "Green Normalized Difference Vegetation Index from Sentinel-2"},
     "RVI":                    {"func": get_rvi,                   "args": {"return_collection": False}, "band_name": "RVI", "type": "time_series", "category": "Vegetation Indices", "help": "Ratio Vegetation Index from Sentinel-2"},
     
-    # Existing & New Environmental/Climatic data
+    # Environmental/Climatic data
     "Soil Moisture":          {"func": get_soil_moisture,         "args": {"return_collection": False}, "band_name": "SoilMoi00_10cm_tavg", "type": "time_series", "category": "Water & Soil", "help": "Soil moisture content (0-10cm) from FLDAS"},
     "Precipitation":          {"func": get_precipitation,         "args": {"return_collection": False}, "band_name": "precipitation", "type": "time_series", "category": "Climate", "help": "Daily accumulated precipitation from CHIRPS"},
     "Land Surface Temp":      {"func": get_land_surface_temperature, "args": {"return_collection": False}, "band_name": "LST_C", "type": "time_series", "category": "Climate", "help": "Daily land surface temperature in Celsius from MODIS"},
-    # New Environmental data
+    
     "Humidity":               {"func": get_humidity,              "args": {"return_collection": False}, "band_name": "RH", "type": "time_series", "category": "Climate", "help": "Daily relative humidity from ERA5-Land"},
     "Irradiance":             {"func": get_irradiance,            "args": {"return_collection": False}, "band_name": "surface_net_solar_radiation", "type": "time_series", "category": "Climate", "help": "Daily surface net solar radiation from ERA5-Land"},
     "Evapotranspiration":     {"func": get_evapotranspiration,    "args": {"return_collection": False}, "band_name": "ET", "type": "time_series", "category": "Water & Soil", "help": "Daily actual evapotranspiration from MODIS"},
     
-    # New Static Soil Properties (using get_soil_property)
+    # Static Soil Properties (using get_soil_property)
     "Soil Organic Matter":    {"func": get_soil_property,         "args": {"key": "soil_organic_matter"}, "band_name": "ocd_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil organic carbon density (0-5cm)"},
     "Soil pH":                {"func": get_soil_property,         "args": {"key": "soil_ph"}, "band_name": "phh2o_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil pH in H2O (0-5cm)"},
     "Soil CEC":               {"func": get_soil_property,         "args": {"key": "soil_cec"}, "band_name": "cec_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Cation Exchange Capacity (0-5cm)"},
     "Soil Nitrogen":          {"func": get_soil_property,         "args": {"key": "soil_nitrogen"}, "band_name": "nitrogen_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Nitrogen (0-5cm)"},
-    # New Static Soil Texture (using get_soil_texture)
+    #  Static Soil Texture (using get_soil_texture)
     "Soil Texture - Clay":    {"func": get_soil_texture,          "args": {}, "band_name": "clay", "type": "static", "category": "Soil Texture", "help": "Clay content of soil from SoilGrids"},
     "Soil Texture - Silt":    {"func": get_soil_texture,          "args": {}, "band_name": "silt", "type": "static", "category": "Soil Texture", "help": "Silt content of soil from SoilGrids"},
     "Soil Texture - Sand":    {"func": get_soil_texture,          "args": {}, "band_name": "sand", "type": "static", "category": "Soil Texture", "help": "Sand content of soil from SoilGrids"},
@@ -296,24 +296,31 @@ def extract_timeseries(start, end, _geom, param, ndvi_buffer):
 
     band_to_extract = PARAM_CONFIG[param]["band_name"]
 
+   
+    band_name_ee = ee.String(band_to_extract)
+
     def to_feat(img):
         try:
-            val = img.reduceRegion(ee.Reducer.mean(), _geom, 500).get(band_to_extract).getInfo()
-            date = ee.Date(img.get("system:time_start")).format("YYYY-MM-dd").getInfo()
+            # Use the server-side variable 'band_name_ee' instead of 'band_to_extract'
+            val = img.reduceRegion(ee.Reducer.mean(), _geom, 500).get(band_name_ee)
+            date = ee.Date(img.get("system:time_start")).format("YYYY-MM-dd")
             return ee.Feature(None, {"date": date, "value": val})
         except Exception as e:
+            # This part of the code is still client-side, but the mapped logic is now correct
             logging.warning(f"Time series: Error processing image in map for {param}: {e}")
             return ee.Feature(None, {"date": None, "value": None})
 
-    feats = coll.map(to_feat).filter(ee.Filter.notNull(['value']))
+    feats = coll.map(to_feat, opt_num_threads=5).filter(ee.Filter.notNull(['value']))
 
     try:
+        # These are now client-side operations that will get the results
         dates = feats.aggregate_array("date").getInfo()
         vals = feats.aggregate_array("value").getInfo()
     except Exception as e:
         logging.error(f"Time series: Error aggregating results for {param}: {e}")
         return pd.DataFrame()
-
+    
+    # ... rest of the function remains the same ...
     cleaned_data = [(d, v) for d, v in zip(dates, vals) if d is not None and v is not None]
     if not cleaned_data:
         logging.warning(f"No valid data points found for {param} after aggregation.")
