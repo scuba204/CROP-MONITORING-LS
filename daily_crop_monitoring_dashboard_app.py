@@ -46,10 +46,10 @@ PARAM_CONFIG = {
     "Humidity":          {"func": get_humidity,           "args": {"return_collection": False}, "band_name": "RH", "type": "time_series", "category": "Climate", "help": "Daily relative humidity"},
     "Irradiance":        {"func": get_irradiance,         "args": {"return_collection": False}, "band_name": "surface_net_solar_radiation", "type": "time_series", "category": "Climate", "help": "Daily surface net solar radiation"},
     "Evapotranspiration":{"func": get_evapotranspiration, "args": {}, "band_name": "ET", "type": "time_series", "category": "Climate", "help": "Daily actual evapotranspiration"},
-    "Soil Organic Matter": {"func": get_soil_property,    "args": {"property_key": "ocd_0-5cm_mean"}, "band_name": "ocd_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil organic carbon density (0-5cm)"},
-    "Soil pH":           {"func": get_soil_property,      "args": {"property_key": "phh2o_0-5cm_mean"}, "band_name": "phh2o_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil pH in H2O (0-5cm)"},
-    "Soil CEC":          {"func": get_soil_property,      "args": {"property_key": "cec_0-5cm_mean"}, "band_name": "cec_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Cation Exchange Capacity (0-5cm)"},
-    "Soil Nitrogen":     {"func": get_soil_property,      "args": {"property_key": "nitrogen_0-5cm_mean"}, "band_name": "nitrogen_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Nitrogen (0-5cm)"},
+    "Soil Organic Matter": {"func": get_soil_property,    "args": {"key": "ocd_0-5cm_mean"}, "band_name": "ocd_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil organic carbon density (0-5cm)"},
+    "Soil pH":           {"func": get_soil_property,      "args": {"key": "phh2o_0-5cm_mean"}, "band_name": "phh2o_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil pH in H2O (0-5cm)"},
+    "Soil CEC":          {"func": get_soil_property,      "args": {"key": "cec_0-5cm_mean"}, "band_name": "cec_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Cation Exchange Capacity (0-5cm)"},
+    "Soil Nitrogen":     {"func": get_soil_property,      "args": {"key": "nitrogen_0-5cm_mean"}, "band_name": "nitrogen_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Nitrogen (0-5cm)"},
     "Soil Texture - Clay": {"func": get_soil_texture,     "args": {}, "band_name": "clay", "type": "static", "category": "Soil Texture", "help": "Clay content of soil"},
     "Soil Texture - Silt": {"func": get_soil_texture,     "args": {}, "band_name": "silt", "type": "static", "category": "Soil Texture", "help": "Silt content of soil"},
     "Soil Texture - Sand": {"func": get_soil_texture,     "args": {}, "band_name": "sand", "type": "static", "category": "Soil Texture", "help": "Sand content of soil"},
@@ -203,52 +203,39 @@ with st.sidebar.expander("ℹ️ How to Use"):
     """)
 
 # Helper function to get GEE image/collection
-# Helper function to get GEE image/collection
-# Helper function to get GEE image/collection
+# A more robust version of get_gee_data
 def get_gee_data(param_name, start_date_str, end_date_str, geometry, ndvi_buffer, return_collection=False):
     config = PARAM_CONFIG.get(param_name)
     if not config:
         return None, f"Configuration missing for {param_name}"
 
     gee_func = config["func"]
-    func_specific_args = config["args"].copy()
     param_type = config["type"]
 
-    # Initialize call_args with only 'roi'. Dates added conditionally.
-    call_args = {"roi": geometry}
-
-    # Add date parameters ONLY if the current parameter is a time_series type
+    # Combine common and function-specific arguments
+    call_args = {"roi": geometry, **config["args"]}
+    
     if param_type == "time_series":
         call_args.update({"start": start_date_str, "end": end_date_str})
-        if "max_expansion_days" in func_specific_args:
+        if "max_expansion_days" in config["args"]:
             call_args["max_expansion_days"] = ndvi_buffer
-        if "return_collection" in func_specific_args:
-            call_args["return_collection"] = return_collection
-
-    call_args.update(func_specific_args)
 
     try:
-        if gee_func == get_soil_property:
-            # Assumes get_soil_property now only needs roi and property_key
-            result = gee_func(roi=geometry, property_key=config["args"]["property_key"])
-        elif gee_func == get_soil_texture:
-            # Now, get_soil_texture only needs roi as per the new definition
-            result = gee_func(roi=geometry)
-        elif gee_func == get_evapotranspiration:
-            collection = gee_func(start=start_date_str, end=end_date_str, roi=geometry)
-            if collection.size().getInfo() == 0:
-                return None, f"No data available for {param_name} collection."
-            result = collection if return_collection else collection.mean()
-        else:
-            result = gee_func(**call_args)
-
-        if result is None:
-            return None, "GEE function returned None"
-
-        if param_type == "static" and gee_func == get_soil_texture and config["band_name"]:
-             result = result.select(config["band_name"])
-
-        return result, None
+        # A single, consistent call for all functions
+        result = gee_func(**call_args)
+        
+        if param_type == "time_series":
+            if isinstance(result, ee.Image):
+                result = ee.ImageCollection([result])
+            
+            if return_collection:
+                return result, None
+            else:
+                if result.size().getInfo() == 0:
+                    return None, f"No data available for {param_name} collection."
+                return result.mean(), None
+        else: # Static parameter
+            return result, None
 
     except ee.EEException as ee_ex:
         return None, f"GEE Error: {ee_ex}"
@@ -478,11 +465,22 @@ if st.button("Run Monitoring"):
                     fig.text(0.5, 0.5, "No data for PDF report.", ha='center', va='center')
                     pdf.savefig(fig, bbox_inches="tight")
                 plt.close(fig)
-            st.download_button("📄 Download PDF Report",
-                                open(tmp.name, "rb").read(),
-                                file_name=f"{filename}.pdf",
-                                mime="application/pdf")
-            os.unlink(tmp.name)
+        
+        # The file handle for the temporary file is now guaranteed to be closed by the 'with' statement.
+        
+        # Now, read the file for the download button.
+        with open(tmp.name, "rb") as f:
+            pdf_data = f.read()
+
+        st.download_button(
+            "📄 Download PDF Report",
+            data=pdf_data, # Use the read data
+            file_name=f"{filename}.pdf",
+            mime="application/pdf"
+        )
+        
+        # Only after the download button is created, can we safely delete the file.
+        os.unlink(tmp.name)
 
     except Exception as e:
         st.error(f"An unexpected error occurred: {type(e).__name__}. Error message: {e}")
