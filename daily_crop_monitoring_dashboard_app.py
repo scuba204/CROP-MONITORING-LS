@@ -15,9 +15,10 @@ from shapely.ops import unary_union
 from shapely.geometry import mapping
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# --- Import all necessary GEE functions ---
+# --- Import all necessary GEE functions, including the newly added ones ---
 from scripts.gee_functions import (
     get_ndvi, get_savi, get_evi, get_ndwi, get_ndmi,
+    get_ndre, get_msi, get_osavi, get_gndvi, get_rvi, # New indices
     get_soil_moisture, get_precipitation,
     get_land_surface_temperature, get_humidity, get_irradiance,
     get_simulated_hyperspectral, get_soil_texture,
@@ -35,25 +36,38 @@ PALETTES = get_palettes()
 # and how to map it to an EE band name if different from the display name.
 # 'type': 'time_series' or 'static' helps to determine if date ranges apply.
 PARAM_CONFIG = {
-    "NDVI":              {"func": get_ndvi,               "args": {"return_collection": False}, "band_name": "NDVI", "type": "time_series", "category": "Vegetation", "help": "Vegetation index from Sentinel-2"},
-    "SAVI":              {"func": get_savi,               "args": {"return_collection": False}, "band_name": "SAVI", "type": "time_series", "category": "Vegetation", "help": "Soil-adjusted vegetation index from Sentinel-2"},
-    "EVI":               {"func": get_evi,                "args": {"return_collection": False}, "band_name": "EVI", "type": "time_series", "category": "Vegetation", "help": "Enhanced vegetation index from Sentinel-2"},
-    "NDWI":              {"func": get_ndwi,               "args": {"return_collection": False}, "band_name": "NDWI", "type": "time_series", "category": "Water", "help": "Normalized Difference Water Index"},
-    "NDMI":              {"func": get_ndmi,               "args": {"return_collection": False}, "band_name": "NDMI", "type": "time_series", "category": "Water", "help": "Normalized Difference Moisture Index"},
-    "Soil Moisture":     {"func": get_soil_moisture,      "args": {"return_collection": False}, "band_name": "SoilMoi00_10cm_tavg", "type": "time_series", "category": "Water", "help": "Soil moisture content (0-10cm)"},
-    "Precipitation":     {"func": get_precipitation,      "args": {"return_collection": False}, "band_name": "precipitation", "type": "time_series", "category": "Climate", "help": "Daily accumulated precipitation"},
-    "Land Surface Temp": {"func": get_land_surface_temperature, "args": {"return_collection": False}, "band_name": "LST_C", "type": "time_series", "category": "Climate", "help": "Daily land surface temperature in Celsius"},
-    "Humidity":          {"func": get_humidity,           "args": {"return_collection": False}, "band_name": "RH", "type": "time_series", "category": "Climate", "help": "Daily relative humidity"},
-    "Irradiance":        {"func": get_irradiance,         "args": {"return_collection": False}, "band_name": "surface_net_solar_radiation", "type": "time_series", "category": "Climate", "help": "Daily surface net solar radiation"},
-    "Evapotranspiration":{"func": get_evapotranspiration, "args": {}, "band_name": "ET", "type": "time_series", "category": "Climate", "help": "Daily actual evapotranspiration"},
-    "Soil Organic Matter": {"func": get_soil_property,    "args": {"key": "ocd_0-5cm_mean"}, "band_name": "ocd_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil organic carbon density (0-5cm)"},
-    "Soil pH":           {"func": get_soil_property,      "args": {"key": "phh2o_0-5cm_mean"}, "band_name": "phh2o_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil pH in H2O (0-5cm)"},
-    "Soil CEC":          {"func": get_soil_property,      "args": {"key": "cec_0-5cm_mean"}, "band_name": "cec_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Cation Exchange Capacity (0-5cm)"},
-    "Soil Nitrogen":     {"func": get_soil_property,      "args": {"key": "nitrogen_0-5cm_mean"}, "band_name": "nitrogen_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Nitrogen (0-5cm)"},
-    "Soil Texture - Clay": {"func": get_soil_texture,     "args": {}, "band_name": "clay", "type": "static", "category": "Soil Texture", "help": "Clay content of soil"},
-    "Soil Texture - Silt": {"func": get_soil_texture,     "args": {}, "band_name": "silt", "type": "static", "category": "Soil Texture", "help": "Silt content of soil"},
-    "Soil Texture - Sand": {"func": get_soil_texture,     "args": {}, "band_name": "sand", "type": "static", "category": "Soil Texture", "help": "Sand content of soil"},
-    # Simulated hyperspectral bands (assuming these come from get_simulated_hyperspectral)
+    "NDVI":                   {"func": get_ndvi,                  "args": {"return_collection": False}, "band_name": "NDVI", "type": "time_series", "category": "Vegetation Indices", "help": "Vegetation index from Sentinel-2"},
+    "SAVI":                   {"func": get_savi,                  "args": {"return_collection": False}, "band_name": "SAVI", "type": "time_series", "category": "Vegetation Indices", "help": "Soil-adjusted vegetation index from Sentinel-2"},
+    "EVI":                    {"func": get_evi,                   "args": {"return_collection": False}, "band_name": "EVI", "type": "time_series", "category": "Vegetation Indices", "help": "Enhanced vegetation index from Sentinel-2"},
+    "NDWI":                   {"func": get_ndwi,                  "args": {"return_collection": False}, "band_name": "NDWI", "type": "time_series", "category": "Water Indices", "help": "Normalized Difference Water Index"},
+    "NDMI":                   {"func": get_ndmi,                  "args": {"return_collection": False}, "band_name": "NDMI", "type": "time_series", "category": "Water Indices", "help": "Normalized Difference Moisture Index"},
+    # New Indices
+    "NDRE":                   {"func": get_ndre,                  "args": {"return_collection": False}, "band_name": "NDRE", "type": "time_series", "category": "Vegetation Indices", "help": "Normalized Difference Red Edge Index from Sentinel-2"},
+    "MSI":                    {"func": get_msi,                   "args": {"return_collection": False}, "band_name": "MSI", "type": "time_series", "category": "Vegetation Indices", "help": "Moisture Stress Index from Sentinel-2"},
+    "OSAVI":                  {"func": get_osavi,                 "args": {"return_collection": False}, "band_name": "OSAVI", "type": "time_series", "category": "Vegetation Indices", "help": "Optimized Soil-Adjusted Vegetation Index from Sentinel-2"},
+    "GNDVI":                  {"func": get_gndvi,                 "args": {"return_collection": False}, "band_name": "GNDVI", "type": "time_series", "category": "Vegetation Indices", "help": "Green Normalized Difference Vegetation Index from Sentinel-2"},
+    "RVI":                    {"func": get_rvi,                   "args": {"return_collection": False}, "band_name": "RVI", "type": "time_series", "category": "Vegetation Indices", "help": "Ratio Vegetation Index from Sentinel-2"},
+    
+    # Existing & New Environmental/Climatic data
+    "Soil Moisture":          {"func": get_soil_moisture,         "args": {"return_collection": False}, "band_name": "SoilMoi00_10cm_tavg", "type": "time_series", "category": "Water & Soil", "help": "Soil moisture content (0-10cm) from FLDAS"},
+    "Precipitation":          {"func": get_precipitation,         "args": {"return_collection": False}, "band_name": "precipitation", "type": "time_series", "category": "Climate", "help": "Daily accumulated precipitation from CHIRPS"},
+    "Land Surface Temp":      {"func": get_land_surface_temperature, "args": {"return_collection": False}, "band_name": "LST_C", "type": "time_series", "category": "Climate", "help": "Daily land surface temperature in Celsius from MODIS"},
+    # New Environmental data
+    "Humidity":               {"func": get_humidity,              "args": {"return_collection": False}, "band_name": "RH", "type": "time_series", "category": "Climate", "help": "Daily relative humidity from ERA5-Land"},
+    "Irradiance":             {"func": get_irradiance,            "args": {"return_collection": False}, "band_name": "surface_net_solar_radiation", "type": "time_series", "category": "Climate", "help": "Daily surface net solar radiation from ERA5-Land"},
+    "Evapotranspiration":     {"func": get_evapotranspiration,    "args": {"return_collection": False}, "band_name": "ET", "type": "time_series", "category": "Water & Soil", "help": "Daily actual evapotranspiration from MODIS"},
+    
+    # New Static Soil Properties (using get_soil_property)
+    "Soil Organic Matter":    {"func": get_soil_property,         "args": {"key": "soil_organic_matter"}, "band_name": "ocd_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil organic carbon density (0-5cm)"},
+    "Soil pH":                {"func": get_soil_property,         "args": {"key": "soil_ph"}, "band_name": "phh2o_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil pH in H2O (0-5cm)"},
+    "Soil CEC":               {"func": get_soil_property,         "args": {"key": "soil_cec"}, "band_name": "cec_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Cation Exchange Capacity (0-5cm)"},
+    "Soil Nitrogen":          {"func": get_soil_property,         "args": {"key": "soil_nitrogen"}, "band_name": "nitrogen_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Nitrogen (0-5cm)"},
+    # New Static Soil Texture (using get_soil_texture)
+    "Soil Texture - Clay":    {"func": get_soil_texture,          "args": {}, "band_name": "clay", "type": "static", "category": "Soil Texture", "help": "Clay content of soil from SoilGrids"},
+    "Soil Texture - Silt":    {"func": get_soil_texture,          "args": {}, "band_name": "silt", "type": "static", "category": "Soil Texture", "help": "Silt content of soil from SoilGrids"},
+    "Soil Texture - Sand":    {"func": get_soil_texture,          "args": {}, "band_name": "sand", "type": "static", "category": "Soil Texture", "help": "Sand content of soil from SoilGrids"},
+    
+    # Simulated hyperspectral bands (using get_simulated_hyperspectral)
     "B2": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B2", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 2 (Blue)"},
     "B3": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B3", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 3 (Green)"},
     "B4": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B4", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 4 (Red)"},
@@ -72,22 +86,21 @@ for param, data in PARAM_CONFIG.items():
     if category not in PARAM_CATEGORIES:
         PARAM_CATEGORIES[category] = {"params": [], "help": ""}
     PARAM_CATEGORIES[category]["params"].append(param)
-    # Assign help text from the first parameter in a category, or refine manually if needed
     if not PARAM_CATEGORIES[category]["help"]:
         PARAM_CATEGORIES[category]["help"] = f"{category} related parameters."
 
 # Dynamically create DATA_AVAILABILITY and TIME_SERIES_PARAMS from PARAM_CONFIG
 DATA_AVAILABILITY = {
-    "NDVI": datetime.date(2015, 6, 23),
-    "SAVI": datetime.date(2015, 6, 23),
-    "EVI": datetime.date(2015, 6, 23),
-    "NDWI": datetime.date(2015, 6, 23),
-    "NDMI": datetime.date(2015, 6, 23),
+    # Sentinel-2 derived products
+    "NDVI": datetime.date(2015, 6, 23), "SAVI": datetime.date(2015, 6, 23), "EVI": datetime.date(2015, 6, 23),
+    "NDWI": datetime.date(2015, 6, 23), "NDMI": datetime.date(2015, 6, 23),
+    "NDRE": datetime.date(2015, 6, 23), "MSI": datetime.date(2015, 6, 23), "OSAVI": datetime.date(2015, 6, 23),
+    "GNDVI": datetime.date(2015, 6, 23), "RVI": datetime.date(2015, 6, 23),
+    # Climatic data
     "Precipitation": datetime.date(1981, 1, 1),
-    "Land Surface Temp": datetime.date(2000, 2, 24),
-    "Humidity": datetime.date(2017, 1, 1),
-    "Irradiance": datetime.date(2017, 1, 1),
-    "Evapotranspiration": datetime.date(2000, 2, 24),
+    "Land Surface Temp": datetime.date(2000, 2, 24), "Evapotranspiration": datetime.date(2000, 2, 24),
+    "Humidity": datetime.date(2017, 1, 1), "Irradiance": datetime.date(2017, 1, 1),
+    # Soil data
     "Soil Moisture": datetime.date(2000, 1, 1),
     # Hyperspectral bands are based on Sentinel-2 availability
     "B2": datetime.date(2015, 6, 23), "B3": datetime.date(2015, 6, 23), "B4": datetime.date(2015, 6, 23),
@@ -219,9 +232,8 @@ def get_gee_data(param_name, start_date_str, end_date_str, geometry, ndvi_buffer
         call_args.update({"start": start_date_str, "end": end_date_str})
         if "max_expansion_days" in config["args"]:
             call_args["max_expansion_days"] = ndvi_buffer
-
+    
     try:
-        # A single, consistent call for all functions
         result = gee_func(**call_args)
         
         if param_type == "time_series":
@@ -256,13 +268,11 @@ def fetch_layers(start, end, _geom, params, ndvi_buffer):
             return p, None, error_msg
 
         try:
-            # Ensure it's an Image for display (get_gee_data already handles collection.mean() for map layers)
             img = ee.Image(img_or_coll)
             ee_band_name = PARAM_CONFIG[p]["band_name"]
             band_names = img.bandNames().getInfo()
 
             if ee_band_name not in band_names:
-                # Fallback to first band if specific band not found (should be rare with good configs)
                 logging.warning(f"{p}: Expected band '{ee_band_name}' not found. Using first band: {band_names[0]}")
                 img = img.select([band_names[0]])
                 ee_band_name = band_names[0]
@@ -363,7 +373,7 @@ if st.button("Run Monitoring"):
         if roi_option != "Whole Country":
             roi_name = selected_district if selected_district else "Custom ROI"
             m.addLayer(selected_geom, {"color":"red","fillOpacity":0.1, "weight": 3}, f"{roi_name} Boundary")
-            m.centerObject(selected_geom) # Geemap will automatically determine the best zoom level
+            m.centerObject(selected_geom)
 
         legend_html_parts = []
         if visible: legend_html_parts.append('<h4>Legend</h4>')
@@ -392,8 +402,8 @@ if st.button("Run Monitoring"):
         if legend_html_parts:
             legend_html = """
             <div style="position: fixed; bottom: 50px; left: 10px; width: 200px; max-height: 80%; overflow-y: auto;
-                         border:2px solid grey; z-index:9999; font-size:14px;
-                         background-color:white; opacity:0.9; padding:10px;">
+                        border:2px solid grey; z-index:9999; font-size:14px;
+                        background-color:white; opacity:0.9; padding:10px;">
                 {}
             </div>
             """.format("".join(legend_html_parts))
@@ -407,9 +417,8 @@ if st.button("Run Monitoring"):
         for name, img in layers.items():
             try:
                 ee_img = ee.Image(img)
-                actual_band_name = PARAM_CONFIG[name]["band_name"] # Get the original band name from config
+                actual_band_name = PARAM_CONFIG[name]["band_name"]
                 
-                # Check if band exists, if not, fallback (though `fetch_layers` should prevent this)
                 if actual_band_name not in ee_img.bandNames().getInfo():
                     actual_band_name = ee_img.bandNames().getInfo()[0]
 
@@ -447,9 +456,9 @@ if st.button("Run Monitoring"):
                 fig = px.line(df_ts, x="Date", y=p, title=f"{p} Trend", markers=True)
                 st.plotly_chart(fig, use_container_width=True)
                 st.download_button(f"⬇️ Download {p} CSV",
-                                    df_ts.to_csv(index=False).encode('utf-8'),
-                                    file_name=f"{p.lower().replace(' ', '_')}_timeseries.csv",
-                                    mime="text/csv")
+                                   df_ts.to_csv(index=False).encode('utf-8'),
+                                   file_name=f"{p.lower().replace(' ', '_')}_timeseries.csv",
+                                   mime="text/csv")
         else:
             st.info("No time-series parameters selected or available for the given criteria.")
 
@@ -466,20 +475,15 @@ if st.button("Run Monitoring"):
                     pdf.savefig(fig, bbox_inches="tight")
                 plt.close(fig)
         
-        # The file handle for the temporary file is now guaranteed to be closed by the 'with' statement.
-        
-        # Now, read the file for the download button.
         with open(tmp.name, "rb") as f:
             pdf_data = f.read()
 
         st.download_button(
             "📄 Download PDF Report",
-            data=pdf_data, # Use the read data
+            data=pdf_data,
             file_name=f"{filename}.pdf",
             mime="application/pdf"
         )
-        
-        # Only after the download button is created, can we safely delete the file.
         os.unlink(tmp.name)
 
     except Exception as e:
