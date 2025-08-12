@@ -68,6 +68,48 @@ PARAM_CONFIG = {
     "Soil Texture - Sand":    {"func": get_soil_texture,          "args": {}, "band_name": "sand", "type": "static", "category": "Soil Texture", "help": "Sand content of soil from SoilGrids"},
 }
 
+PARAM_UNITS = {
+    # Vegetation Indices (Unitless)
+    "NDVI": "", "SAVI": "", "EVI": "", "NDRE": "", "MSI": "", 
+    "OSAVI": "", "GNDVI": "", "RVI": "",
+    # Water & Soil
+    "Soil Moisture": "m³/m³", "NDWI": "", "NDMI": "",
+    "Evapotranspiration": "mm/day",
+    # Climate
+    "Precipitation": "mm/day", "Land Surface Temp": "°C",
+    "Humidity": "%", "Irradiance": "W/m²",
+    # Soil Properties
+    "Soil Organic Matter": "g/kg", "Soil pH": "pH",
+    "Soil CEC": "cmol_c/kg", "Soil Nitrogen": "g/kg",
+    # Soil Texture
+    "Soil Texture - Clay": "%", "Soil Texture - Silt": "%", "Soil Texture - Sand": "%",
+}
+PARAM_INFO = {
+    # Vegetation Indices
+    "NDVI": "A widely used index for assessing plant greenness and health. High values indicate dense, healthy vegetation, while low values indicate sparse or unhealthy vegetation.",
+    "SAVI": "Similar to NDVI but includes a soil brightness correction factor to minimize the influence of bare soil on the vegetation signal. It is particularly useful in areas with low vegetation cover.",
+    "EVI": "An improved version of NDVI that is more sensitive to high-biomass vegetation and less susceptible to atmospheric noise and soil background effects.",
+    "NDRE": "Uses the red-edge band to assess plant health, especially in the later stages of growth. It is more sensitive to chlorophyll content and nitrogen status than NDVI.",
+    "MSI": "Measures plant water content using the short-wave infrared band. Higher values indicate greater water stress, while lower values suggest healthy, well-hydrated vegetation.",
+    "OSAVI": "An optimized version of SAVI that uses a fixed soil-adjustment factor, making it easier to implement and more robust across different soil types.",
+    "GNDVI": "Similar to NDVI but uses the green band instead of the red band. It is very sensitive to chlorophyll content and is a good indicator of plant nitrogen status.",
+    "RVI": "A simple ratio that provides a direct measure of vegetation biomass. It's less sensitive to atmospheric effects than other indices.",
+    # Other parameters
+    "Soil Moisture": "Soil moisture content in the top 10cm of the soil profile.",
+    "Precipitation": "Daily accumulated precipitation.",
+    "Land Surface Temp": "Daily average land surface temperature.",
+    "Humidity": "Daily average relative humidity.",
+    "Irradiance": "Daily average surface net solar radiation.",
+    "Evapotranspiration": "Daily actual evapotranspiration.",
+    "Soil Organic Matter": "The amount of organic matter in the top 5cm of the soil.",
+    "Soil pH": "The pH of the soil in the top 5cm, indicating acidity or alkalinity.",
+    "Soil CEC": "Cation Exchange Capacity of the soil in the top 5cm, indicating nutrient retention capacity.",
+    "Soil Nitrogen": "Nitrogen content of the soil in the top 5cm, a key plant nutrient.",
+    "Soil Texture - Clay": "Percentage of clay in the soil.",
+    "Soil Texture - Silt": "Percentage of silt in the soil.",
+    "Soil Texture - Sand": "Percentage of sand in the soil.",
+}
+
 # Dynamically create PARAM_CATEGORIES from PARAM_CONFIG
 PARAM_CATEGORIES = {}
 for param, data in PARAM_CONFIG.items():
@@ -115,11 +157,14 @@ country_geom = ee.Geometry(mapping(lesotho_shape))
 # -------------------------------------------------------------------
 if 'selected_params_session_state' not in st.session_state:
     st.session_state.selected_params_session_state = {'last_selected': []}
-
 def select_parameters():
     st.header("🧩 Controls")
     cat = st.selectbox("Parameter Category", list(PARAM_CATEGORIES.keys()))
-    st.caption(PARAM_CATEGORIES[cat]["help"])
+    
+    # Add a toggle or expander to show the category-level help.
+    with st.expander("Category Info"):
+        st.caption(PARAM_CATEGORIES[cat]["help"])
+    
     opts = PARAM_CATEGORIES[cat]["params"]
 
     q = st.text_input("🔍 Filter Parameters")
@@ -132,8 +177,13 @@ def select_parameters():
         default=[p for p in opts if p in st.session_state.selected_params_session_state.get('last_selected', [])]
     )
     st.session_state.selected_params_session_state['last_selected'] = selected
-    return selected
+    
+    # You can also add a brief, inline help for each parameter
+    for p in selected:
+        if p in PARAM_INFO:
+            st.markdown(f"**{p}**: {PARAM_INFO[p]}")
 
+    return selected
 def select_date_range(params):
     relevant_dates = [DATA_AVAILABILITY[p] for p in set(params) & set(DATA_AVAILABILITY.keys()) if PARAM_CONFIG[p]["type"] == "time_series"]
 
@@ -313,7 +363,7 @@ def extract_timeseries(start, end, _geom, param, ndvi_buffer):
     feats = coll.map(to_feat, opt_num_threads=5).filter(ee.Filter.notNull(['value']))
 
     try:
-        # These are now client-side operations that will get the results
+        
         dates = feats.aggregate_array("date").getInfo()
         vals = feats.aggregate_array("value").getInfo()
     except Exception as e:
@@ -419,16 +469,18 @@ if st.button("Run Monitoring"):
             except Exception as e_inner:
                 st.warning(f"Failed to calculate mean for {name}: {e_inner}")
                 stats[name] = "Error"
-
+        
         df_stats = pd.DataFrame(stats.items(), columns=["Parameter", "Mean"])
+        df_stats['Unit']= df_stats['Parameter'].map(PARAM_UNITS)
         st.dataframe(df_stats)
 
         # Summary metrics
         st.subheader("📌 Summary Metrics")
         if not df_stats.empty:
-            cols = st.columns(min(3, len(df_stats)))
+            cols=st.columns(min(3, len(df_stats)))
             for i, row in df_stats.iterrows():
-                cols[i % len(cols)].metric(str(row.Parameter), str(row.Mean))
+                unit=PARAM_UNITS.get(row['Parameter'], '')
+                cols[i % len(cols)].metric(f"{row['Parameter']} ({unit})", f"{row['Mean']}", help=PARAM_INFO.get(row['Parameter'], ''))
         else:
             st.info("No parameters to display summary metrics for.")
 
@@ -446,6 +498,8 @@ if st.button("Run Monitoring"):
                     st.warning(f"No time series data available for {p} in the selected range/ROI.")
                     continue
                 fig = px.line(df_ts, x="Date", y=p, title=f"{p} Trend", markers=True)
+                unit= PARAM_UNITS.get(p, '')
+                fig.update_yaxes(title_text=f"{p} ({unit})")
                 st.plotly_chart(fig, use_container_width=True)
                 st.download_button(f"⬇️ Download {p} CSV",
                                     df_ts.to_csv(index=False).encode('utf-8'),
