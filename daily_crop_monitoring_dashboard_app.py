@@ -21,7 +21,7 @@ from scripts.gee_functions import (
     get_ndre, get_msi, get_osavi, get_gndvi, get_rvi, # New indices
     get_soil_moisture, get_precipitation,
     get_land_surface_temperature, get_humidity, get_irradiance,
-    get_simulated_hyperspectral, get_soil_texture,
+    get_soil_texture,
     get_evapotranspiration, get_soil_property
 )
 from palettes import get_palettes
@@ -66,17 +66,6 @@ PARAM_CONFIG = {
     "Soil Texture - Clay":    {"func": get_soil_texture,          "args": {}, "band_name": "clay", "type": "static", "category": "Soil Texture", "help": "Clay content of soil from SoilGrids"},
     "Soil Texture - Silt":    {"func": get_soil_texture,          "args": {}, "band_name": "silt", "type": "static", "category": "Soil Texture", "help": "Silt content of soil from SoilGrids"},
     "Soil Texture - Sand":    {"func": get_soil_texture,          "args": {}, "band_name": "sand", "type": "static", "category": "Soil Texture", "help": "Sand content of soil from SoilGrids"},
-    
-    # Simulated hyperspectral bands (using get_simulated_hyperspectral)
-    "B2": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B2", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 2 (Blue)"},
-    "B3": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B3", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 3 (Green)"},
-    "B4": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B4", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 4 (Red)"},
-    "B5": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B5", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 5 (Red Edge 1)"},
-    "B6": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B6", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 6 (Red Edge 2)"},
-    "B7": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B7", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 7 (Red Edge 3)"},
-    "B8A": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B8A", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 8A (Narrow NIR)"},
-    "B11": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B11", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 11 (SWIR 1)"},
-    "B12": {"func": get_simulated_hyperspectral, "args": {"return_collection": False}, "band_name": "B12", "type": "time_series", "category": "Hyperspectral", "help": "Simulated Sentinel-2 Band 12 (SWIR 2)"},
 }
 
 # Dynamically create PARAM_CATEGORIES from PARAM_CONFIG
@@ -102,10 +91,6 @@ DATA_AVAILABILITY = {
     "Humidity": datetime.date(2017, 1, 1), "Irradiance": datetime.date(2017, 1, 1),
     # Soil data
     "Soil Moisture": datetime.date(2000, 1, 1),
-    # Hyperspectral bands are based on Sentinel-2 availability
-    "B2": datetime.date(2015, 6, 23), "B3": datetime.date(2015, 6, 23), "B4": datetime.date(2015, 6, 23),
-    "B5": datetime.date(2015, 6, 23), "B6": datetime.date(2015, 6, 23), "B7": datetime.date(2015, 6, 23),
-    "B8A": datetime.date(2015, 6, 23), "B11": datetime.date(2015, 6, 23), "B12": datetime.date(2015, 6, 23),
 }
 
 TIME_SERIES_PARAMS = {p for p, data in PARAM_CONFIG.items() if data["type"] == "time_series"}
@@ -160,7 +145,7 @@ def select_date_range(params):
     default_start = today - datetime.timedelta(days=7)
     start = st.date_input("Start Date", value=max(default_start, min_date),
                           min_value=min_date, max_value=today)
-    end   = st.date_input("End Date", value=today,
+    end  = st.date_input("End Date", value=today,
                           min_value=min_date, max_value=today)
 
     if start > end:
@@ -456,9 +441,9 @@ if st.button("Run Monitoring"):
                 fig = px.line(df_ts, x="Date", y=p, title=f"{p} Trend", markers=True)
                 st.plotly_chart(fig, use_container_width=True)
                 st.download_button(f"⬇️ Download {p} CSV",
-                                   df_ts.to_csv(index=False).encode('utf-8'),
-                                   file_name=f"{p.lower().replace(' ', '_')}_timeseries.csv",
-                                   mime="text/csv")
+                                    df_ts.to_csv(index=False).encode('utf-8'),
+                                    file_name=f"{p.lower().replace(' ', '_')}_timeseries.csv",
+                                    mime="text/csv")
         else:
             st.info("No time-series parameters selected or available for the given criteria.")
 
