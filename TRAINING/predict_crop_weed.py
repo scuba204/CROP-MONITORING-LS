@@ -32,6 +32,7 @@ from scripts.extract_features import extract_spectral_features
 
 # --- Initialize Earth Engine ---
 try:
+    ee.Authenticate()
     ee.Initialize(project="winged-tenure-464005-p9")
     print("Earth Engine initialized successfully.")
 except Exception as e:

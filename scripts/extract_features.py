@@ -12,22 +12,12 @@ if project_root not in sys.path:
 
 from scripts.gee_functions import _mask_s2_clouds
 
+
+
 def extract_spectral_features(gdf, start_date, end_date, bands, scale=10, cloud_filter=10):
     """
     Extracts spectral features from Sentinel-2 imagery for a given set of points
     and date range.
-
-    Args:
-        gdf (geopandas.GeoDataFrame): GeoDataFrame with point geometries and unique IDs.
-        start_date (str): The start date for the image collection filter (YYYY-MM-DD).
-        end_date (str): The end date for the image collection filter (YYYY-MM-DD).
-        bands (list): List of Sentinel-2 band names to extract.
-        scale (int): The scale in meters for the image data to be sampled at.
-        cloud_filter (int): The maximum percentage of cloud cover allowed.
-
-    Returns:
-        pd.DataFrame: A DataFrame containing the extracted band values for each point
-                      and each available date.
     """
     print("Connecting to Google Earth Engine...")
     try:
@@ -36,8 +26,6 @@ def extract_spectral_features(gdf, start_date, end_date, bands, scale=10, cloud_
         print(f"Error initializing Earth Engine: {e}")
         return pd.DataFrame()
 
-    # The GeoDataFrame needs an 'id' column for the feature collection.
-    # We will assume it is passed in the GeoDataFrame itself.
     points_fc = ee.FeatureCollection(
         [ee.Feature(ee.Geometry.Point([p.x, p.y]), {'id': i}) for i, p in zip(gdf['id'], gdf.geometry)]
     )
@@ -46,60 +34,49 @@ def extract_spectral_features(gdf, start_date, end_date, bands, scale=10, cloud_
         ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
         .filterDate(start_date, end_date)
         .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', cloud_filter))
-        .map(_mask_s2_clouds) # Correctly apply the cloud masking function
         .select(bands)
         .sort('system:time_start')
     )
     
-    image_list = s2_collection.toList(s2_collection.size())
-    num_images = image_list.size().getInfo()
-    print(f"Found {num_images} images in the collection.")
-
-    if num_images == 0:
-        return pd.DataFrame()
-
-    results = []
-    
-    for i in range(num_images):
-        image = ee.Image(image_list.get(i))
-        date_millis = image.get('system:time_start').getInfo()
-        date_str = pd.to_datetime(date_millis, unit='ms').strftime('%Y-%m-%d')
+    # --- CORRECTED CODE ---
+    def map_over_images(image):
+        date_millis = image.get('system:time_start')
         
+        # A function to reduce a single point's data for the current image.
         def reduce_region_function(feature):
             point = feature.geometry()
-            try:
-                values = image.reduceRegion(
-                    reducer=ee.Reducer.first(),
-                    geometry=point,
-                    scale=scale
-                ).getInfo()
-                if values:
-                    values = {key: values[key] if values[key] is not None else -9999 for key in values}
-                else:
-                    values = {band: -9999 for band in bands}
-            except ee.EEException:
-                values = {band: -9999 for band in bands}
-            
-            return feature.set(values)
+            values = image.reduceRegion(
+                reducer=ee.Reducer.first(),
+                geometry=point,
+                scale=scale
+            ).rename(bands, [b for b in bands])
+            return feature.set(values).set('date', date_millis)
 
-        extracted_features = points_fc.map(reduce_region_function)
-        
-        data = extracted_features.getInfo()['features']
-        df = pd.json_normalize(data)
-        
-        df = df.rename(columns={f'properties.{b}': b for b in bands})
-        df = df.rename(columns={'properties.id': 'id'})
-        
-        # Check if the properties.label column exists before renaming
-        if 'properties.label' in df.columns:
-            df = df.rename(columns={'properties.label': 'label'})
-        
-        df = df.drop(columns=['type', 'geometry.type', 'geometry.coordinates'])
-        
-        df['date'] = pd.to_datetime(date_str)
-        results.append(df)
+        return points_fc.map(reduce_region_function)
+
+    # Map the function over the image collection and flatten the result.
+    feature_collection = s2_collection.map(map_over_images).flatten()
     
-    final_df = pd.concat(results, ignore_index=True)
+    # Get the results from Earth Engine in a single request.
+    try:
+        data = feature_collection.getInfo()['features']
+    except Exception as e:
+        print(f"Earth Engine API Error: {e}")
+        return pd.DataFrame()
 
-    print(f"Extracted features for {len(final_df['id'].unique())} points on {len(final_df['date'].unique())} unique dates.")
-    return final_df
+    if not data:
+        print("No features extracted.")
+        return pd.DataFrame()
+
+    df = pd.json_normalize(data)
+    
+    # Clean up the DataFrame
+    df = df.rename(columns={f'properties.{b}': b for b in bands})
+    df = df.rename(columns={'properties.id': 'id'})
+    df['date'] = pd.to_datetime(df['properties.date'], unit='ms')
+    
+    properties_cols_to_drop = [col for col in df.columns if col.startswith('properties.') and col not in ['properties.id', 'properties.date']]
+    df = df.drop(columns=properties_cols_to_drop)
+
+    print(f"Extracted features for {len(df['id'].unique())} points on {len(df['date'].unique())} unique dates.")
+    return df
