@@ -18,7 +18,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 # --- Import all necessary GEE functions, including the newly added ones ---
 from scripts.gee_functions import (
     get_ndvi, get_savi, get_evi, get_ndwi, get_ndmi,
-    get_ndre, get_msi, get_osavi, get_gndvi, get_rvi, # New indices
+    get_ndre, get_msi, get_osavi, get_gndvi, get_rvi,
     get_soil_moisture, get_precipitation,
     get_land_surface_temperature, get_humidity, get_irradiance,
     get_soil_texture,
@@ -31,112 +31,67 @@ PALETTES = get_palettes()
 # -------------------------------------------------------------------
 # CONFIGURATION - CENTRALIZED AND EXTENDED
 # -------------------------------------------------------------------
-# This dictionary now holds all the information for each parameter
-# including its GEE function, default parameters for that function,
-# and how to map it to an EE band name if different from the display name.
-# 'type': 'time_series' or 'static' helps to determine if date ranges apply.
 PARAM_CONFIG = {
-    "NDVI":                   {"func": get_ndvi,                  "args": {"return_collection": False}, "band_name": "NDVI", "type": "time_series", "category": "Vegetation Indices", "help": "Vegetation index from Sentinel-2"},
-    "SAVI":                   {"func": get_savi,                  "args": {"return_collection": False}, "band_name": "SAVI", "type": "time_series", "category": "Vegetation Indices", "help": "Soil-adjusted vegetation index from Sentinel-2"},
-    "EVI":                    {"func": get_evi,                   "args": {"return_collection": False}, "band_name": "EVI", "type": "time_series", "category": "Vegetation Indices", "help": "Enhanced vegetation index from Sentinel-2"},
-    "NDWI":                   {"func": get_ndwi,                  "args": {"return_collection": False}, "band_name": "NDWI", "type": "time_series", "category": "Water Indices", "help": "Normalized Difference Water Index"},
-    "NDMI":                   {"func": get_ndmi,                  "args": {"return_collection": False}, "band_name": "NDMI", "type": "time_series", "category": "Water Indices", "help": "Normalized Difference Moisture Index"},
-    
-    "NDRE":                   {"func": get_ndre,                  "args": {"return_collection": False}, "band_name": "NDRE", "type": "time_series", "category": "Vegetation Indices", "help": "Normalized Difference Red Edge Index from Sentinel-2"},
-    "MSI":                    {"func": get_msi,                   "args": {"return_collection": False}, "band_name": "MSI", "type": "time_series", "category": "Vegetation Indices", "help": "Moisture Stress Index from Sentinel-2"},
-    "OSAVI":                  {"func": get_osavi,                 "args": {"return_collection": False}, "band_name": "OSAVI", "type": "time_series", "category": "Vegetation Indices", "help": "Optimized Soil-Adjusted Vegetation Index from Sentinel-2"},
-    "GNDVI":                  {"func": get_gndvi,                 "args": {"return_collection": False}, "band_name": "GNDVI", "type": "time_series", "category": "Vegetation Indices", "help": "Green Normalized Difference Vegetation Index from Sentinel-2"},
-    "RVI":                    {"func": get_rvi,                   "args": {"return_collection": False}, "band_name": "RVI", "type": "time_series", "category": "Vegetation Indices", "help": "Ratio Vegetation Index from Sentinel-2"},
-    
-    # Environmental/Climatic data
-    "Soil Moisture":          {"func": get_soil_moisture,         "args": {"return_collection": False}, "band_name": "SoilMoi00_10cm_tavg", "type": "time_series", "category": "Water & Soil", "help": "Soil moisture content (0-10cm) from FLDAS"},
-    "Precipitation":          {"func": get_precipitation,         "args": {"return_collection": False}, "band_name": "precipitation", "type": "time_series", "category": "Climate", "help": "Daily accumulated precipitation from CHIRPS"},
-    "Land Surface Temp":      {"func": get_land_surface_temperature, "args": {"return_collection": False}, "band_name": "LST_C", "type": "time_series", "category": "Climate", "help": "Daily land surface temperature in Celsius from MODIS"},
-    
-    "Humidity":               {"func": get_humidity,              "args": {"return_collection": False}, "band_name": "RH", "type": "time_series", "category": "Climate", "help": "Daily relative humidity from ERA5-Land"},
-    "Irradiance":             {"func": get_irradiance,            "args": {"return_collection": False}, "band_name": "surface_net_solar_radiation", "type": "time_series", "category": "Climate", "help": "Daily surface net solar radiation from ERA5-Land"},
-    "Evapotranspiration":     {"func": get_evapotranspiration,    "args": {"return_collection": False}, "band_name": "ET", "type": "time_series", "category": "Water & Soil", "help": "Daily actual evapotranspiration from MODIS"},
-    
-    # Static Soil Properties (using get_soil_property)
-    "Soil Organic Matter":    {"func": get_soil_property,         "args": {"key": "soil_organic_matter"}, "band_name": "ocd_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil organic carbon density (0-5cm)"},
-    "Soil pH":                {"func": get_soil_property,         "args": {"key": "soil_ph"}, "band_name": "phh2o_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil pH in H2O (0-5cm)"},
-    "Soil CEC":               {"func": get_soil_property,         "args": {"key": "soil_cec"}, "band_name": "cec_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Cation Exchange Capacity (0-5cm)"},
-    "Soil Nitrogen":          {"func": get_soil_property,         "args": {"key": "soil_nitrogen"}, "band_name": "nitrogen_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Nitrogen (0-5cm)"},
-    #  Static Soil Texture (using get_soil_texture)
-    "Soil Texture - Clay":    {"func": get_soil_texture,          "args": {}, "band_name": "clay", "type": "static", "category": "Soil Texture", "help": "Clay content of soil from SoilGrids"},
-    "Soil Texture - Silt":    {"func": get_soil_texture,          "args": {}, "band_name": "silt", "type": "static", "category": "Soil Texture", "help": "Silt content of soil from SoilGrids"},
-    "Soil Texture - Sand":    {"func": get_soil_texture,          "args": {}, "band_name": "sand", "type": "static", "category": "Soil Texture", "help": "Sand content of soil from SoilGrids"},
+    "NDVI": {"func": get_ndvi, "args": {"return_collection": False}, "band_name": "NDVI", "type": "time_series", "category": "Vegetation Indices", "help": "Vegetation index from Sentinel-2"},
+    "SAVI": {"func": get_savi, "args": {"return_collection": False}, "band_name": "SAVI", "type": "time_series", "category": "Vegetation Indices", "help": "Soil-adjusted vegetation index from Sentinel-2"},
+    "EVI": {"func": get_evi, "args": {"return_collection": False}, "band_name": "EVI", "type": "time_series", "category": "Vegetation Indices", "help": "Enhanced vegetation index from Sentinel-2"},
+    "NDWI": {"func": get_ndwi, "args": {"return_collection": False}, "band_name": "NDWI", "type": "time_series", "category": "Water Indices", "help": "Normalized Difference Water Index"},
+    "NDMI": {"func": get_ndmi, "args": {"return_collection": False}, "band_name": "NDMI", "type": "time_series", "category": "Water Indices", "help": "Normalized Difference Moisture Index"},
+    "NDRE": {"func": get_ndre, "args": {"return_collection": False}, "band_name": "NDRE", "type": "time_series", "category": "Vegetation Indices", "help": "Normalized Difference Red Edge Index from Sentinel-2"},
+    "MSI": {"func": get_msi, "args": {"return_collection": False}, "band_name": "MSI", "type": "time_series", "category": "Vegetation Indices", "help": "Moisture Stress Index from Sentinel-2"},
+    "OSAVI": {"func": get_osavi, "args": {"return_collection": False}, "band_name": "OSAVI", "type": "time_series", "category": "Vegetation Indices", "help": "Optimized Soil-Adjusted Vegetation Index from Sentinel-2"},
+    "GNDVI": {"func": get_gndvi, "args": {"return_collection": False}, "band_name": "GNDVI", "type": "time_series", "category": "Vegetation Indices", "help": "Green Normalized Difference Vegetation Index from Sentinel-2"},
+    "RVI": {"func": get_rvi, "args": {"return_collection": False}, "band_name": "RVI", "type": "time_series", "category": "Vegetation Indices", "help": "Ratio Vegetation Index from Sentinel-2"},
+    "Soil Moisture": {"func": get_soil_moisture, "args": {"return_collection": False}, "band_name": "SoilMoi00_10cm_tavg", "type": "time_series", "category": "Water & Soil", "help": "Soil moisture content (0-10cm) from FLDAS"},
+    "Precipitation": {"func": get_precipitation, "args": {"return_collection": False}, "band_name": "precipitation", "type": "time_series", "category": "Climate", "help": "Daily accumulated precipitation from CHIRPS"},
+    "Land Surface Temp": {"func": get_land_surface_temperature, "args": {"return_collection": False}, "band_name": "LST_C", "type": "time_series", "category": "Climate", "help": "Daily land surface temperature in Celsius from MODIS"},
+    "Humidity": {"func": get_humidity, "args": {"return_collection": False}, "band_name": "RH", "type": "time_series", "category": "Climate", "help": "Daily relative humidity from ERA5-Land"},
+    "Irradiance": {"func": get_irradiance, "args": {"return_collection": False}, "band_name": "surface_net_solar_radiation", "type": "time_series", "category": "Climate", "help": "Daily surface net solar radiation from ERA5-Land"},
+    "Evapotranspiration": {"func": get_evapotranspiration, "args": {"return_collection": False}, "band_name": "ET", "type": "time_series", "category": "Water & Soil", "help": "Daily actual evapotranspiration from MODIS"},
+    "Soil Organic Matter": {"func": get_soil_property, "args": {"key": "soil_organic_matter"}, "band_name": "ocd_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil organic carbon density (0-5cm)"},
+    "Soil pH": {"func": get_soil_property, "args": {"key": "soil_ph"}, "band_name": "phh2o_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil pH in H2O (0-5cm)"},
+    "Soil CEC": {"func": get_soil_property, "args": {"key": "soil_cec"}, "band_name": "cec_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Cation Exchange Capacity (0-5cm)"},
+    "Soil Nitrogen": {"func": get_soil_property, "args": {"key": "soil_nitrogen"}, "band_name": "nitrogen_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Nitrogen (0-5cm)"},
+    "Soil Texture - Clay": {"func": get_soil_texture, "args": {}, "band_name": "clay", "type": "static", "category": "Soil Texture", "help": "Clay content of soil from SoilGrids"},
+    "Soil Texture - Silt": {"func": get_soil_texture, "args": {}, "band_name": "silt", "type": "static", "category": "Soil Texture", "help": "Silt content of soil from SoilGrids"},
+    "Soil Texture - Sand": {"func": get_soil_texture, "args": {}, "band_name": "sand", "type": "static", "category": "Soil Texture", "help": "Sand content of soil from SoilGrids"},
 }
 
-PARAM_UNITS = {
-    # Vegetation Indices (Unitless)
-    "NDVI": "", "SAVI": "", "EVI": "", "NDRE": "", "MSI": "", 
-    "OSAVI": "", "GNDVI": "", "RVI": "",
-    # Water & Soil
-    "Soil Moisture": "m³/m³", "NDWI": "", "NDMI": "",
-    "Evapotranspiration": "mm/day",
-    # Climate
-    "Precipitation": "mm/day", "Land Surface Temp": "°C",
-    "Humidity": "%", "Irradiance": "W/m²",
-    # Soil Properties
-    "Soil Organic Matter": "g/kg", "Soil pH": "pH",
-    "Soil CEC": "cmol_c/kg", "Soil Nitrogen": "g/kg",
-    # Soil Texture
-    "Soil Texture - Clay": "%", "Soil Texture - Silt": "%", "Soil Texture - Sand": "%",
-}
-PARAM_INFO = {
-    # Vegetation Indices
-    "NDVI": "A widely used index for assessing plant greenness and health. High values indicate dense, healthy vegetation, while low values indicate sparse or unhealthy vegetation.",
-    "SAVI": "Similar to NDVI but includes a soil brightness correction factor to minimize the influence of bare soil on the vegetation signal. It is particularly useful in areas with low vegetation cover.",
-    "EVI": "An improved version of NDVI that is more sensitive to high-biomass vegetation and less susceptible to atmospheric noise and soil background effects.",
-    "NDRE": "Uses the red-edge band to assess plant health, especially in the later stages of growth. It is more sensitive to chlorophyll content and nitrogen status than NDVI.",
-    "MSI": "Measures plant water content using the short-wave infrared band. Higher values indicate greater water stress, while lower values suggest healthy, well-hydrated vegetation.",
-    "OSAVI": "An optimized version of SAVI that uses a fixed soil-adjustment factor, making it easier to implement and more robust across different soil types.",
-    "GNDVI": "Similar to NDVI but uses the green band instead of the red band. It is very sensitive to chlorophyll content and is a good indicator of plant nitrogen status.",
-    "RVI": "A simple ratio that provides a direct measure of vegetation biomass. It's less sensitive to atmospheric effects than other indices.",
-    # Other parameters
-    "Soil Moisture": "Soil moisture content in the top 10cm of the soil profile.",
-    "Precipitation": "Daily accumulated precipitation.",
-    "Land Surface Temp": "Daily average land surface temperature.",
-    "Humidity": "Daily average relative humidity.",
-    "Irradiance": "Daily average surface net solar radiation.",
-    "Evapotranspiration": "Daily actual evapotranspiration.",
-    "Soil Organic Matter": "The amount of organic matter in the top 5cm of the soil.",
-    "Soil pH": "The pH of the soil in the top 5cm, indicating acidity or alkalinity.",
-    "Soil CEC": "Cation Exchange Capacity of the soil in the top 5cm, indicating nutrient retention capacity.",
-    "Soil Nitrogen": "Nitrogen content of the soil in the top 5cm, a key plant nutrient.",
-    "Soil Texture - Clay": "Percentage of clay in the soil.",
-    "Soil Texture - Silt": "Percentage of silt in the soil.",
-    "Soil Texture - Sand": "Percentage of sand in the soil.",
+PARAM_UNITS = {p: "" for p in PARAM_CONFIG.keys()}
+PARAM_UNITS.update({
+    "Soil Moisture": "m³/m³", "Precipitation": "mm/day", "Land Surface Temp": "°C",
+    "Humidity": "%", "Irradiance": "W/m²", "Evapotranspiration": "kg/m²/8day", # Corrected unit for MOD16A2
+    "Soil Organic Matter": "g/kg", "Soil pH": "pH", "Soil CEC": "cmol(c)/kg",
+    "Soil Nitrogen": "cg/kg", "Soil Texture - Clay": "%", "Soil Texture - Silt": "%", "Soil Texture - Sand": "%",
+})
+
+# NEW: Dictionary for scaling factors to correct raw data values
+PARAM_SCALES = {
+    "Soil pH": 0.1,
+    "Soil CEC": 0.1,
+    "Soil Organic Matter": 0.1, # Check SoilGrids docs for specific unit conversions
+    "Soil Nitrogen": 0.01,      # Check SoilGrids docs for specific unit conversions
+    "Evapotranspiration": 0.1,  # MODIS ET is often scaled by 0.1
 }
 
-# Dynamically create PARAM_CATEGORIES from PARAM_CONFIG
+PARAM_INFO = {p: data['help'] for p, data in PARAM_CONFIG.items()}
+
 PARAM_CATEGORIES = {}
 for param, data in PARAM_CONFIG.items():
     category = data["category"]
-    if category not in PARAM_CATEGORIES:
-        PARAM_CATEGORIES[category] = {"params": [], "help": ""}
-    PARAM_CATEGORIES[category]["params"].append(param)
-    if not PARAM_CATEGORIES[category]["help"]:
-        PARAM_CATEGORIES[category]["help"] = f"{category} related parameters."
+    PARAM_CATEGORIES.setdefault(category, {"params": [], "help": f"{category} related parameters."})["params"].append(param)
 
-# Dynamically create DATA_AVAILABILITY and TIME_SERIES_PARAMS from PARAM_CONFIG
 DATA_AVAILABILITY = {
-    # Sentinel-2 derived products
     "NDVI": datetime.date(2015, 6, 23), "SAVI": datetime.date(2015, 6, 23), "EVI": datetime.date(2015, 6, 23),
     "NDWI": datetime.date(2015, 6, 23), "NDMI": datetime.date(2015, 6, 23),
     "NDRE": datetime.date(2015, 6, 23), "MSI": datetime.date(2015, 6, 23), "OSAVI": datetime.date(2015, 6, 23),
     "GNDVI": datetime.date(2015, 6, 23), "RVI": datetime.date(2015, 6, 23),
-    # Climatic data
     "Precipitation": datetime.date(1981, 1, 1),
     "Land Surface Temp": datetime.date(2000, 2, 24), "Evapotranspiration": datetime.date(2000, 2, 24),
-    "Humidity": datetime.date(2017, 1, 1), "Irradiance": datetime.date(2017, 1, 1),
-    # Soil data
-    "Soil Moisture": datetime.date(2000, 1, 1),
+    "Humidity": datetime.date(1981, 1, 1), "Irradiance": datetime.date(1979, 1, 1), # Corrected ERA5-Land start
+    "Soil Moisture": datetime.date(1981, 1, 1),
 }
-
 TIME_SERIES_PARAMS = {p for p, data in PARAM_CONFIG.items() if data["type"] == "time_series"}
-
 
 # -------------------------------------------------------------------
 # INITIALIZE
@@ -145,7 +100,6 @@ st.set_page_config(layout="wide")
 st.title("📍 Daily Crop Monitoring System (Lesotho)")
 ee.Initialize(project="winged-tenure-464005-p9")
 
-# Load & simplify country geometry
 shp = r"data/LSO_adm/LSO_adm1.shp"
 gdf = gpd.read_file(shp)
 gdf["geometry"] = gdf.geometry.simplify(tolerance=0.01)
@@ -157,16 +111,15 @@ country_geom = ee.Geometry(mapping(lesotho_shape))
 # -------------------------------------------------------------------
 if 'selected_params_session_state' not in st.session_state:
     st.session_state.selected_params_session_state = {'last_selected': []}
+
 def select_parameters():
     st.header("🧩 Controls")
     cat = st.selectbox("Parameter Category", list(PARAM_CATEGORIES.keys()))
     
-    # Add a toggle or expander to show the category-level help.
     with st.expander("Category Info"):
         st.caption(PARAM_CATEGORIES[cat]["help"])
     
     opts = PARAM_CATEGORIES[cat]["params"]
-
     q = st.text_input("🔍 Filter Parameters")
     if q:
         opts = [p for p in opts if q.lower() in p.lower()]
@@ -174,61 +127,59 @@ def select_parameters():
     selected = st.multiselect(
         "Parameters",
         opts,
-        default=[p for p in opts if p in st.session_state.selected_params_session_state.get('last_selected', [])]
+        default=st.session_state.selected_params_session_state.get('last_selected', [])
     )
     st.session_state.selected_params_session_state['last_selected'] = selected
     
-    # You can also add a brief, inline help for each parameter
-    for p in selected:
-        if p in PARAM_INFO:
-            st.markdown(f"**{p}**: {PARAM_INFO[p]}")
+    if selected:
+        with st.expander("Parameter Details"):
+            st.info(f"**{selected[0]}**: {PARAM_INFO.get(selected[0], 'No information available.')}")
 
     return selected
-def select_date_range(params):
-    relevant_dates = [DATA_AVAILABILITY[p] for p in set(params) & set(DATA_AVAILABILITY.keys()) if PARAM_CONFIG[p]["type"] == "time_series"]
 
+def select_date_range(params):
+    relevant_dates = [DATA_AVAILABILITY[p] for p in set(params) & set(DATA_AVAILABILITY.keys())]
     min_date = max(relevant_dates) if relevant_dates else datetime.date(2000, 1, 1)
-    if not relevant_dates:
-        st.info("No time-series parameters selected. Date range will be broad.")
 
     today = datetime.date.today()
-    default_start = today - datetime.timedelta(days=7)
-    start = st.date_input("Start Date", value=max(default_start, min_date),
-                          min_value=min_date, max_value=today)
-    end  = st.date_input("End Date", value=today,
-                          min_value=min_date, max_value=today)
-
+    default_start = today - datetime.timedelta(days=30)
+    
+    start = st.date_input("Start Date", value=max(default_start, min_date), min_value=min_date, max_value=today)
+    end = st.date_input("End Date", value=today, min_value=min_date, max_value=today)
+    
     if start > end:
-        st.error("Start date must be before or equal to end date"); st.stop()
+        st.error("Start date must be before or equal to end date")
+        st.stop()
+    
     return start, end
 
 def select_roi():
-    opt = st.radio("Region of Interest", ["Whole Country","Select District","Upload ROI"])
+    opt = st.radio("Region of Interest", ["Whole Country", "Select District", "Upload ROI"])
     geom = country_geom
     district = None
 
-    if opt=="Select District":
+    if opt == "Select District":
         district = st.selectbox("Choose District", gdf["NAME_1"].unique())
-        shape = gdf.loc[gdf.NAME_1==district,"geometry"].unary_union
+        shape = gdf.loc[gdf.NAME_1 == district, "geometry"].unary_union
         geom = ee.Geometry(mapping(shape))
-
-    if opt=="Upload ROI":
-        upl = st.file_uploader("Upload GeoJSON or zipped Shapefile", type=["geojson","zip"])
-        if upl:
-            with tempfile.TemporaryDirectory() as tmpd:
-                if upl.name.endswith(".geojson"):
-                    filepath = os.path.join(tmpd, upl.name)
-                    with open(filepath, "wb") as f: f.write(upl.read())
-                    gdf_u = gpd.read_file(filepath)
-                else: # zipped shapefile
-                    filepath = os.path.join(tmpd, upl.name)
-                    with open(filepath, "wb") as f: f.write(upl.read())
-                    gdf_u = gpd.read_file(f"zip://{filepath}")
+    elif opt == "Upload ROI":
+        upl = st.file_uploader("Upload GeoJSON or zipped Shapefile", type=["geojson", "zip"])
+        if not upl:
+            st.info("Please upload a file to use this option."); st.stop()
+        
+        with tempfile.TemporaryDirectory() as tmpd:
+            filepath = os.path.join(tmpd, upl.name)
+            with open(filepath, "wb") as f:
+                f.write(upl.read())
+            
+            if upl.name.endswith(".geojson"):
+                gdf_u = gpd.read_file(filepath)
+            else:
+                gdf_u = gpd.read_file(f"zip://{filepath}")
+            
             gdf_u["geometry"] = gdf_u.geometry.simplify(0.001)
             geom = ee.Geometry(mapping(unary_union(gdf_u.geometry)))
-        else:
-            st.info("Please upload a GeoJSON or zipped Shapefile to use 'Upload ROI'.")
-            st.stop()
+            
     return geom, opt, district
 
 def report_settings():
@@ -236,22 +187,20 @@ def report_settings():
 
 with st.sidebar:
     selected_params = select_parameters()
-    start_date,end_date = select_date_range(selected_params)
+    start_date, end_date = select_date_range(selected_params)
     selected_geom, roi_option, selected_district = select_roi()
     filename = report_settings()
-    ndvi_buffer = st.slider("NDVI/S2 Date Buffer (± days)",0,60,30)
+    ndvi_buffer = st.slider("Sentinel-2 Date Buffer (± days)", 0, 60, 30, help="Expands the date range for Sentinel-2 data to find cloud-free images.")
 
 with st.sidebar.expander("ℹ️ How to Use"):
     st.markdown("""
-    1. Pick parameters & date range.
-    2. Filter list dynamically.
-    3. Select or upload ROI.
-    4. Adjust NDVI/S2 buffer if needed.
-    5. Run Monitoring.
+    1. **Select Parameters**: Choose a category, then pick one or more parameters to analyze.
+    2. **Set Date Range**: Define the time period for your analysis.
+    3. **Define ROI**: Analyze the whole country, a specific district, or upload your own area.
+    4. **Run Monitoring**: Click the button to fetch data and generate results.
     """)
 
 # Helper function to get GEE image/collection
-# A more robust version of get_gee_data
 def get_gee_data(param_name, start_date_str, end_date_str, geometry, ndvi_buffer, return_collection=False):
     config = PARAM_CONFIG.get(param_name)
     if not config:
@@ -260,44 +209,34 @@ def get_gee_data(param_name, start_date_str, end_date_str, geometry, ndvi_buffer
     gee_func = config["func"]
     param_type = config["type"]
 
-    # Combine common and function-specific arguments
     call_args = {"roi": geometry, **config["args"]}
     
     if param_type == "time_series":
         call_args.update({"start": start_date_str, "end": end_date_str})
-        if "max_expansion_days" in config["args"]:
-            call_args["max_expansion_days"] = ndvi_buffer
+        call_args.setdefault("max_expansion_days", ndvi_buffer)
     
     try:
+        # For time series, we always want the collection for charting
+        if return_collection and param_type == "time_series":
+             call_args["return_collection"] = True
+
         result = gee_func(**call_args)
-        
-        if param_type == "time_series":
-            if isinstance(result, ee.Image):
-                result = ee.ImageCollection([result])
-            
-            if return_collection:
-                return result, None
-            else:
-                if result.size().getInfo() == 0:
-                    return None, f"No data available for {param_name} collection."
-                return result.mean(), None
-        else: # Static parameter
-            return result, None
+        return result, None
 
     except ee.EEException as ee_ex:
         return None, f"GEE Error: {ee_ex}"
     except Exception as ex:
         return None, f"General Error: {ex}"
 
-#@st.cache_data(show_spinner=False, ttl=1800)
+@st.cache_data(show_spinner=False, ttl=1800)
 def fetch_layers(start, end, _geom, params, ndvi_buffer):
     layers, errors = {}, []
     proj_crs = "EPSG:4326"
     display_scale = 500
 
     def fetch_one(p):
+        # For map layers, we always want a single mean image, not a collection
         img_or_coll, error_msg = get_gee_data(p, start, end, _geom, ndvi_buffer, return_collection=False)
-
         if error_msg:
             logging.warning(f"{p}: {error_msg}")
             return p, None, error_msg
@@ -310,7 +249,6 @@ def fetch_layers(start, end, _geom, params, ndvi_buffer):
             if ee_band_name not in band_names:
                 logging.warning(f"{p}: Expected band '{ee_band_name}' not found. Using first band: {band_names[0]}")
                 img = img.select([band_names[0]])
-                ee_band_name = band_names[0]
             else:
                 img = img.select([ee_band_name])
 
@@ -335,50 +273,46 @@ def extract_timeseries(start, end, _geom, param, ndvi_buffer):
         return pd.DataFrame()
 
     coll, error_msg = get_gee_data(param, start, end, _geom, ndvi_buffer, return_collection=True)
-
     if error_msg:
         logging.error(f"Time series for {param}: {error_msg}")
         return pd.DataFrame()
-
-    if coll is None or coll.size().getInfo() == 0:
+    if not coll or coll.size().getInfo() == 0:
         logging.warning(f"Time series: Empty or no collection for {param} for dates {start} to {end}.")
         return pd.DataFrame()
 
     band_to_extract = PARAM_CONFIG[param]["band_name"]
-
-   
-    band_name_ee = ee.String(band_to_extract)
+    scale_factor = PARAM_SCALES.get(param, 1)
 
     def to_feat(img):
         try:
-            # Use the server-side variable 'band_name_ee' instead of 'band_to_extract'
-            val = img.reduceRegion(ee.Reducer.mean(), _geom, 500).get(band_name_ee)
+            # Apply scaling factor during reduction
+            scaled_img = img.multiply(scale_factor)
+            val = scaled_img.reduceRegion(ee.Reducer.mean(), _geom, 500).get(band_to_extract)
             date = ee.Date(img.get("system:time_start")).format("YYYY-MM-dd")
             return ee.Feature(None, {"date": date, "value": val})
         except Exception as e:
-            # This part of the code is still client-side, but the mapped logic is now correct
             logging.warning(f"Time series: Error processing image in map for {param}: {e}")
             return ee.Feature(None, {"date": None, "value": None})
 
-    feats = coll.map(to_feat, opt_num_threads=5).filter(ee.Filter.notNull(['value']))
-
+    feats=coll.map(to_feat).filter(ee.Filter.notNull(["value"]))
+    
     try:
+        info = feats.getInfo()['features']
+        if not info: return pd.DataFrame()
         
-        dates = feats.aggregate_array("date").getInfo()
-        vals = feats.aggregate_array("value").getInfo()
+        data = [{'Date': f['properties']['date'], 'Value': f['properties']['value']} for f in info]
+        
     except Exception as e:
         logging.error(f"Time series: Error aggregating results for {param}: {e}")
         return pd.DataFrame()
     
-    # ... rest of the function remains the same ...
-    cleaned_data = [(d, v) for d, v in zip(dates, vals) if d is not None and v is not None]
-    if not cleaned_data:
+    if not data:
         logging.warning(f"No valid data points found for {param} after aggregation.")
         return pd.DataFrame()
 
-    df = pd.DataFrame(cleaned_data, columns=["Date", "Value"])
+    df = pd.DataFrame(data)
     df["Date"] = pd.to_datetime(df["Date"])
-    df = df.dropna()
+    df = df.sort_values(by="Date")
     df = df.rename(columns={"Value": param})
     return df
 
@@ -395,13 +329,14 @@ if st.button("Run Monitoring"):
             )
 
         st.write(f"Layers processed: {list(layers.keys())}")
-        if errors:
-            st.error("⚠️ Some layers failed to load or had issues:")
-            for p, msg in errors: st.write(f"- **{p}**: {msg}")
         if not layers:
-            st.warning("No data layers could be returned; try a wider date range, a different ROI, or check your parameters.")
+            st.error("⚠️ No data layers could be returned. Try a wider date range, a different ROI, or check your parameters.")
+            if errors:
+                st.info("Details on failed layers:")
+                for p, msg in errors:
+                    st.write(f"- **{p}**: {msg}")
             st.stop()
-
+        
         # Map viewer
         st.header("🚨 Map Viewer")
         visible_options = list(layers.keys())
@@ -414,41 +349,43 @@ if st.button("Run Monitoring"):
 
         if roi_option != "Whole Country":
             roi_name = selected_district if selected_district else "Custom ROI"
-            m.addLayer(selected_geom, {"color":"red","fillOpacity":0.1, "weight": 3}, f"{roi_name} Boundary")
+            m.addLayer(selected_geom, {"color": "red", "fillOpacity": 0.1, "weight": 3}, f"{roi_name} Boundary")
             m.centerObject(selected_geom)
 
         legend_html_parts = []
         if visible: legend_html_parts.append('<h4>Legend</h4>')
 
         for name in visible:
-            if name in PALETTES:
-                cfg = PALETTES[name]
-                mn, mx, pal = cfg["min"], cfg["max"], cfg["palette"]
-                if not isinstance(pal, list) or len(pal) < 2:
-                    logging.warning(f"Invalid palette for {name}: {pal}. Skipping legend entry.")
-                    continue
-                m.addLayer(layers[name], {"min":mn,"max":mx,"palette":pal}, name)
-                gradient_css = f"linear-gradient(to right, {pal[0]}, {pal[len(pal)//2]}, {pal[-1]})"
-                legend_html_parts.append(f"""
-                    <p style="margin-bottom: 2px;"><b>{name}:</b></p>
-                    <div style="width: 100%; height: 15px; background: {gradient_css}; border: 0.5px solid #ccc;"></div>
-                    <div style="display: flex; justify-content: space-between; font-size:10px;">
-                        <span>{mn}</span>
-                        <span>{mx}</span>
-                    </div>
-                    <br style="margin-top: 5px;">
-                """)
-            else:
-                logging.warning(f"No palette defined for {name}. Layer added but no legend entry.")
+            cfg = PALETTES.get(name)
+            if not cfg or not isinstance(cfg.get("palette"), list) or len(cfg["palette"]) < 2:
+                logging.warning(f"Invalid palette for {name}. Skipping legend entry.")
+                continue
+            
+            # Apply scale factor to min/max for legend if it exists
+            scale_factor = PARAM_SCALES.get(name, 1)
+            mn, mx, pal = cfg["min"] * scale_factor, cfg["max"] * scale_factor, cfg["palette"]
 
+            m.addLayer(layers[name], {"min": cfg["min"], "max": cfg["max"], "palette": pal}, name)
+            
+            gradient_css = f"linear-gradient(to right, {pal[0]}, {pal[len(pal)//2]}, {pal[-1]})"
+            legend_html_parts.append(f"""
+                <p style="margin-bottom: 2px;"><b>{name}:</b></p>
+                <div style="width: 100%; height: 15px; background: {gradient_css}; border: 0.5px solid #ccc;"></div>
+                <div style="display: flex; justify-content: space-between; font-size:10px;">
+                    <span>{round(mn, 2)}</span>
+                    <span>{round(mx, 2)}</span>
+                </div>
+                <br style="margin-top: 5px;">
+            """)
+        
         if legend_html_parts:
-            legend_html = """
-            <div style="position: fixed; bottom: 50px; left: 10px; width: 200px; max-height: 80%; overflow-y: auto;
-                        border:2px solid grey; z-index:9999; font-size:14px;
-                        background-color:white; opacity:0.9; padding:10px;">
-                {}
-            </div>
-            """.format("".join(legend_html_parts))
+            legend_html = f"""
+                <div style="position: fixed; bottom: 50px; left: 10px; width: 200px; max-height: 80%; overflow-y: auto;
+                             border:2px solid grey; z-index:9999; font-size:14px;
+                             background-color:white; opacity:0.9; padding:10px;">
+                    {''.join(legend_html_parts)}
+                </div>
+            """
             m.get_root().html.add_child(folium.Element(legend_html))
         m.addLayerControl()
         m.to_streamlit(height=600)
@@ -458,29 +395,40 @@ if st.button("Run Monitoring"):
         stats = {}
         for name, img in layers.items():
             try:
-                ee_img = ee.Image(img)
-                actual_band_name = PARAM_CONFIG[name]["band_name"]
+                val = ee.Image(img).reduceRegion(
+                    reducer=ee.Reducer.mean(), 
+                    geometry=selected_geom, 
+                    scale=500, 
+                    maxPixels=1e9
+                ).get(name).getInfo()
                 
-                if actual_band_name not in ee_img.bandNames().getInfo():
-                    actual_band_name = ee_img.bandNames().getInfo()[0]
+                if isinstance(val, (int, float)):
+                    # UPDATED LOGIC: Apply scale factor here
+                    scale_factor = PARAM_SCALES.get(name, 1)
+                    scaled_val = val * scale_factor
+                    stats[name] = round(scaled_val, 2)
+                else:
+                    stats[name] = "N/A"
 
-                val = ee_img.reduceRegion(reducer=ee.Reducer.mean(), geometry=selected_geom, scale=500, maxPixels=1e9).get(actual_band_name).getInfo()
-                stats[name] = round(val, 3) if isinstance(val, (int, float)) else "N/A"
             except Exception as e_inner:
                 st.warning(f"Failed to calculate mean for {name}: {e_inner}")
                 stats[name] = "Error"
         
         df_stats = pd.DataFrame(stats.items(), columns=["Parameter", "Mean"])
-        df_stats['Unit']= df_stats['Parameter'].map(PARAM_UNITS)
+        df_stats['Unit'] = df_stats['Parameter'].map(PARAM_UNITS)
         st.dataframe(df_stats)
 
         # Summary metrics
         st.subheader("📌 Summary Metrics")
         if not df_stats.empty:
-            cols=st.columns(min(3, len(df_stats)))
+            cols = st.columns(min(3, len(df_stats)))
             for i, row in df_stats.iterrows():
-                unit=PARAM_UNITS.get(row['Parameter'], '')
-                cols[i % len(cols)].metric(f"{row['Parameter']} ({unit})", f"{row['Mean']}", help=PARAM_INFO.get(row['Parameter'], ''))
+                unit = PARAM_UNITS.get(row['Parameter'], '')
+                cols[i % len(cols)].metric(
+                    f"{row['Parameter']} ({unit})", 
+                    f"{row['Mean']}", 
+                    help=PARAM_INFO.get(row['Parameter'], '')
+                )
         else:
             st.info("No parameters to display summary metrics for.")
 
@@ -490,21 +438,16 @@ if st.button("Run Monitoring"):
             st.subheader("📈 Time Series")
             for p in ts_params:
                 with st.spinner(f"Extracting time series for {p}..."):
-                    df_ts = extract_timeseries(
-                        str(start_date), str(end_date),
-                        selected_geom, p, ndvi_buffer
-                    )
+                    df_ts = extract_timeseries(str(start_date), str(end_date), selected_geom, p, ndvi_buffer)
                 if df_ts.empty:
-                    st.warning(f"No time series data available for {p} in the selected range/ROI.")
+                    st.warning(f"No time series data available for {p} in the selected date range/ROI.")
                     continue
                 fig = px.line(df_ts, x="Date", y=p, title=f"{p} Trend", markers=True)
-                unit= PARAM_UNITS.get(p, '')
+                unit = PARAM_UNITS.get(p, '')
                 fig.update_yaxes(title_text=f"{p} ({unit})")
                 st.plotly_chart(fig, use_container_width=True)
-                st.download_button(f"⬇️ Download {p} CSV",
-                                    df_ts.to_csv(index=False).encode('utf-8'),
-                                    file_name=f"{p.lower().replace(' ', '_')}_timeseries.csv",
-                                    mime="text/csv")
+                st.download_button(f"⬇️ Download {p} CSV", df_ts.to_csv(index=False).encode('utf-8'),
+                                    file_name=f"{p.lower().replace(' ', '_')}_timeseries.csv", mime="text/csv")
         else:
             st.info("No time-series parameters selected or available for the given criteria.")
 
@@ -531,7 +474,6 @@ if st.button("Run Monitoring"):
             mime="application/pdf"
         )
         os.unlink(tmp.name)
-
     except Exception as e:
         st.error(f"An unexpected error occurred: {type(e).__name__}. Error message: {e}")
         st.exception(e)
