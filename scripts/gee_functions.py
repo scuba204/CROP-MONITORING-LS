@@ -151,7 +151,6 @@ def get_ndmi(start: str, end: str, roi: ee.Geometry, **kwargs) -> Union[ee.Image
     calc = lambda img: img.normalizedDifference(['B8', 'B11']).rename('NDMI').copyProperties(img, ['system:time_start'])
     return _get_s2_derived_product(start, end, roi, ['B8', 'B11'], 'NDMI', calc, **kwargs)
 
-# ----- NEWLY ADDED FUNCTIONS BASED ON config.yaml -----
 
 def get_ndre(start: str, end: str, roi: ee.Geometry, **kwargs) -> Union[ee.Image, ee.ImageCollection]:
     """NDRE from Sentinel-2. Formula: (B8 - B5) / (B8 + B5)"""

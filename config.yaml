@@ -9,10 +9,11 @@ data:
     - B7
     - B8
     - B8A
+    - B9
     - B11
     - B12
   date_range:
-    start: "2025-07-25"
+    start: "2025-06-01"
     end:   "2025-08-01"
 
 gee:
@@ -75,6 +76,37 @@ indices:
     vars:
       B8: "B8"
       B4: "B4"
+
+  - name: NDREI 
+    expression: "(B7-B5) / (B7+B5)"
+    vars:
+      B7: "B7"
+      B5: "B5"
+
+  - name: NDPI  
+    expression: "(B8-B6) / (B8+B6)"
+    vars:
+      B8: "B8"
+      B6: "B6"
+
+  - name: CI_RE
+    expression: "(B7 / B5) - 1"
+    vars:
+      B7: "B7"
+      B5: "B5"
+
+  - name: WBI
+    expression: "(B9 / B12 )"
+    vars:
+     B9: "B9"
+     B12: "B12"
+
+  - name: Ratio_B8_B5
+    expression: "B8 / B5"
+    vars:
+      B8: "B8"
+      B5: "B5"          
+
 
 model:
   name: "crop_classifier_model.pkl"

@@ -6,13 +6,14 @@ import pandas as pd
 import ee
 import geopandas as gpd
 from shapely.geometry import mapping
-from shapely.set_operations import union_all # Shapely 2.x
+from shapely.set_operations import union_all
 
 # Project root import hack
 project_root = os.path.dirname(os.path.dirname(__file__))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 from scripts.data_loader import load_field_data
+from scripts.gee_functions import _mask_s2_clouds 
 
 # ──────────────────────────────────────────────────────────────────────────────
 def load_config(path: str = None) -> dict:
@@ -41,6 +42,7 @@ def get_collection(cfg: dict, roi_geojson: dict) -> ee.ImageCollection:
         .filterDate(start, end)
         .filterBounds(roi)
         .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", ct))
+        .map(_mask_s2_clouds) # Apply the cloud masking here
     )
     print(f"Loaded EE collection '{col}' {start}→{end}, cloud≤{ct}%")
     return coll
@@ -86,14 +88,15 @@ def sample_time_series(
         buf_geom = point.buffer(buf)
 
         def mapper(img):
+            # This is where we add the indices to each image after filtering and masking.
             with_idx = add_indices(img, cfg["indices"])
+            
             stats = with_idx.select(idx_names).reduceRegion(
                 ee.Reducer.mean(),
                 buf_geom,
                 scale=10,
                 bestEffort=True
             )
-            # FIX: Wrap the dictionary in an ee.Feature to satisfy the .map() requirement
             return ee.Feature(None, stats.set("system:time_start", img.get("system:time_start")))
 
         ts = ee_col.map(mapper).getInfo().get("features", [])

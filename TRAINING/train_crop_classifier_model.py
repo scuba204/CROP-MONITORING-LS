@@ -1,15 +1,3 @@
-#!/usr/bin/env python3
-"""
-Train a crop-vs-weed RandomForest classifier on multitemporal Sentinel-2 features.
-
-Features:
-  - CLI arguments for I/O, test split, random seed, search iterations
-  - Modular functions for loading, pivoting, engineering, training, and saving
-  - Logging instead of prints for progress tracing
-  - RandomizedSearchCV for hyperparameter tuning
-  - SHAP-based feature importance summary
-  - Persisted classification report and SHAP summary as CSV
-"""
 
 import os
 import sys
