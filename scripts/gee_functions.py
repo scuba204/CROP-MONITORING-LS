@@ -235,7 +235,7 @@ def get_soil_texture(roi: ee.Geometry) -> ee.Image:
     return ee.Image.cat([clay, silt, sand]).rename(['clay', 'silt', 'sand'])
 
 # -----------------------------------------------------------------------------
-# 6. MAIN EXECUTION (Example)
+# 6. MAIN EXECUTION 
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__':
@@ -255,3 +255,15 @@ if __name__ == '__main__':
     msi_collection = safe_execute(get_msi, start=args.start_date, end=args.end_date, roi=roi_ee, return_collection=True)
     if msi_collection:
         logging.info(f"Successfully generated MSI collection with {msi_collection.size().getInfo()} images.")
+
+
+    logging.info("--- Fetching Mean OSAVI Image (Newly Added) ---")
+    osavi_image = safe_execute(get_osavi, start=args.start_date, end=args.end_date, roi=roi_ee, return_collection=False)
+    if osavi_image:
+        logging.info(f"Successfully generated OSAVI image with bands: {osavi_image.bandNames().getInfo()}")
+
+    logging.info("---Fetching RVI Time-Series Collection (Newly Added) ---")
+    rvi_collection = safe_execute(get_rvi, start=args.start_date, end=args.end_date, roi=roi_ee, return_collection=True)
+    if rvi_collection:
+        logging.info(f"Successfully generated RVI collection with {rvi_collection.size().getInfo()} images.")
+

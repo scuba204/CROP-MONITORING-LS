@@ -32,46 +32,45 @@ PALETTES = get_palettes()
 # CONFIGURATION - CENTRALIZED AND EXTENDED
 # -------------------------------------------------------------------
 PARAM_CONFIG = {
-    "NDVI": {"func": get_ndvi, "args": {"return_collection": False}, "band_name": "NDVI", "type": "time_series", "category": "Vegetation Indices", "help": "Vegetation index from Sentinel-2"},
-    "SAVI": {"func": get_savi, "args": {"return_collection": False}, "band_name": "SAVI", "type": "time_series", "category": "Vegetation Indices", "help": "Soil-adjusted vegetation index from Sentinel-2"},
-    "EVI": {"func": get_evi, "args": {"return_collection": False}, "band_name": "EVI", "type": "time_series", "category": "Vegetation Indices", "help": "Enhanced vegetation index from Sentinel-2"},
-    "NDWI": {"func": get_ndwi, "args": {"return_collection": False}, "band_name": "NDWI", "type": "time_series", "category": "Water Indices", "help": "Normalized Difference Water Index"},
-    "NDMI": {"func": get_ndmi, "args": {"return_collection": False}, "band_name": "NDMI", "type": "time_series", "category": "Water Indices", "help": "Normalized Difference Moisture Index"},
-    "NDRE": {"func": get_ndre, "args": {"return_collection": False}, "band_name": "NDRE", "type": "time_series", "category": "Vegetation Indices", "help": "Normalized Difference Red Edge Index from Sentinel-2"},
-    "MSI": {"func": get_msi, "args": {"return_collection": False}, "band_name": "MSI", "type": "time_series", "category": "Vegetation Indices", "help": "Moisture Stress Index from Sentinel-2"},
-    "OSAVI": {"func": get_osavi, "args": {"return_collection": False}, "band_name": "OSAVI", "type": "time_series", "category": "Vegetation Indices", "help": "Optimized Soil-Adjusted Vegetation Index from Sentinel-2"},
-    "GNDVI": {"func": get_gndvi, "args": {"return_collection": False}, "band_name": "GNDVI", "type": "time_series", "category": "Vegetation Indices", "help": "Green Normalized Difference Vegetation Index from Sentinel-2"},
-    "RVI": {"func": get_rvi, "args": {"return_collection": False}, "band_name": "RVI", "type": "time_series", "category": "Vegetation Indices", "help": "Ratio Vegetation Index from Sentinel-2"},
-    "Soil Moisture": {"func": get_soil_moisture, "args": {"return_collection": False}, "band_name": "SoilMoi00_10cm_tavg", "type": "time_series", "category": "Water & Soil", "help": "Soil moisture content (0-10cm) from FLDAS"},
-    "Precipitation": {"func": get_precipitation, "args": {"return_collection": False}, "band_name": "precipitation", "type": "time_series", "category": "Climate", "help": "Daily accumulated precipitation from CHIRPS"},
-    "Land Surface Temp": {"func": get_land_surface_temperature, "args": {"return_collection": False}, "band_name": "LST_C", "type": "time_series", "category": "Climate", "help": "Daily land surface temperature in Celsius from MODIS"},
-    "Humidity": {"func": get_humidity, "args": {"return_collection": False}, "band_name": "RH", "type": "time_series", "category": "Climate", "help": "Daily relative humidity from ERA5-Land"},
-    "Irradiance": {"func": get_irradiance, "args": {"return_collection": False}, "band_name": "surface_net_solar_radiation", "type": "time_series", "category": "Climate", "help": "Daily surface net solar radiation from ERA5-Land"},
-    "Evapotranspiration": {"func": get_evapotranspiration, "args": {"return_collection": False}, "band_name": "ET", "type": "time_series", "category": "Water & Soil", "help": "Daily actual evapotranspiration from MODIS"},
-    "Soil Organic Matter": {"func": get_soil_property, "args": {"key": "soil_organic_matter"}, "band_name": "ocd_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil organic carbon density (0-5cm)"},
-    "Soil pH": {"func": get_soil_property, "args": {"key": "soil_ph"}, "band_name": "phh2o_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil pH in H2O (0-5cm)"},
-    "Soil CEC": {"func": get_soil_property, "args": {"key": "soil_cec"}, "band_name": "cec_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Cation Exchange Capacity (0-5cm)"},
-    "Soil Nitrogen": {"func": get_soil_property, "args": {"key": "soil_nitrogen"}, "band_name": "nitrogen_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Soil Nitrogen (0-5cm)"},
-    "Soil Texture - Clay": {"func": get_soil_texture, "args": {}, "band_name": "clay", "type": "static", "category": "Soil Texture", "help": "Clay content of soil from SoilGrids"},
-    "Soil Texture - Silt": {"func": get_soil_texture, "args": {}, "band_name": "silt", "type": "static", "category": "Soil Texture", "help": "Silt content of soil from SoilGrids"},
-    "Soil Texture - Sand": {"func": get_soil_texture, "args": {}, "band_name": "sand", "type": "static", "category": "Soil Texture", "help": "Sand content of soil from SoilGrids"},
+    "NDVI": {"func": get_ndvi, "args": {"return_collection": False}, "band_name": "NDVI", "type": "time_series", "category": "Vegetation Indices", "help": "Normalized Difference Vegetation Index. A common indicator of live green vegetation. Values typically range from -1 to +1, where higher values indicate more dense and healthy vegetation."},
+    "SAVI": {"func": get_savi, "args": {"return_collection": False}, "band_name": "SAVI", "type": "time_series", "category": "Vegetation Indices", "help": "Soil-Adjusted Vegetation Index. Similar to NDVI but corrects for the influence of soil brightness, making it more reliable in areas with sparse vegetation."},
+    "EVI": {"func": get_evi, "args": {"return_collection": False}, "band_name": "EVI", "type": "time_series", "category": "Vegetation Indices", "help": "Enhanced Vegetation Index. An optimized index that is more sensitive to changes in high-biomass areas and has reduced atmospheric influence compared to NDVI."},
+    "NDWI": {"func": get_ndwi, "args": {"return_collection": False}, "band_name": "NDWI", "type": "time_series", "category": "Water Indices", "help": "Normalized Difference Water Index. Used to monitor changes in water content of leaves and is effective at identifying water bodies. Higher values indicate higher water content or surface water."},
+    "NDMI": {"func": get_ndmi, "args": {"return_collection": False}, "band_name": "NDMI", "type": "time_series", "category": "Water Indices", "help": "Normalized Difference Moisture Index. Sensitive to the moisture levels in vegetation. It is often used for monitoring drought and fuel levels in fire-prone areas."},
+    "NDRE": {"func": get_ndre, "args": {"return_collection": False}, "band_name": "NDRE", "type": "time_series", "category": "Vegetation Indices", "help": "Normalized Difference Red Edge Index. A good indicator of plant health and nitrogen content, especially in the mid-to-late growth stages when chlorophyll content is high."},
+    "MSI": {"func": get_msi, "args": {"return_collection": False}, "band_name": "MSI", "type": "time_series", "category": "Vegetation Indices", "help": "Moisture Stress Index. A ratio-based index sensitive to increasing water content in leaves. Higher values indicate greater water stress and less water content."},
+    "OSAVI": {"func": get_osavi, "args": {"return_collection": False}, "band_name": "OSAVI", "type": "time_series", "category": "Vegetation Indices", "help": "Optimized Soil-Adjusted Vegetation Index. A modified version of SAVI that is even more effective at minimizing soil background influence."},
+    "GNDVI": {"func": get_gndvi, "args": {"return_collection": False}, "band_name": "GNDVI", "type": "time_series", "category": "Vegetation Indices", "help": "Green Normalized Difference Vegetation Index. Similar to NDVI but uses the green band instead of the red. It is more sensitive to chlorophyll concentration than NDVI."},
+    "RVI": {"func": get_rvi, "args": {"return_collection": False}, "band_name": "RVI", "type": "time_series", "category": "Vegetation Indices", "help": "Ratio Vegetation Index. A simple ratio of NIR to Red reflectance. It is sensitive to green vegetation but can be affected by atmospheric conditions."},
+    "Soil Moisture": {"func": get_soil_moisture, "args": {"return_collection": False}, "band_name": "SoilMoi00_10cm_tavg", "type": "time_series", "category": "Water & Soil", "help": "Volumetric soil moisture content in the top 10cm of soil, measured in m³/m³. Indicates the amount of water present in the soil."},
+    "Precipitation": {"func": get_precipitation, "args": {"return_collection": False}, "band_name": "precipitation", "type": "time_series", "category": "Climate", "help": "Daily accumulated precipitation from the CHIRPS dataset, measured in mm/day. Represents rainfall."},
+    "Land Surface Temp": {"func": get_land_surface_temperature, "args": {"return_collection": False}, "band_name": "LST_C", "type": "time_series", "category": "Climate", "help": "The temperature of the Earth's surface in Celsius, as measured by MODIS. It differs from air temperature and is a key indicator of energy balance."},
+    "Humidity": {"func": get_humidity, "args": {"return_collection": False}, "band_name": "RH", "type": "time_series", "category": "Climate", "help": "Relative Humidity from ERA5-Land. The amount of water vapor in the air, expressed as a percentage of the maximum amount the air could hold at the given temperature."},
+    "Irradiance": {"func": get_irradiance, "args": {"return_collection": False}, "band_name": "surface_net_solar_radiation", "type": "time_series", "category": "Climate", "help": "Daily surface net solar radiation (shortwave) from ERA5-Land. It is the balance between incoming and reflected solar energy, indicating the energy available at the surface."},
+    "Evapotranspiration": {"func": get_evapotranspiration, "args": {"return_collection": False}, "band_name": "ET", "type": "time_series", "category": "Water & Soil", "help": "Actual Evapotranspiration from MODIS. The sum of water evaporation from the surface and transpiration from plants."},
+    "Soil Organic Matter": {"func": get_soil_property, "args": {"key": "soil_organic_matter"}, "band_name": "ocd_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Organic carbon content in the top 5cm of soil, a key indicator of soil health and fertility."},
+    "Soil pH": {"func": get_soil_property, "args": {"key": "soil_ph"}, "band_name": "phh2o_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "The pH level of the soil in the top 5cm, indicating its acidity or alkalinity. A crucial factor for nutrient availability."},
+    "Soil CEC": {"func": get_soil_property, "args": {"key": "soil_cec"}, "band_name": "cec_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Cation Exchange Capacity of the soil in the top 5cm. Represents the soil's ability to hold onto essential nutrients."},
+    "Soil Nitrogen": {"func": get_soil_property, "args": {"key": "soil_nitrogen"}, "band_name": "nitrogen_0-5cm_mean", "type": "static", "category": "Soil Properties", "help": "Total nitrogen concentration in the top 5cm of soil. Nitrogen is a critical nutrient for plant growth."},
+    "Soil Texture - Clay": {"func": get_soil_texture, "args": {}, "band_name": "clay", "type": "static", "category": "Soil Texture", "help": "The percentage of clay content in the top 5cm of soil. Affects water retention, drainage, and soil structure."},
+    "Soil Texture - Silt": {"func": get_soil_texture, "args": {}, "band_name": "silt", "type": "static", "category": "Soil Texture", "help": "The percentage of silt content in the top 5cm of soil. Affects water retention, drainage, and soil structure."},
+    "Soil Texture - Sand": {"func": get_soil_texture, "args": {}, "band_name": "sand", "type": "static", "category": "Soil Texture", "help": "The percentage of sand content in the top 5cm of soil. Affects water retention, drainage, and soil structure."},
 }
 
 PARAM_UNITS = {p: "" for p in PARAM_CONFIG.keys()}
 PARAM_UNITS.update({
     "Soil Moisture": "m³/m³", "Precipitation": "mm/day", "Land Surface Temp": "°C",
-    "Humidity": "%", "Irradiance": "W/m²", "Evapotranspiration": "kg/m²/8day", # Corrected unit for MOD16A2
-    "Soil Organic Matter": "g/kg", "Soil pH": "pH", "Soil CEC": "cmol(c)/kg",
+    "Humidity": "%", "Irradiance": "W/m²", "Evapotranspiration": "kg/m²/8day",
+    "Soil Organic Matter": "dg/kg", "Soil pH": "pH", "Soil CEC": "cmol(c)/kg",
     "Soil Nitrogen": "cg/kg", "Soil Texture - Clay": "%", "Soil Texture - Silt": "%", "Soil Texture - Sand": "%",
 })
 
-# NEW: Dictionary for scaling factors to correct raw data values
 PARAM_SCALES = {
     "Soil pH": 0.1,
     "Soil CEC": 0.1,
-    "Soil Organic Matter": 0.1, # Check SoilGrids docs for specific unit conversions
-    "Soil Nitrogen": 0.01,      # Check SoilGrids docs for specific unit conversions
-    "Evapotranspiration": 0.1,  # MODIS ET is often scaled by 0.1
+    "Soil Organic Matter": 0.1,
+    "Soil Nitrogen": 0.01,
+    "Evapotranspiration": 0.1,
 }
 
 PARAM_INFO = {p: data['help'] for p, data in PARAM_CONFIG.items()}
@@ -88,7 +87,7 @@ DATA_AVAILABILITY = {
     "GNDVI": datetime.date(2015, 6, 23), "RVI": datetime.date(2015, 6, 23),
     "Precipitation": datetime.date(1981, 1, 1),
     "Land Surface Temp": datetime.date(2000, 2, 24), "Evapotranspiration": datetime.date(2000, 2, 24),
-    "Humidity": datetime.date(1981, 1, 1), "Irradiance": datetime.date(1979, 1, 1), # Corrected ERA5-Land start
+    "Humidity": datetime.date(1981, 1, 1), "Irradiance": datetime.date(1979, 1, 1),
     "Soil Moisture": datetime.date(1981, 1, 1),
 }
 TIME_SERIES_PARAMS = {p for p, data in PARAM_CONFIG.items() if data["type"] == "time_series"}
@@ -103,7 +102,8 @@ ee.Initialize(project="winged-tenure-464005-p9")
 shp = r"data/LSO_adm/LSO_adm1.shp"
 gdf = gpd.read_file(shp)
 gdf["geometry"] = gdf.geometry.simplify(tolerance=0.01)
-lesotho_shape = unary_union(gdf.geometry)
+# CHANGED: Replaced deprecated unary_union
+lesotho_shape = gdf.geometry.union_all()
 country_geom = ee.Geometry(mapping(lesotho_shape))
 
 # -------------------------------------------------------------------
@@ -160,7 +160,8 @@ def select_roi():
 
     if opt == "Select District":
         district = st.selectbox("Choose District", gdf["NAME_1"].unique())
-        shape = gdf.loc[gdf.NAME_1 == district, "geometry"].unary_union
+        # CHANGED: Replaced deprecated unary_union
+        shape = gdf.loc[gdf.NAME_1 == district, "geometry"].union_all()
         geom = ee.Geometry(mapping(shape))
     elif opt == "Upload ROI":
         upl = st.file_uploader("Upload GeoJSON or zipped Shapefile", type=["geojson", "zip"])
@@ -178,7 +179,8 @@ def select_roi():
                 gdf_u = gpd.read_file(f"zip://{filepath}")
             
             gdf_u["geometry"] = gdf_u.geometry.simplify(0.001)
-            geom = ee.Geometry(mapping(unary_union(gdf_u.geometry)))
+            # CHANGED: Replaced deprecated unary_union
+            geom = ee.Geometry(mapping(gdf_u.geometry.union_all()))
             
     return geom, opt, district
 
@@ -216,7 +218,6 @@ def get_gee_data(param_name, start_date_str, end_date_str, geometry, ndvi_buffer
         call_args.setdefault("max_expansion_days", ndvi_buffer)
     
     try:
-        # For time series, we always want the collection for charting
         if return_collection and param_type == "time_series":
              call_args["return_collection"] = True
 
@@ -235,7 +236,6 @@ def fetch_layers(start, end, _geom, params, ndvi_buffer):
     display_scale = 500
 
     def fetch_one(p):
-        # For map layers, we always want a single mean image, not a collection
         img_or_coll, error_msg = get_gee_data(p, start, end, _geom, ndvi_buffer, return_collection=False)
         if error_msg:
             logging.warning(f"{p}: {error_msg}")
@@ -285,7 +285,6 @@ def extract_timeseries(start, end, _geom, param, ndvi_buffer):
 
     def to_feat(img):
         try:
-            # Apply scaling factor during reduction
             scaled_img = img.multiply(scale_factor)
             val = scaled_img.reduceRegion(ee.Reducer.mean(), _geom, 500).get(band_to_extract)
             date = ee.Date(img.get("system:time_start")).format("YYYY-MM-dd")
@@ -321,6 +320,10 @@ def extract_timeseries(start, end, _geom, param, ndvi_buffer):
 # -------------------------------------------------------------------
 if st.button("Run Monitoring"):
     st.markdown("---")
+    if not selected_params:
+        st.warning("Please select at least one parameter to monitor.")
+        st.stop()
+        
     try:
         with st.spinner("Fetching Earth Engine data and preparing layers..."):
             layers, errors = fetch_layers(
@@ -328,9 +331,8 @@ if st.button("Run Monitoring"):
                 selected_geom, selected_params, ndvi_buffer
             )
 
-        st.write(f"Layers processed: {list(layers.keys())}")
         if not layers:
-            st.error("⚠️ No data layers could be returned. Try a wider date range, a different ROI, or check your parameters.")
+            st.error("⚠️ No data layers could be returned. Please try a wider date range or a different region.")
             if errors:
                 st.info("Details on failed layers:")
                 for p, msg in errors:
@@ -340,7 +342,8 @@ if st.button("Run Monitoring"):
         # Map viewer
         st.header("🚨 Map Viewer")
         visible_options = list(layers.keys())
-        visible = st.multiselect("Select layers to display on map", visible_options, default=visible_options[:1] if visible_options else [])
+        default_visible = visible_options[:1] if visible_options else []
+        visible = st.multiselect("Select layers to display on map", visible_options, default=default_visible)
 
         map_center = selected_geom.centroid().coordinates().getInfo()[::-1]
         m = geemap.Map(center=map_center, zoom=8, plugin_Draw=False, minimap=True)
@@ -361,10 +364,9 @@ if st.button("Run Monitoring"):
                 logging.warning(f"Invalid palette for {name}. Skipping legend entry.")
                 continue
             
-            # Apply scale factor to min/max for legend if it exists
             scale_factor = PARAM_SCALES.get(name, 1)
             mn, mx, pal = cfg["min"] * scale_factor, cfg["max"] * scale_factor, cfg["palette"]
-
+            
             m.addLayer(layers[name], {"min": cfg["min"], "max": cfg["max"], "palette": pal}, name)
             
             gradient_css = f"linear-gradient(to right, {pal[0]}, {pal[len(pal)//2]}, {pal[-1]})"
@@ -403,13 +405,11 @@ if st.button("Run Monitoring"):
                 ).get(name).getInfo()
                 
                 if isinstance(val, (int, float)):
-                    # UPDATED LOGIC: Apply scale factor here
                     scale_factor = PARAM_SCALES.get(name, 1)
                     scaled_val = val * scale_factor
                     stats[name] = round(scaled_val, 2)
                 else:
                     stats[name] = "N/A"
-
             except Exception as e_inner:
                 st.warning(f"Failed to calculate mean for {name}: {e_inner}")
                 stats[name] = "Error"
@@ -440,7 +440,7 @@ if st.button("Run Monitoring"):
                 with st.spinner(f"Extracting time series for {p}..."):
                     df_ts = extract_timeseries(str(start_date), str(end_date), selected_geom, p, ndvi_buffer)
                 if df_ts.empty:
-                    st.warning(f"No time series data available for {p} in the selected date range/ROI.")
+                    st.warning(f"No time series data available for {p} in the selected range/ROI.")
                     continue
                 fig = px.line(df_ts, x="Date", y=p, title=f"{p} Trend", markers=True)
                 unit = PARAM_UNITS.get(p, '')
@@ -451,12 +451,22 @@ if st.button("Run Monitoring"):
         else:
             st.info("No time-series parameters selected or available for the given criteria.")
 
+        # --- Glossary section for parameter explanations ---
+        st.subheader("📖 Glossary of Selected Parameters")
+        for p in selected_params:
+            info = PARAM_INFO.get(p, "No information available.")
+            st.markdown(f"**{p}**: {info}")
+        
+        st.markdown("---") 
+
         # PDF report
         with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
             with PdfPages(tmp.name) as pdf:
                 fig, ax = plt.subplots(figsize=(8, 4))
                 if not df_stats.empty:
-                    df_stats.plot(kind="barh", x="Parameter", y="Mean", ax=ax, legend=False, color="skyblue")
+                    df_stats_report = df_stats[df_stats['Mean'] != 'N/A'].set_index('Parameter')
+                    df_stats_report['Mean'] = pd.to_numeric(df_stats_report['Mean'])
+                    df_stats_report.plot(kind="barh", y="Mean", ax=ax, legend=False, color="skyblue")
                     ax.set_title(f"Parameter Means: {start_date} to {end_date}")
                     pdf.savefig(fig, bbox_inches="tight")
                 else:
