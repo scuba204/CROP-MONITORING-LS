@@ -26,9 +26,9 @@ def extract_spectral_features(gdf, start_date, end_date, bands, scale=10, cloud_
         print(f"Error initializing Earth Engine: {e}")
         return pd.DataFrame()
 
-    points_fc = ee.FeatureCollection(
-        [ee.Feature(ee.Geometry.Point([p.x, p.y]), {'id': i}) for i, p in zip(gdf['id'], gdf.geometry)]
-    )
+    points_fc = ee.FeatureCollection([
+        ee.Feature(ee.Geometry.Point([p.x, p.y]), {'id': int(i)}) for i, p in zip(gdf['id'], gdf.geometry)
+    ])
 
     s2_collection = (
         ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
@@ -38,26 +38,22 @@ def extract_spectral_features(gdf, start_date, end_date, bands, scale=10, cloud_
         .sort('system:time_start')
     )
     
-    # --- CORRECTED CODE ---
-    def map_over_images(image):
-        date_millis = image.get('system:time_start')
+    def map_over_points(feature):
+        point = feature.geometry()
         
-        # A function to reduce a single point's data for the current image.
-        def reduce_region_function(feature):
-            point = feature.geometry()
+        def reduce_image(image):
+            date_millis = image.get('system:time_start')
             values = image.reduceRegion(
                 reducer=ee.Reducer.first(),
                 geometry=point,
                 scale=scale
-            ).rename(bands, [b for b in bands])
-            return feature.set(values).set('date', date_millis)
+            )
+            return ee.Feature(None, values.set('date', date_millis).set('id', feature.get('id')))
 
-        return points_fc.map(reduce_region_function)
+        return s2_collection.map(reduce_image)
 
-    # Map the function over the image collection and flatten the result.
-    feature_collection = s2_collection.map(map_over_images).flatten()
+    feature_collection = points_fc.map(map_over_points).flatten()
     
-    # Get the results from Earth Engine in a single request.
     try:
         data = feature_collection.getInfo()['features']
     except Exception as e:
@@ -70,13 +66,23 @@ def extract_spectral_features(gdf, start_date, end_date, bands, scale=10, cloud_
 
     df = pd.json_normalize(data)
     
-    # Clean up the DataFrame
-    df = df.rename(columns={f'properties.{b}': b for b in bands})
-    df = df.rename(columns={'properties.id': 'id'})
-    df['date'] = pd.to_datetime(df['properties.date'], unit='ms')
+    # --- CORRECTED CODE ---
+    # Build a list of all expected columns.
+    expected_cols = ['properties.id', 'properties.date'] + [f'properties.{b}' for b in bands]
     
-    properties_cols_to_drop = [col for col in df.columns if col.startswith('properties.') and col not in ['properties.id', 'properties.date']]
-    df = df.drop(columns=properties_cols_to_drop)
+    # Select only the columns you expect, which prevents issues if a column is missing.
+    df = df[expected_cols]
+    
+    # Create the renaming dictionary for all columns.
+    rename_dict = {'properties.id': 'id', 'properties.date': 'date'}
+    rename_dict.update({f'properties.{b}': b for b in bands})
+    
+    # Rename the columns in a single, safe operation.
+    df = df.rename(columns=rename_dict)
+    
+    # Ensure id is an integer.
+    df['id'] = df['id'].astype(int)
+    df['date'] = pd.to_datetime(df['date'], unit='ms')
 
     print(f"Extracted features for {len(df['id'].unique())} points on {len(df['date'].unique())} unique dates.")
     return df
