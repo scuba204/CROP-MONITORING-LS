@@ -6,7 +6,7 @@ import joblib
 import os
 
 # Load data
-df = pd.read_csv("data/disease_training.csv")
+df = pd.read_csv("data/crop_disease_training_data.csv")
 X = df[['b5', 'b6', 'b7', 'b11', 'b12', 'ndvi']]
 y = df['label']
 
