@@ -11,7 +11,7 @@ from sklearn.metrics import classification_report, balanced_accuracy_score
 # -----------------------------
 # Load configuration
 # -----------------------------
-with open("configs/disease_config.yaml", "r") as f:
+with open("configs/config_disease.yaml", "r") as f:
     config = yaml.safe_load(f)
 
 csv_path = config["data"]["csv_path"]

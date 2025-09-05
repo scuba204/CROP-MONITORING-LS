@@ -23,7 +23,7 @@ from scripts.gee_functions import _mask_s2_clouds  # pixel-level cloud/shadow ma
 EE_PROJECT = 'winged-tenure-464005-p9'
 
 class GEEInitError(RuntimeError):
-    pass
+    pass         
 
 
 def initialize_ee_project():
