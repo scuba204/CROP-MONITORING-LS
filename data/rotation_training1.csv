@@ -1,0 +1,621 @@
+Year,last_crop,area_ha,yield_kg_ha,recommended_crop
+1961,Barley,3885.0,842.0,Barley
+1961,"Beans, dry",5000.0,280.0,Barley
+1961,Maize (corn),135000.0,814.8,Barley
+1961,Oats,642.0,1303.7,Barley
+1961,"Other fruits, n.e.c.",2700.0,4444.4,Barley
+1961,"Other vegetables, fresh n.e.c.",1765.0,6798.9,Barley
+1961,"Peas, dry",16871.0,712.7,Barley
+1961,Potatoes,200.0,15000.0,Barley
+1961,Sorghum,65000.0,846.2,Barley
+1961,Wheat,66532.0,864.8,Barley
+1962,Barley,4000.0,700.0,Barley
+1962,"Beans, dry",5000.0,280.0,Barley
+1962,Maize (corn),135000.0,814.8,Barley
+1962,Oats,700.0,1428.6,Barley
+1962,"Other fruits, n.e.c.",2700.0,4444.4,Barley
+1962,"Other vegetables, fresh n.e.c.",1830.0,6776.0,Barley
+1962,"Peas, dry",12000.0,625.0,Barley
+1962,Potatoes,200.0,15000.0,Barley
+1962,Sorghum,65000.0,846.2,Barley
+1962,Wheat,70000.0,785.7,Barley
+1963,Barley,4000.0,600.0,Barley
+1963,"Beans, dry",5000.0,320.0,Barley
+1963,Maize (corn),135000.0,814.8,Barley
+1963,Oats,700.0,1428.6,Barley
+1963,"Other fruits, n.e.c.",2700.0,4444.4,Barley
+1963,"Other vegetables, fresh n.e.c.",1885.0,6790.5,Barley
+1963,"Peas, dry",11000.0,590.9,Barley
+1963,Potatoes,200.0,15000.0,Barley
+1963,Sorghum,65000.0,846.2,Barley
+1963,Wheat,70000.0,785.7,Barley
+1964,Barley,3500.0,571.4,Barley
+1964,"Beans, dry",8000.0,200.0,Barley
+1964,Maize (corn),135000.0,814.8,Barley
+1964,Oats,700.0,1428.6,Barley
+1964,"Other fruits, n.e.c.",2700.0,4444.4,Barley
+1964,"Other vegetables, fresh n.e.c.",1945.0,6786.6,Barley
+1964,"Peas, dry",11000.0,545.5,Barley
+1964,Potatoes,200.0,15000.0,Barley
+1964,Sorghum,65000.0,846.2,Barley
+1964,Wheat,70000.0,771.4,Barley
+1965,Barley,3000.0,600.0,Barley
+1965,"Beans, dry",5700.0,229.6,Barley
+1965,Maize (corn),155000.0,709.7,Barley
+1965,Oats,700.0,1428.6,Barley
+1965,"Other fruits, n.e.c.",2700.0,4444.4,Barley
+1965,"Other vegetables, fresh n.e.c.",1985.0,6801.0,Barley
+1965,"Peas, dry",13200.0,500.0,Barley
+1965,Potatoes,200.0,15000.0,Barley
+1965,Sorghum,58200.0,927.8,Barley
+1965,Wheat,69800.0,716.3,Barley
+1966,Barley,2500.0,640.0,Barley
+1966,"Beans, dry",6300.0,333.7,Barley
+1966,Maize (corn),140000.0,778.6,Barley
+1966,Oats,700.0,1428.6,Barley
+1966,"Other fruits, n.e.c.",2800.0,4642.9,Barley
+1966,"Other vegetables, fresh n.e.c.",2205.0,6802.7,Barley
+1966,"Peas, dry",12800.0,590.9,Barley
+1966,Potatoes,250.0,14000.0,Barley
+1966,Sorghum,65100.0,826.4,Barley
+1966,Wheat,71200.0,814.6,Barley
+1967,Barley,2500.0,520.0,Barley
+1967,"Beans, dry",7900.0,258.2,Barley
+1967,Maize (corn),148000.0,743.2,Barley
+1967,Oats,700.0,1428.6,Barley
+1967,"Other fruits, n.e.c.",2800.0,4642.9,Barley
+1967,"Other vegetables, fresh n.e.c.",2205.0,6802.7,Barley
+1967,"Peas, dry",12100.0,551.8,Barley
+1967,Potatoes,250.0,14000.0,Barley
+1967,Sorghum,66300.0,829.6,Barley
+1967,Wheat,73400.0,681.2,Barley
+1968,Barley,2000.0,500.0,Barley
+1968,"Beans, dry",9323.0,254.6,Barley
+1968,Maize (corn),156477.0,682.2,Barley
+1968,Oats,700.0,1428.6,Barley
+1968,"Other fruits, n.e.c.",2800.0,4642.9,Barley
+1968,"Other vegetables, fresh n.e.c.",2200.0,6818.2,Barley
+1968,"Peas, dry",11126.0,582.9,Barley
+1968,Potatoes,250.0,14000.0,Barley
+1968,Sorghum,70562.0,708.4,Barley
+1968,Wheat,82700.0,650.3,Barley
+1969,Barley,1419.0,582.8,Barley
+1969,"Beans, dry",12183.0,257.0,Barley
+1969,Maize (corn),142037.0,717.4,Barley
+1969,Oats,700.0,1428.6,Barley
+1969,"Other fruits, n.e.c.",2800.0,4642.9,Barley
+1969,"Other vegetables, fresh n.e.c.",2200.0,6818.2,Barley
+1969,"Peas, dry",10485.0,452.6,Barley
+1969,Potatoes,250.0,14000.0,Barley
+1969,Sorghum,71771.0,672.5,Barley
+1969,Wheat,95200.0,627.1,Barley
+1970,Barley,1216.0,471.2,Barley
+1970,"Beans, dry",16346.0,226.1,Barley
+1970,Maize (corn),129247.0,514.6,Barley
+1970,Oats,700.0,1428.6,Barley
+1970,"Other fruits, n.e.c.",3000.0,4666.7,Barley
+1970,"Other vegetables, fresh n.e.c.",2450.0,6938.8,Barley
+1970,"Peas, dry",12195.0,365.6,Barley
+1970,Potatoes,300.0,13333.3,Barley
+1970,Sorghum,82568.0,689.1,Barley
+1970,Wheat,87724.0,656.1,Barley
+1971,Barley,1007.0,348.6,Barley
+1971,"Beans, dry",17000.0,235.3,Barley
+1971,Maize (corn),135000.0,548.1,Barley
+1971,Oats,700.0,1428.6,Barley
+1971,"Other fruits, n.e.c.",3000.0,4666.7,Barley
+1971,"Other vegetables, fresh n.e.c.",2450.0,6938.8,Barley
+1971,"Peas, dry",12000.0,416.7,Barley
+1971,Potatoes,300.0,13333.3,Barley
+1971,Sorghum,85000.0,752.9,Barley
+1971,Wheat,95030.0,609.3,Barley
+1972,Barley,1000.0,350.0,Barley
+1972,"Beans, dry",10000.0,200.0,Barley
+1972,Maize (corn),110000.0,536.4,Barley
+1972,Oats,700.0,1428.6,Barley
+1972,"Other fruits, n.e.c.",3000.0,4666.7,Barley
+1972,"Other vegetables, fresh n.e.c.",2400.0,7083.3,Barley
+1972,"Peas, dry",10000.0,300.0,Barley
+1972,Potatoes,300.0,13333.3,Barley
+1972,Sorghum,60100.0,332.8,Barley
+1972,Wheat,106392.0,225.6,Barley
+1973,Barley,1000.0,350.0,Barley
+1973,"Beans, dry",14000.0,285.7,Barley
+1973,Maize (corn),115000.0,608.7,Barley
+1973,Oats,700.0,1428.6,Barley
+1973,"Other fruits, n.e.c.",3000.0,5333.3,Barley
+1973,"Other vegetables, fresh n.e.c.",2600.0,6923.1,Barley
+1973,"Peas, dry",10000.0,400.0,Barley
+1973,Potatoes,350.0,12857.1,Barley
+1973,Sorghum,64000.0,671.9,Barley
+1973,Wheat,75000.0,480.0,Barley
+1974,Barley,1000.0,350.0,Barley
+1974,"Beans, dry",19700.0,380.7,Barley
+1974,Maize (corn),129708.0,944.8,Barley
+1974,Oats,700.0,1428.6,Barley
+1974,"Other fruits, n.e.c.",3000.0,5333.3,Barley
+1974,"Other vegetables, fresh n.e.c.",2600.0,6923.1,Barley
+1974,"Peas, dry",10200.0,703.7,Barley
+1974,Potatoes,350.0,12857.1,Barley
+1974,Sorghum,83267.0,1009.0,Barley
+1974,Wheat,76592.0,744.2,Barley
+1975,Barley,1200.0,291.7,Barley
+1975,"Beans, dry",28063.0,476.9,Barley
+1975,Maize (corn),107844.0,651.8,Barley
+1975,Oats,700.0,1428.6,Barley
+1975,"Other fruits, n.e.c.",3000.0,5333.3,Barley
+1975,"Other vegetables, fresh n.e.c.",2600.0,6923.1,Barley
+1975,"Peas, dry",9982.0,579.8,Barley
+1975,Potatoes,370.0,12973.0,Barley
+1975,Sorghum,54774.0,683.6,Barley
+1975,Wheat,55118.0,822.5,Barley
+1976,Barley,1307.0,267.8,Barley
+1976,"Beans, dry",29656.0,291.7,Barley
+1976,Maize (corn),84827.0,579.2,Barley
+1976,Oats,700.0,1428.6,Barley
+1976,"Other fruits, n.e.c.",3000.0,5333.3,Barley
+1976,"Other vegetables, fresh n.e.c.",2600.0,6923.1,Barley
+1976,"Peas, dry",10134.0,568.7,Barley
+1976,Potatoes,380.0,13052.6,Barley
+1976,Sorghum,44239.0,554.7,Barley
+1976,Wheat,55872.0,799.0,Barley
+1977,Barley,1300.0,307.7,Barley
+1977,"Beans, dry",14642.0,1425.0,Barley
+1977,Maize (corn),80336.0,1567.6,Barley
+1977,Oats,700.0,1428.6,Barley
+1977,"Other fruits, n.e.c.",3000.0,5666.7,Barley
+1977,"Other vegetables, fresh n.e.c.",2800.0,7142.9,Barley
+1977,"Peas, dry",7099.0,990.6,Barley
+1977,Potatoes,600.0,13333.3,Barley
+1977,Sorghum,42485.0,1466.7,Barley
+1977,Wheat,41676.0,1472.8,Barley
+1978,Barley,1300.0,307.7,Barley
+1978,"Beans, dry",11066.0,974.4,Barley
+1978,Maize (corn),101683.0,1408.0,Barley
+1978,Oats,700.0,1428.6,Barley
+1978,"Other fruits, n.e.c.",3000.0,5666.7,Barley
+1978,"Other vegetables, fresh n.e.c.",2800.0,7142.9,Barley
+1978,"Peas, dry",4348.0,1018.2,Barley
+1978,Potatoes,800.0,12500.0,Barley
+1978,Sorghum,59280.0,1446.9,Barley
+1978,Wheat,42610.0,1359.0,Barley
+1979,Barley,1300.0,307.7,Barley
+1979,"Beans, dry",10151.0,822.6,Barley
+1979,Maize (corn),112263.0,1112.2,Barley
+1979,Oats,700.0,1428.6,Barley
+1979,"Other fruits, n.e.c.",3000.0,5666.7,Barley
+1979,"Other vegetables, fresh n.e.c.",2800.0,7142.9,Barley
+1979,"Peas, dry",5702.0,1202.4,Barley
+1979,Potatoes,1000.0,15000.0,Barley
+1979,Sorghum,51255.0,1345.3,Barley
+1979,Wheat,35307.0,952.5,Barley
+1980,Barley,1300.0,307.7,Barley
+1980,"Beans, dry",6919.0,518.1,Barley
+1980,Maize (corn),110357.0,957.1,Barley
+1980,Oats,700.0,1428.6,Barley
+1980,"Other fruits, n.e.c.",3000.0,5000.0,Barley
+1980,"Other vegetables, fresh n.e.c.",2900.0,6896.6,Barley
+1980,"Peas, dry",5882.0,775.6,Barley
+1980,Potatoes,1200.0,15000.0,Barley
+1980,Sorghum,61333.0,966.6,Barley
+1980,Wheat,28952.0,973.8,Barley
+1981,Barley,1300.0,307.7,Barley
+1981,"Beans, dry",7374.0,476.9,Barley
+1981,Maize (corn),124812.0,846.7,Barley
+1981,Oats,700.0,1428.6,Barley
+1981,"Other fruits, n.e.c.",3000.0,5000.0,Barley
+1981,"Other vegetables, fresh n.e.c.",3100.0,7096.8,Barley
+1981,"Peas, dry",4682.0,683.0,Barley
+1981,Potatoes,1200.0,15000.0,Barley
+1981,Sorghum,60016.0,795.3,Barley
+1981,Wheat,19932.0,852.5,Barley
+1982,Barley,1300.0,307.7,Barley
+1982,"Beans, dry",13552.0,361.4,Barley
+1982,Maize (corn),114282.0,726.5,Barley
+1982,Oats,700.0,1428.6,Barley
+1982,"Other fruits, n.e.c.",3000.0,5000.0,Barley
+1982,"Other vegetables, fresh n.e.c.",3400.0,7352.9,Barley
+1982,"Peas, dry",9180.0,492.9,Barley
+1982,Potatoes,1400.0,14285.7,Barley
+1982,Sorghum,48044.0,544.5,Barley
+1982,Wheat,23894.0,605.3,Barley
+1983,Barley,1300.0,307.7,Barley
+1983,"Beans, dry",4691.0,346.2,Barley
+1983,Maize (corn),103529.0,736.0,Barley
+1983,Oats,700.0,1428.6,Barley
+1983,"Other fruits, n.e.c.",3050.0,5901.6,Barley
+1983,"Other vegetables, fresh n.e.c.",3500.0,7142.9,Barley
+1983,"Peas, dry",8691.0,387.4,Barley
+1983,Potatoes,1500.0,14666.7,Barley
+1983,Sorghum,46537.0,659.4,Barley
+1983,Wheat,29004.0,510.6,Barley
+1984,Barley,1300.0,307.7,Barley
+1984,"Beans, dry",8202.0,163.1,Barley
+1984,Maize (corn),116739.0,680.0,Barley
+1984,Oats,700.0,1428.6,Barley
+1984,"Other fruits, n.e.c.",3050.0,5901.6,Barley
+1984,"Other vegetables, fresh n.e.c.",3600.0,6944.4,Barley
+1984,"Peas, dry",7900.0,460.6,Barley
+1984,Potatoes,1600.0,15625.0,Barley
+1984,Sorghum,54682.0,617.5,Barley
+1984,Wheat,29513.0,580.3,Barley
+1985,Barley,1300.0,384.6,Barley
+1985,"Beans, dry",7280.0,340.4,Barley
+1985,Maize (corn),118061.0,782.2,Barley
+1985,Oats,700.0,1428.6,Barley
+1985,"Other fruits, n.e.c.",3050.0,5901.6,Barley
+1985,"Other vegetables, fresh n.e.c.",3700.0,6756.8,Barley
+1985,"Peas, dry",7257.0,451.6,Barley
+1985,Potatoes,1800.0,15555.6,Barley
+1985,Sorghum,75559.0,725.6,Barley
+1985,Wheat,36270.0,508.2,Barley
+1986,Barley,1300.0,384.6,Barley
+1986,"Beans, dry",16943.0,223.0,Barley
+1986,Maize (corn),122008.0,708.9,Barley
+1986,Oats,700.0,1428.6,Barley
+1986,"Other fruits, n.e.c.",3050.0,5901.6,Barley
+1986,"Other vegetables, fresh n.e.c.",3700.0,7027.0,Barley
+1986,"Peas, dry",3502.0,428.9,Barley
+1986,Potatoes,2000.0,15000.0,Barley
+1986,Sorghum,51929.0,644.3,Barley
+1986,Wheat,19028.0,578.6,Barley
+1987,Barley,1300.0,384.6,Barley
+1987,"Beans, dry",12878.0,259.7,Barley
+1987,Maize (corn),142422.0,666.4,Barley
+1987,Oats,700.0,1428.6,Barley
+1987,"Other fruits, n.e.c.",3050.0,5901.6,Barley
+1987,"Other vegetables, fresh n.e.c.",3700.0,7027.0,Barley
+1987,"Peas, dry",3803.0,385.7,Barley
+1987,Potatoes,2300.0,15217.4,Barley
+1987,Sorghum,70909.0,440.5,Barley
+1987,Wheat,27603.0,671.9,Barley
+1988,Barley,1300.0,384.6,Barley
+1988,"Beans, dry",23323.0,318.0,Barley
+1988,Maize (corn),173214.0,922.1,Barley
+1988,Oats,700.0,1428.6,Barley
+1988,"Other fruits, n.e.c.",3050.0,5901.6,Barley
+1988,"Other vegetables, fresh n.e.c.",3700.0,7027.0,Barley
+1988,"Peas, dry",5329.0,481.1,Barley
+1988,Potatoes,2500.0,15200.0,Barley
+1988,Sorghum,76355.0,700.0,Barley
+1988,Wheat,29904.0,643.3,Barley
+1989,Barley,1000.0,300.0,Barley
+1989,"Beans, dry",17911.0,541.9,Barley
+1989,Maize (corn),130996.0,1047.6,Barley
+1989,Oats,700.0,1428.6,Barley
+1989,"Other fruits, n.e.c.",3050.0,5901.6,Barley
+1989,"Other vegetables, fresh n.e.c.",3700.0,7027.0,Barley
+1989,"Peas, dry",1505.0,978.7,Barley
+1989,Potatoes,2900.0,15517.2,Barley
+1989,Sorghum,40499.0,768.9,Barley
+1989,Wheat,43650.0,680.4,Barley
+1990,Barley,260.0,384.6,Barley
+1990,"Beans, dry",4476.0,1884.9,Barley
+1990,Maize (corn),155976.0,1100.0,Barley
+1990,Oats,756.0,1608.5,Barley
+1990,"Other fruits, n.e.c.",3055.0,5796.7,Barley
+1990,"Other vegetables, fresh n.e.c.",3370.0,7335.9,Barley
+1990,"Peas, dry",11859.0,236.2,Barley
+1990,Potatoes,2549.0,17690.5,Barley
+1990,Sorghum,35663.0,1011.2,Barley
+1990,Wheat,40851.0,811.8,Barley
+1991,Barley,1413.0,353.9,Barley
+1991,"Beans, dry",7345.0,335.6,Barley
+1991,Maize (corn),90461.0,540.8,Barley
+1991,Oats,698.0,1358.7,Barley
+1991,"Other fruits, n.e.c.",3955.0,4803.6,Barley
+1991,"Other vegetables, fresh n.e.c.",3000.0,6666.7,Barley
+1991,"Peas, dry",10828.0,74.7,Barley
+1991,Potatoes,3200.0,15625.0,Barley
+1991,Sorghum,18601.0,539.9,Barley
+1991,Wheat,34933.0,195.9,Barley
+1992,Barley,1514.0,333.2,Barley
+1992,"Beans, dry",4466.0,291.8,Barley
+1992,Maize (corn),105454.0,579.2,Barley
+1992,Oats,658.0,1366.9,Barley
+1992,"Other fruits, n.e.c.",3753.0,4796.2,Barley
+1992,"Other vegetables, fresh n.e.c.",3129.0,6654.4,Barley
+1992,"Peas, dry",3509.0,560.0,Barley
+1992,Potatoes,3700.0,14864.9,Barley
+1992,Sorghum,31797.0,612.3,Barley
+1992,Wheat,13816.0,858.0,Barley
+1993,Barley,1500.0,325.4,Barley
+1993,"Beans, dry",4600.0,347.6,Barley
+1993,Maize (corn),103437.0,887.5,Barley
+1993,Oats,613.0,1371.4,Barley
+1993,"Other fruits, n.e.c.",3440.0,4788.8,Barley
+1993,"Other vegetables, fresh n.e.c.",3244.0,6659.2,Barley
+1993,"Peas, dry",1710.0,543.3,Barley
+1993,Potatoes,4000.0,15000.0,Barley
+1993,Sorghum,40930.0,1270.4,Barley
+1993,Wheat,11088.0,733.0,Barley
+1994,Barley,1294.0,318.3,Barley
+1994,"Beans, dry",8366.0,321.3,Barley
+1994,Maize (corn),172743.0,862.9,Barley
+1994,Oats,515.0,1354.7,Barley
+1994,"Other fruits, n.e.c.",3306.0,4781.1,Barley
+1994,"Other vegetables, fresh n.e.c.",3901.0,6664.4,Barley
+1994,"Peas, dry",4407.0,308.6,Barley
+1994,Potatoes,4500.0,15555.6,Barley
+1994,Sorghum,69350.0,875.6,Barley
+1994,Wheat,28472.0,419.9,Barley
+1995,Barley,1284.0,311.5,Barley
+1995,"Beans, dry",3635.0,1238.0,Barley
+1995,Maize (corn),76955.0,812.6,Barley
+1995,Oats,600.0,1333.3,Barley
+1995,"Other fruits, n.e.c.",3090.0,4855.0,Barley
+1995,"Other vegetables, fresh n.e.c.",2998.0,6670.0,Barley
+1995,"Peas, dry",3743.0,287.2,Barley
+1995,Potatoes,4545.0,15629.9,Barley
+1995,Sorghum,8579.0,802.8,Barley
+1995,Wheat,17195.0,616.6,Barley
+1996,Barley,1639.0,305.0,Barley
+1996,"Beans, dry",10014.0,659.1,Barley
+1996,Maize (corn),150908.0,1249.0,Barley
+1996,Oats,700.0,1428.6,Barley
+1996,"Other fruits, n.e.c.",3257.0,4912.8,Barley
+1996,"Other vegetables, fresh n.e.c.",3447.0,6671.6,Barley
+1996,"Peas, dry",4408.0,918.1,Barley
+1996,Potatoes,4663.0,15730.5,Barley
+1996,Sorghum,42054.0,859.1,Barley
+1996,Wheat,22186.0,1410.8,Barley
+1997,Barley,1354.0,298.3,Barley
+1997,"Beans, dry",13696.0,1039.6,Barley
+1997,Maize (corn),144116.0,985.7,Barley
+1997,Oats,600.0,1333.3,Barley
+1997,"Other fruits, n.e.c.",3000.0,5000.0,Barley
+1997,"Other vegetables, fresh n.e.c.",3293.0,6681.6,Barley
+1997,"Peas, dry",4514.0,751.2,Barley
+1997,Potatoes,4700.0,15957.4,Barley
+1997,Sorghum,36058.0,805.6,Barley
+1997,Wheat,20700.0,1629.1,Barley
+1998,Barley,1100.0,272.7,Barley
+1998,"Beans, dry",7500.0,1116.7,Barley
+1998,Maize (corn),90030.0,1317.1,Barley
+1998,Oats,450.0,1333.3,Barley
+1998,"Other fruits, n.e.c.",2679.0,4852.6,Barley
+1998,"Other vegetables, fresh n.e.c.",2700.0,6666.7,Barley
+1998,"Peas, dry",7481.0,655.5,Barley
+1998,Potatoes,5000.0,16000.0,Barley
+1998,Sorghum,15453.0,1476.3,Barley
+1998,Wheat,20014.0,1481.0,Barley
+1999,Barley,769.0,260.1,Barley
+1999,"Beans, dry",11640.0,796.6,Barley
+1999,Maize (corn),132360.0,941.0,Barley
+1999,Oats,236.0,1483.1,Barley
+1999,"Other fruits, n.e.c.",2913.0,4805.7,Barley
+1999,"Other vegetables, fresh n.e.c.",2800.0,6785.7,Barley
+1999,"Peas, dry",7535.0,853.2,Barley
+1999,Potatoes,5200.0,16346.2,Barley
+1999,Sorghum,30067.0,1108.9,Barley
+1999,Wheat,20880.0,738.8,Barley
+2000,Barley,800.0,277.3,Barley
+2000,"Beans, dry",13426.0,799.9,Barley
+2000,Maize (corn),157680.0,677.3,Barley
+2000,Oats,240.0,1456.8,Barley
+2000,"Other fruits, n.e.c.",3100.0,4677.4,Barley
+2000,"Other vegetables, fresh n.e.c.",2900.0,6896.6,Barley
+2000,"Peas, dry",6421.0,747.5,Barley
+2000,Potatoes,5300.0,16415.1,Barley
+2000,Sorghum,25831.0,1037.8,Barley
+2000,Wheat,23744.0,654.7,Barley
+2001,Barley,1159.0,274.5,Barley
+2001,"Beans, dry",12368.0,635.5,Barley
+2001,Maize (corn),177485.0,891.3,Barley
+2001,Oats,234.0,1478.5,Barley
+2001,"Other fruits, n.e.c.",3200.0,4687.5,Barley
+2001,"Other vegetables, fresh n.e.c.",3200.0,6875.0,Barley
+2001,"Peas, dry",7814.0,822.8,Barley
+2001,Potatoes,5400.0,16296.3,Barley
+2001,Sorghum,52490.0,864.0,Barley
+2001,Wheat,24740.0,2051.5,Barley
+2002,Barley,1237.0,272.1,Barley
+2002,"Beans, dry",7241.0,602.1,Barley
+2002,Maize (corn),137380.0,808.8,Barley
+2002,Oats,225.0,1471.0,Barley
+2002,"Other fruits, n.e.c.",3300.0,4697.0,Barley
+2002,"Other vegetables, fresh n.e.c.",3300.0,7272.7,Barley
+2002,"Peas, dry",11307.0,338.3,Barley
+2002,Potatoes,5533.0,16267.5,Barley
+2002,Sorghum,28210.0,422.5,Barley
+2002,Wheat,36599.0,717.2,Barley
+2003,Barley,1273.0,269.8,Barley
+2003,"Beans, dry",11169.0,331.3,Barley
+2003,Maize (corn),127470.0,643.9,Barley
+2003,Oats,198.0,1479.6,Barley
+2003,"Other fruits, n.e.c.",3400.0,4705.9,Barley
+2003,"Other vegetables, fresh n.e.c.",3400.0,7941.2,Barley
+2003,"Peas, dry",9076.0,299.4,Barley
+2003,Potatoes,5586.0,16286.3,Barley
+2003,Sorghum,25204.0,474.3,Barley
+2003,Wheat,37092.0,587.9,Barley
+2004,Barley,1205.0,268.8,Barley
+2004,"Beans, dry",8570.0,563.7,Barley
+2004,Maize (corn),127620.0,634.7,Barley
+2004,Oats,175.0,1495.4,Barley
+2004,"Other fruits, n.e.c.",3500.0,4714.3,Barley
+2004,"Other vegetables, fresh n.e.c.",3500.0,8285.7,Barley
+2004,"Peas, dry",3456.0,433.2,Barley
+2004,Potatoes,5561.0,16350.5,Barley
+2004,Sorghum,29192.0,393.3,Barley
+2004,Wheat,25335.0,640.1,Barley
+2005,Barley,1342.0,267.9,Barley
+2005,"Beans, dry",8785.0,280.5,Barley
+2005,Maize (corn),112302.0,701.1,Barley
+2005,Oats,150.0,1499.7,Barley
+2005,"Other fruits, n.e.c.",3600.0,4694.4,Barley
+2005,"Other vegetables, fresh n.e.c.",3895.0,8216.1,Barley
+2005,"Peas, dry",4447.0,415.8,Barley
+2005,Potatoes,5591.0,16396.7,Barley
+2005,Sorghum,29689.0,624.0,Barley
+2005,Wheat,19072.0,723.4,Barley
+2006,Barley,1300.0,253.8,Barley
+2006,"Beans, dry",27743.0,155.3,Barley
+2006,Maize (corn),123508.0,556.7,Barley
+2006,Oats,114.0,1578.9,Barley
+2006,"Other fruits, n.e.c.",3700.0,4729.7,Barley
+2006,"Other vegetables, fresh n.e.c.",3700.0,8108.1,Barley
+2006,"Peas, dry",4447.0,444.1,Barley
+2006,Potatoes,5635.0,16464.7,Barley
+2006,Sorghum,34421.0,329.0,Barley
+2006,Wheat,18345.0,360.2,Barley
+2007,Barley,1792.0,251.1,Barley
+2007,"Beans, dry",23038.0,266.6,Barley
+2007,Maize (corn),123661.0,487.7,Barley
+2007,Oats,82.0,1585.4,Barley
+2007,"Other fruits, n.e.c.",3800.0,4736.8,Barley
+2007,"Other vegetables, fresh n.e.c.",3800.0,8421.1,Barley
+2007,"Peas, dry",1851.0,299.3,Barley
+2007,Potatoes,5600.0,16607.1,Barley
+2007,Sorghum,32175.0,243.6,Barley
+2007,Wheat,15774.0,200.2,Barley
+2008,Barley,1637.0,250.5,Barley
+2008,"Beans, dry",12243.0,260.1,Barley
+2008,Maize (corn),137156.0,434.9,Barley
+2008,Oats,34.0,1470.6,Barley
+2008,"Other fruits, n.e.c.",4000.0,4750.0,Barley
+2008,"Other vegetables, fresh n.e.c.",4000.0,8750.0,Barley
+2008,"Peas, dry",1641.0,599.6,Barley
+2008,Potatoes,5800.0,16637.9,Barley
+2008,Sorghum,35556.0,286.6,Barley
+2008,Wheat,20525.0,131.4,Barley
+2009,Barley,2847.0,252.9,Barley
+2009,"Beans, dry",7973.0,433.0,Barley
+2009,Maize (corn),137366.0,415.9,Barley
+2009,Oats,17.0,1470.6,Barley
+2009,"Other fruits, n.e.c.",3996.0,4484.6,Barley
+2009,"Other vegetables, fresh n.e.c.",3668.0,8717.3,Barley
+2009,"Peas, dry",2032.0,689.0,Barley
+2009,Potatoes,5700.0,15964.9,Barley
+2009,Sorghum,17585.0,577.3,Barley
+2009,Wheat,26493.0,230.2,Barley
+2010,Barley,2094.0,320.4,Barley
+2010,"Beans, dry",26887.0,331.0,Barley
+2010,Maize (corn),141340.0,907.1,Barley
+2010,Oats,239.0,1506.3,Barley
+2010,"Other fruits, n.e.c.",3958.0,4317.4,Barley
+2010,"Other vegetables, fresh n.e.c.",3500.0,8726.0,Barley
+2010,"Peas, dry",2107.0,651.6,Barley
+2010,Potatoes,6000.0,16500.0,Barley
+2010,Sorghum,33146.0,718.9,Barley
+2010,Wheat,13693.0,1469.3,Barley
+2011,Barley,1478.0,320.7,Barley
+2011,"Beans, dry",17649.0,402.4,Barley
+2011,Maize (corn),115688.0,634.4,Barley
+2011,Oats,240.0,1509.9,Barley
+2011,"Other fruits, n.e.c.",4011.0,4176.1,Barley
+2011,"Other vegetables, fresh n.e.c.",3563.0,8739.5,Barley
+2011,"Peas, dry",1340.0,508.2,Barley
+2011,Potatoes,6800.0,16470.6,Barley
+2011,Sorghum,18864.0,509.2,Barley
+2011,Wheat,20136.0,996.5,Barley
+2012,Barley,1215.0,332.0,Barley
+2012,"Beans, dry",15079.0,331.6,Barley
+2012,Maize (corn),126854.0,695.2,Barley
+2012,Oats,250.0,1500.0,Barley
+2012,"Other fruits, n.e.c.",4500.0,3555.6,Barley
+2012,"Other vegetables, fresh n.e.c.",3300.0,8787.9,Barley
+2012,"Peas, dry",1279.0,452.7,Barley
+2012,Potatoes,7000.0,16428.6,Barley
+2012,Sorghum,14151.0,134.3,Barley
+2012,Wheat,12170.0,864.1,Barley
+2013,Barley,701.0,399.4,Barley
+2013,"Beans, dry",18855.0,178.0,Barley
+2013,Maize (corn),104926.0,822.7,Barley
+2013,Oats,250.0,1500.0,Barley
+2013,"Other fruits, n.e.c.",3977.0,3905.1,Barley
+2013,"Other vegetables, fresh n.e.c.",3628.0,8695.4,Barley
+2013,"Peas, dry",1433.0,429.8,Barley
+2013,Potatoes,7200.0,17361.1,Barley
+2013,Sorghum,22944.0,305.1,Barley
+2013,Wheat,10913.0,1234.5,Barley
+2014,Barley,909.0,350.1,Barley
+2014,"Beans, dry",18065.0,132.9,Barley
+2014,Maize (corn),132727.0,678.6,Barley
+2014,Oats,231.0,1519.6,Barley
+2014,"Other fruits, n.e.c.",3955.0,3832.0,Barley
+2014,"Other vegetables, fresh n.e.c.",3767.0,8595.0,Barley
+2014,"Peas, dry",831.0,335.7,Barley
+2014,Potatoes,7689.0,17107.4,Barley
+2014,Sorghum,21709.0,571.2,Barley
+2014,Wheat,13832.0,910.4,Barley
+2015,Barley,859.0,354.2,Barley
+2015,"Beans, dry",17294.0,253.4,Barley
+2015,Maize (corn),99884.0,657.1,Barley
+2015,Oats,197.0,1530.0,Barley
+2015,"Other fruits, n.e.c.",4030.0,3813.5,Barley
+2015,"Other vegetables, fresh n.e.c.",3595.0,8935.4,Barley
+2015,"Peas, dry",1071.0,257.7,Barley
+2015,Potatoes,7288.0,16881.7,Barley
+2015,Sorghum,15968.0,596.8,Barley
+2015,Wheat,8317.0,849.9,Barley
+2016,Barley,862.0,354.3,Barley
+2016,"Beans, dry",3335.0,418.0,Barley
+2016,Maize (corn),40981.0,468.0,Barley
+2016,Oats,226.0,1515.4,Barley
+2016,"Other fruits, n.e.c.",4120.0,3743.1,Barley
+2016,"Other vegetables, fresh n.e.c.",3515.0,9115.5,Barley
+2016,"Peas, dry",1029.0,323.7,Barley
+2016,Potatoes,7024.0,18012.1,Barley
+2016,Sorghum,4499.0,257.6,Barley
+2016,Wheat,7900.0,593.7,Barley
+2017,Barley,855.0,356.7,Barley
+2017,"Beans, dry",21313.0,311.7,Barley
+2017,Maize (corn),165882.0,1040.9,Barley
+2017,Oats,218.0,1521.3,Barley
+2017,"Other fruits, n.e.c.",4216.0,3635.6,Barley
+2017,"Other vegetables, fresh n.e.c.",3485.0,9239.1,Barley
+2017,"Peas, dry",1459.0,607.3,Barley
+2017,Potatoes,7275.0,17691.1,Barley
+2017,Sorghum,44359.0,763.3,Barley
+2017,Wheat,6843.0,1293.4,Barley
+2018,Barley,859.0,355.1,Barley
+2018,"Beans, dry",22841.0,296.9,Barley
+2018,Maize (corn),126564.0,868.4,Barley
+2018,Oats,215.0,1534.1,Barley
+2018,"Other fruits, n.e.c.",4285.0,3541.8,Barley
+2018,"Other vegetables, fresh n.e.c.",3452.0,9355.1,Barley
+2018,"Peas, dry",1221.0,393.1,Barley
+2018,Potatoes,7469.0,17587.3,Barley
+2018,Sorghum,85425.0,472.2,Barley
+2018,Wheat,7427.0,939.1,Barley
+2019,Barley,822.0,354.6,Barley
+2019,"Beans, dry",2279.0,387.5,Barley
+2019,Maize (corn),32026.0,768.8,Barley
+2019,Oats,218.0,1540.7,Barley
+2019,"Other fruits, n.e.c.",4367.0,3442.5,Barley
+2019,"Other vegetables, fresh n.e.c.",3432.0,9460.9,Barley
+2019,"Peas, dry",243.0,588.5,Barley
+2019,Potatoes,7256.0,18599.5,Barley
+2019,Sorghum,14419.0,583.4,Barley
+2019,Wheat,2292.0,624.8,Barley
+2020,Barley,845.0,355.5,Barley
+2020,"Beans, dry",8558.0,430.1,Barley
+2020,Maize (corn),47669.0,456.9,Barley
+2020,Oats,217.0,1532.0,Barley
+2020,"Other fruits, n.e.c.",4370.0,3378.0,Barley
+2020,"Other vegetables, fresh n.e.c.",3530.0,9391.3,Barley
+2020,"Peas, dry",1770.0,9.6,Barley
+2020,Potatoes,7333.0,17955.5,Barley
+2020,Sorghum,13721.0,299.6,Barley
+2020,Wheat,2875.0,697.0,Barley
+2021,Barley,842.0,355.1,Barley
+2021,"Beans, dry",40058.0,302.6,Barley
+2021,Maize (corn),86379.0,1025.2,Barley
+2021,Oats,217.0,1535.6,Barley
+2021,"Other fruits, n.e.c.",4404.0,3403.9,Barley
+2021,"Other vegetables, fresh n.e.c.",3508.0,9382.2,Barley
+2021,"Peas, dry",923.0,512.5,Barley
+2021,Potatoes,7353.0,18042.6,Barley
+2021,Sorghum,8466.0,795.5,Barley
+2021,Wheat,5191.0,461.4,Barley
+2022,Barley,837.0,355.0,Barley
+2022,"Beans, dry",19766.0,325.8,Barley
+2022,Maize (corn),89602.0,804.6,Barley
+2022,Oats,217.0,1536.1,Barley
+2022,"Other fruits, n.e.c.",4380.0,3408.1,Barley
+2022,"Other vegetables, fresh n.e.c.",3510.0,9412.8,Barley
+2022,"Peas, dry",1371.0,342.1,Barley
+2022,Potatoes,7314.0,18197.6,Barley
+2022,Sorghum,15420.0,260.2,Barley
+2022,Wheat,7036.0,810.7,Barley

@@ -1,0 +1,39 @@
+{
+  "model_path": "models\\crop_rotation_pipeline.joblib",
+  "target_col": "recommended_crop",
+  "features": {
+    "numeric": [
+      "Year",
+      "area_ha",
+      "yield_kg_ha",
+      "next_year"
+    ],
+    "categorical": [
+      "last_crop"
+    ]
+  },
+  "class_labels": [
+    "Barley",
+    "Beans, dry",
+    "Maize (corn)",
+    "Oats",
+    "Other fruits, n.e.c.",
+    "Other vegetables, fresh n.e.c.",
+    "Peas, dry",
+    "Potatoes",
+    "Sorghum",
+    "Wheat"
+  ],
+  "label_encoder": {
+    "Barley": 0,
+    "Beans, dry": 1,
+    "Maize (corn)": 2,
+    "Oats": 3,
+    "Other fruits, n.e.c.": 4,
+    "Other vegetables, fresh n.e.c.": 5,
+    "Peas, dry": 6,
+    "Potatoes": 7,
+    "Sorghum": 8,
+    "Wheat": 9
+  }
+}
