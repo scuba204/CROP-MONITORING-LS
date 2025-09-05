@@ -1,0 +1,631 @@
+Area,Item,Year,Yield_Unit,Yield,Flag,Flag Description
+Lesotho,Barley,1961,kg/ha,842.0,A,Official figure
+Lesotho,Barley,1962,kg/ha,700.0,E,Estimated value
+Lesotho,Barley,1963,kg/ha,600.0,E,Estimated value
+Lesotho,Barley,1964,kg/ha,571.4,E,Estimated value
+Lesotho,Barley,1965,kg/ha,600.0,E,Estimated value
+Lesotho,Barley,1966,kg/ha,640.0,E,Estimated value
+Lesotho,Barley,1967,kg/ha,520.0,E,Estimated value
+Lesotho,Barley,1968,kg/ha,500.0,E,Estimated value
+Lesotho,Barley,1969,kg/ha,582.8,A,Official figure
+Lesotho,Barley,1970,kg/ha,471.2,A,Official figure
+Lesotho,Barley,1971,kg/ha,348.6,A,Official figure
+Lesotho,Barley,1972,kg/ha,350.0,E,Estimated value
+Lesotho,Barley,1973,kg/ha,350.0,E,Estimated value
+Lesotho,Barley,1974,kg/ha,350.0,E,Estimated value
+Lesotho,Barley,1975,kg/ha,291.7,E,Estimated value
+Lesotho,Barley,1976,kg/ha,267.8,E,Estimated value
+Lesotho,Barley,1977,kg/ha,307.7,E,Estimated value
+Lesotho,Barley,1978,kg/ha,307.7,E,Estimated value
+Lesotho,Barley,1979,kg/ha,307.7,E,Estimated value
+Lesotho,Barley,1980,kg/ha,307.7,E,Estimated value
+Lesotho,Barley,1981,kg/ha,307.7,E,Estimated value
+Lesotho,Barley,1982,kg/ha,307.7,E,Estimated value
+Lesotho,Barley,1983,kg/ha,307.7,E,Estimated value
+Lesotho,Barley,1984,kg/ha,307.7,E,Estimated value
+Lesotho,Barley,1985,kg/ha,384.6,E,Estimated value
+Lesotho,Barley,1986,kg/ha,384.6,E,Estimated value
+Lesotho,Barley,1987,kg/ha,384.6,E,Estimated value
+Lesotho,Barley,1988,kg/ha,384.6,E,Estimated value
+Lesotho,Barley,1989,kg/ha,300.0,E,Estimated value
+Lesotho,Barley,1990,kg/ha,384.6,E,Estimated value
+Lesotho,Barley,1991,kg/ha,353.9,E,Estimated value
+Lesotho,Barley,1992,kg/ha,333.2,E,Estimated value
+Lesotho,Barley,1993,kg/ha,325.4,E,Estimated value
+Lesotho,Barley,1994,kg/ha,318.3,E,Estimated value
+Lesotho,Barley,1995,kg/ha,311.5,E,Estimated value
+Lesotho,Barley,1996,kg/ha,305.0,E,Estimated value
+Lesotho,Barley,1997,kg/ha,298.3,E,Estimated value
+Lesotho,Barley,1998,kg/ha,272.7,E,Estimated value
+Lesotho,Barley,1999,kg/ha,260.1,E,Estimated value
+Lesotho,Barley,2000,kg/ha,277.3,E,Estimated value
+Lesotho,Barley,2001,kg/ha,274.5,E,Estimated value
+Lesotho,Barley,2002,kg/ha,272.1,E,Estimated value
+Lesotho,Barley,2003,kg/ha,269.8,E,Estimated value
+Lesotho,Barley,2004,kg/ha,268.8,E,Estimated value
+Lesotho,Barley,2005,kg/ha,267.9,E,Estimated value
+Lesotho,Barley,2006,kg/ha,253.8,E,Estimated value
+Lesotho,Barley,2007,kg/ha,251.1,E,Estimated value
+Lesotho,Barley,2008,kg/ha,250.5,E,Estimated value
+Lesotho,Barley,2009,kg/ha,252.9,E,Estimated value
+Lesotho,Barley,2010,kg/ha,320.4,A,Official figure
+Lesotho,Barley,2011,kg/ha,320.7,E,Estimated value
+Lesotho,Barley,2012,kg/ha,332.0,E,Estimated value
+Lesotho,Barley,2013,kg/ha,399.4,A,Official figure
+Lesotho,Barley,2014,kg/ha,350.1,E,Estimated value
+Lesotho,Barley,2015,kg/ha,354.2,E,Estimated value
+Lesotho,Barley,2016,kg/ha,354.3,E,Estimated value
+Lesotho,Barley,2017,kg/ha,356.7,E,Estimated value
+Lesotho,Barley,2018,kg/ha,355.1,E,Estimated value
+Lesotho,Barley,2019,kg/ha,354.6,E,Estimated value
+Lesotho,Barley,2020,kg/ha,355.5,E,Estimated value
+Lesotho,Barley,2021,kg/ha,355.1,E,Estimated value
+Lesotho,Barley,2022,kg/ha,355.0,E,Estimated value
+Lesotho,Barley,2023,kg/ha,355.2,E,Estimated value
+Lesotho,"Beans, dry",1961,kg/ha,280.0,E,Estimated value
+Lesotho,"Beans, dry",1962,kg/ha,280.0,E,Estimated value
+Lesotho,"Beans, dry",1963,kg/ha,320.0,E,Estimated value
+Lesotho,"Beans, dry",1964,kg/ha,200.0,E,Estimated value
+Lesotho,"Beans, dry",1965,kg/ha,229.6,A,Official figure
+Lesotho,"Beans, dry",1966,kg/ha,333.7,A,Official figure
+Lesotho,"Beans, dry",1967,kg/ha,258.2,A,Official figure
+Lesotho,"Beans, dry",1968,kg/ha,254.6,A,Official figure
+Lesotho,"Beans, dry",1969,kg/ha,257.0,A,Official figure
+Lesotho,"Beans, dry",1970,kg/ha,226.1,A,Official figure
+Lesotho,"Beans, dry",1971,kg/ha,235.3,A,Official figure
+Lesotho,"Beans, dry",1972,kg/ha,200.0,A,Official figure
+Lesotho,"Beans, dry",1973,kg/ha,285.7,A,Official figure
+Lesotho,"Beans, dry",1974,kg/ha,380.7,A,Official figure
+Lesotho,"Beans, dry",1975,kg/ha,476.9,A,Official figure
+Lesotho,"Beans, dry",1976,kg/ha,291.7,A,Official figure
+Lesotho,"Beans, dry",1977,kg/ha,1425.0,A,Official figure
+Lesotho,"Beans, dry",1978,kg/ha,974.4,A,Official figure
+Lesotho,"Beans, dry",1979,kg/ha,822.6,A,Official figure
+Lesotho,"Beans, dry",1980,kg/ha,518.1,A,Official figure
+Lesotho,"Beans, dry",1981,kg/ha,476.9,A,Official figure
+Lesotho,"Beans, dry",1982,kg/ha,361.4,A,Official figure
+Lesotho,"Beans, dry",1983,kg/ha,346.2,A,Official figure
+Lesotho,"Beans, dry",1984,kg/ha,163.1,A,Official figure
+Lesotho,"Beans, dry",1985,kg/ha,340.4,A,Official figure
+Lesotho,"Beans, dry",1986,kg/ha,223.0,A,Official figure
+Lesotho,"Beans, dry",1987,kg/ha,259.7,A,Official figure
+Lesotho,"Beans, dry",1988,kg/ha,318.0,A,Official figure
+Lesotho,"Beans, dry",1989,kg/ha,541.9,A,Official figure
+Lesotho,"Beans, dry",1990,kg/ha,1884.9,A,Official figure
+Lesotho,"Beans, dry",1991,kg/ha,335.6,A,Official figure
+Lesotho,"Beans, dry",1992,kg/ha,291.8,A,Official figure
+Lesotho,"Beans, dry",1993,kg/ha,347.6,A,Official figure
+Lesotho,"Beans, dry",1994,kg/ha,321.3,A,Official figure
+Lesotho,"Beans, dry",1995,kg/ha,1238.0,A,Official figure
+Lesotho,"Beans, dry",1996,kg/ha,659.1,A,Official figure
+Lesotho,"Beans, dry",1997,kg/ha,1039.6,A,Official figure
+Lesotho,"Beans, dry",1998,kg/ha,1116.7,A,Official figure
+Lesotho,"Beans, dry",1999,kg/ha,796.6,A,Official figure
+Lesotho,"Beans, dry",2000,kg/ha,799.9,A,Official figure
+Lesotho,"Beans, dry",2001,kg/ha,635.5,A,Official figure
+Lesotho,"Beans, dry",2002,kg/ha,602.1,A,Official figure
+Lesotho,"Beans, dry",2003,kg/ha,331.3,A,Official figure
+Lesotho,"Beans, dry",2004,kg/ha,563.7,A,Official figure
+Lesotho,"Beans, dry",2005,kg/ha,280.5,A,Official figure
+Lesotho,"Beans, dry",2006,kg/ha,155.3,A,Official figure
+Lesotho,"Beans, dry",2007,kg/ha,266.6,A,Official figure
+Lesotho,"Beans, dry",2008,kg/ha,260.1,A,Official figure
+Lesotho,"Beans, dry",2009,kg/ha,433.0,A,Official figure
+Lesotho,"Beans, dry",2010,kg/ha,331.0,A,Official figure
+Lesotho,"Beans, dry",2011,kg/ha,402.4,A,Official figure
+Lesotho,"Beans, dry",2012,kg/ha,331.6,E,Estimated value
+Lesotho,"Beans, dry",2013,kg/ha,178.0,A,Official figure
+Lesotho,"Beans, dry",2014,kg/ha,132.9,A,Official figure
+Lesotho,"Beans, dry",2015,kg/ha,253.4,A,Official figure
+Lesotho,"Beans, dry",2016,kg/ha,418.0,A,Official figure
+Lesotho,"Beans, dry",2017,kg/ha,311.7,A,Official figure
+Lesotho,"Beans, dry",2018,kg/ha,296.9,A,Official figure
+Lesotho,"Beans, dry",2019,kg/ha,387.5,A,Official figure
+Lesotho,"Beans, dry",2020,kg/ha,430.1,A,Official figure
+Lesotho,"Beans, dry",2021,kg/ha,302.6,A,Official figure
+Lesotho,"Beans, dry",2022,kg/ha,325.8,A,Official figure
+Lesotho,"Beans, dry",2023,kg/ha,264.8,A,Official figure
+Lesotho,Maize (corn),1961,kg/ha,814.8,E,Estimated value
+Lesotho,Maize (corn),1962,kg/ha,814.8,E,Estimated value
+Lesotho,Maize (corn),1963,kg/ha,814.8,E,Estimated value
+Lesotho,Maize (corn),1964,kg/ha,814.8,E,Estimated value
+Lesotho,Maize (corn),1965,kg/ha,709.7,A,Official figure
+Lesotho,Maize (corn),1966,kg/ha,778.6,A,Official figure
+Lesotho,Maize (corn),1967,kg/ha,743.2,A,Official figure
+Lesotho,Maize (corn),1968,kg/ha,682.2,A,Official figure
+Lesotho,Maize (corn),1969,kg/ha,717.4,A,Official figure
+Lesotho,Maize (corn),1970,kg/ha,514.6,A,Official figure
+Lesotho,Maize (corn),1971,kg/ha,548.1,A,Official figure
+Lesotho,Maize (corn),1972,kg/ha,536.4,A,Official figure
+Lesotho,Maize (corn),1973,kg/ha,608.7,A,Official figure
+Lesotho,Maize (corn),1974,kg/ha,944.8,A,Official figure
+Lesotho,Maize (corn),1975,kg/ha,651.8,A,Official figure
+Lesotho,Maize (corn),1976,kg/ha,579.2,A,Official figure
+Lesotho,Maize (corn),1977,kg/ha,1567.6,A,Official figure
+Lesotho,Maize (corn),1978,kg/ha,1408.0,A,Official figure
+Lesotho,Maize (corn),1979,kg/ha,1112.2,A,Official figure
+Lesotho,Maize (corn),1980,kg/ha,957.1,A,Official figure
+Lesotho,Maize (corn),1981,kg/ha,846.7,A,Official figure
+Lesotho,Maize (corn),1982,kg/ha,726.5,A,Official figure
+Lesotho,Maize (corn),1983,kg/ha,736.0,A,Official figure
+Lesotho,Maize (corn),1984,kg/ha,680.0,A,Official figure
+Lesotho,Maize (corn),1985,kg/ha,782.2,A,Official figure
+Lesotho,Maize (corn),1986,kg/ha,708.9,A,Official figure
+Lesotho,Maize (corn),1987,kg/ha,666.4,A,Official figure
+Lesotho,Maize (corn),1988,kg/ha,922.1,A,Official figure
+Lesotho,Maize (corn),1989,kg/ha,1047.6,A,Official figure
+Lesotho,Maize (corn),1990,kg/ha,1100.0,A,Official figure
+Lesotho,Maize (corn),1991,kg/ha,540.8,A,Official figure
+Lesotho,Maize (corn),1992,kg/ha,579.2,A,Official figure
+Lesotho,Maize (corn),1993,kg/ha,887.5,A,Official figure
+Lesotho,Maize (corn),1994,kg/ha,862.9,A,Official figure
+Lesotho,Maize (corn),1995,kg/ha,812.6,A,Official figure
+Lesotho,Maize (corn),1996,kg/ha,1249.0,A,Official figure
+Lesotho,Maize (corn),1997,kg/ha,985.7,A,Official figure
+Lesotho,Maize (corn),1998,kg/ha,1317.1,A,Official figure
+Lesotho,Maize (corn),1999,kg/ha,941.0,A,Official figure
+Lesotho,Maize (corn),2000,kg/ha,677.3,A,Official figure
+Lesotho,Maize (corn),2001,kg/ha,891.3,A,Official figure
+Lesotho,Maize (corn),2002,kg/ha,808.8,A,Official figure
+Lesotho,Maize (corn),2003,kg/ha,643.9,A,Official figure
+Lesotho,Maize (corn),2004,kg/ha,634.7,A,Official figure
+Lesotho,Maize (corn),2005,kg/ha,701.1,A,Official figure
+Lesotho,Maize (corn),2006,kg/ha,556.7,A,Official figure
+Lesotho,Maize (corn),2007,kg/ha,487.7,A,Official figure
+Lesotho,Maize (corn),2008,kg/ha,434.9,A,Official figure
+Lesotho,Maize (corn),2009,kg/ha,415.9,A,Official figure
+Lesotho,Maize (corn),2010,kg/ha,907.1,A,Official figure
+Lesotho,Maize (corn),2011,kg/ha,634.4,A,Official figure
+Lesotho,Maize (corn),2012,kg/ha,695.2,E,Estimated value
+Lesotho,Maize (corn),2013,kg/ha,822.7,A,Official figure
+Lesotho,Maize (corn),2014,kg/ha,678.6,A,Official figure
+Lesotho,Maize (corn),2015,kg/ha,657.1,A,Official figure
+Lesotho,Maize (corn),2016,kg/ha,468.0,A,Official figure
+Lesotho,Maize (corn),2017,kg/ha,1040.9,A,Official figure
+Lesotho,Maize (corn),2018,kg/ha,868.4,A,Official figure
+Lesotho,Maize (corn),2019,kg/ha,768.8,A,Official figure
+Lesotho,Maize (corn),2020,kg/ha,456.9,A,Official figure
+Lesotho,Maize (corn),2021,kg/ha,1025.2,A,Official figure
+Lesotho,Maize (corn),2022,kg/ha,804.6,A,Official figure
+Lesotho,Maize (corn),2023,kg/ha,850.8,A,Official figure
+Lesotho,Oats,1961,kg/ha,1303.7,A,Official figure
+Lesotho,Oats,1962,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1963,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1964,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1965,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1966,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1967,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1968,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1969,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1970,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1971,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1972,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1973,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1974,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1975,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1976,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1977,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1978,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1979,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1980,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1981,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1982,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1983,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1984,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1985,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1986,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1987,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1988,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1989,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1990,kg/ha,1608.5,E,Estimated value
+Lesotho,Oats,1991,kg/ha,1358.7,E,Estimated value
+Lesotho,Oats,1992,kg/ha,1366.9,E,Estimated value
+Lesotho,Oats,1993,kg/ha,1371.4,E,Estimated value
+Lesotho,Oats,1994,kg/ha,1354.7,E,Estimated value
+Lesotho,Oats,1995,kg/ha,1333.3,E,Estimated value
+Lesotho,Oats,1996,kg/ha,1428.6,E,Estimated value
+Lesotho,Oats,1997,kg/ha,1333.3,E,Estimated value
+Lesotho,Oats,1998,kg/ha,1333.3,E,Estimated value
+Lesotho,Oats,1999,kg/ha,1483.1,E,Estimated value
+Lesotho,Oats,2000,kg/ha,1456.8,E,Estimated value
+Lesotho,Oats,2001,kg/ha,1478.5,E,Estimated value
+Lesotho,Oats,2002,kg/ha,1471.0,E,Estimated value
+Lesotho,Oats,2003,kg/ha,1479.6,E,Estimated value
+Lesotho,Oats,2004,kg/ha,1495.4,E,Estimated value
+Lesotho,Oats,2005,kg/ha,1499.7,E,Estimated value
+Lesotho,Oats,2006,kg/ha,1578.9,E,Estimated value
+Lesotho,Oats,2007,kg/ha,1585.4,E,Estimated value
+Lesotho,Oats,2008,kg/ha,1470.6,E,Estimated value
+Lesotho,Oats,2009,kg/ha,1470.6,E,Estimated value
+Lesotho,Oats,2010,kg/ha,1506.3,E,Estimated value
+Lesotho,Oats,2011,kg/ha,1509.9,E,Estimated value
+Lesotho,Oats,2012,kg/ha,1500.0,E,Estimated value
+Lesotho,Oats,2013,kg/ha,1500.0,E,Estimated value
+Lesotho,Oats,2014,kg/ha,1519.6,E,Estimated value
+Lesotho,Oats,2015,kg/ha,1530.0,E,Estimated value
+Lesotho,Oats,2016,kg/ha,1515.4,E,Estimated value
+Lesotho,Oats,2017,kg/ha,1521.3,E,Estimated value
+Lesotho,Oats,2018,kg/ha,1534.1,E,Estimated value
+Lesotho,Oats,2019,kg/ha,1540.7,E,Estimated value
+Lesotho,Oats,2020,kg/ha,1532.0,E,Estimated value
+Lesotho,Oats,2021,kg/ha,1535.6,E,Estimated value
+Lesotho,Oats,2022,kg/ha,1536.1,E,Estimated value
+Lesotho,Oats,2023,kg/ha,1534.6,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1961,kg/ha,4444.4,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1962,kg/ha,4444.4,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1963,kg/ha,4444.4,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1964,kg/ha,4444.4,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1965,kg/ha,4444.4,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1966,kg/ha,4642.9,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1967,kg/ha,4642.9,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1968,kg/ha,4642.9,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1969,kg/ha,4642.9,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1970,kg/ha,4666.7,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1971,kg/ha,4666.7,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1972,kg/ha,4666.7,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1973,kg/ha,5333.3,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1974,kg/ha,5333.3,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1975,kg/ha,5333.3,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1976,kg/ha,5333.3,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1977,kg/ha,5666.7,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1978,kg/ha,5666.7,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1979,kg/ha,5666.7,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1980,kg/ha,5000.0,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1981,kg/ha,5000.0,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1982,kg/ha,5000.0,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1983,kg/ha,5901.6,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1984,kg/ha,5901.6,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1985,kg/ha,5901.6,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1986,kg/ha,5901.6,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1987,kg/ha,5901.6,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1988,kg/ha,5901.6,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1989,kg/ha,5901.6,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1990,kg/ha,5796.7,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1991,kg/ha,4803.6,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1992,kg/ha,4796.2,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1993,kg/ha,4788.8,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1994,kg/ha,4781.1,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1995,kg/ha,4855.0,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1996,kg/ha,4912.8,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1997,kg/ha,5000.0,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1998,kg/ha,4852.6,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",1999,kg/ha,4805.7,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2000,kg/ha,4677.4,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2001,kg/ha,4687.5,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2002,kg/ha,4697.0,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2003,kg/ha,4705.9,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2004,kg/ha,4714.3,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2005,kg/ha,4694.4,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2006,kg/ha,4729.7,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2007,kg/ha,4736.8,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2008,kg/ha,4750.0,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2009,kg/ha,4484.6,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2010,kg/ha,4317.4,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2011,kg/ha,4176.1,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2012,kg/ha,3555.6,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2013,kg/ha,3905.1,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2014,kg/ha,3832.0,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2015,kg/ha,3813.5,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2016,kg/ha,3743.1,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2017,kg/ha,3635.6,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2018,kg/ha,3541.8,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2019,kg/ha,3442.5,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2020,kg/ha,3378.0,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2021,kg/ha,3403.9,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2022,kg/ha,3408.1,E,Estimated value
+Lesotho,"Other fruits, n.e.c.",2023,kg/ha,3396.7,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1961,kg/ha,6798.9,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1962,kg/ha,6776.0,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1963,kg/ha,6790.5,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1964,kg/ha,6786.6,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1965,kg/ha,6801.0,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1966,kg/ha,6802.7,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1967,kg/ha,6802.7,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1968,kg/ha,6818.2,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1969,kg/ha,6818.2,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1970,kg/ha,6938.8,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1971,kg/ha,6938.8,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1972,kg/ha,7083.3,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1973,kg/ha,6923.1,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1974,kg/ha,6923.1,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1975,kg/ha,6923.1,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1976,kg/ha,6923.1,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1977,kg/ha,7142.9,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1978,kg/ha,7142.9,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1979,kg/ha,7142.9,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1980,kg/ha,6896.6,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1981,kg/ha,7096.8,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1982,kg/ha,7352.9,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1983,kg/ha,7142.9,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1984,kg/ha,6944.4,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1985,kg/ha,6756.8,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1986,kg/ha,7027.0,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1987,kg/ha,7027.0,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1988,kg/ha,7027.0,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1989,kg/ha,7027.0,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1990,kg/ha,7335.9,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1991,kg/ha,6666.7,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1992,kg/ha,6654.4,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1993,kg/ha,6659.2,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1994,kg/ha,6664.4,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1995,kg/ha,6670.0,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1996,kg/ha,6671.6,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1997,kg/ha,6681.6,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1998,kg/ha,6666.7,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",1999,kg/ha,6785.7,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2000,kg/ha,6896.6,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2001,kg/ha,6875.0,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2002,kg/ha,7272.7,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2003,kg/ha,7941.2,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2004,kg/ha,8285.7,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2005,kg/ha,8216.1,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2006,kg/ha,8108.1,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2007,kg/ha,8421.1,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2008,kg/ha,8750.0,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2009,kg/ha,8717.3,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2010,kg/ha,8726.0,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2011,kg/ha,8739.5,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2012,kg/ha,8787.9,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2013,kg/ha,8695.4,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2014,kg/ha,8595.0,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2015,kg/ha,8935.4,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2016,kg/ha,9115.5,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2017,kg/ha,9239.1,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2018,kg/ha,9355.1,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2019,kg/ha,9460.9,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2020,kg/ha,9391.3,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2021,kg/ha,9382.2,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2022,kg/ha,9412.8,E,Estimated value
+Lesotho,"Other vegetables, fresh n.e.c.",2023,kg/ha,9457.0,E,Estimated value
+Lesotho,"Peas, dry",1961,kg/ha,712.7,A,Official figure
+Lesotho,"Peas, dry",1962,kg/ha,625.0,E,Estimated value
+Lesotho,"Peas, dry",1963,kg/ha,590.9,E,Estimated value
+Lesotho,"Peas, dry",1964,kg/ha,545.5,E,Estimated value
+Lesotho,"Peas, dry",1965,kg/ha,500.0,A,Official figure
+Lesotho,"Peas, dry",1966,kg/ha,590.9,A,Official figure
+Lesotho,"Peas, dry",1967,kg/ha,551.8,A,Official figure
+Lesotho,"Peas, dry",1968,kg/ha,582.9,A,Official figure
+Lesotho,"Peas, dry",1969,kg/ha,452.6,A,Official figure
+Lesotho,"Peas, dry",1970,kg/ha,365.6,A,Official figure
+Lesotho,"Peas, dry",1971,kg/ha,416.7,A,Official figure
+Lesotho,"Peas, dry",1972,kg/ha,300.0,A,Official figure
+Lesotho,"Peas, dry",1973,kg/ha,400.0,A,Official figure
+Lesotho,"Peas, dry",1974,kg/ha,703.7,A,Official figure
+Lesotho,"Peas, dry",1975,kg/ha,579.8,A,Official figure
+Lesotho,"Peas, dry",1976,kg/ha,568.7,A,Official figure
+Lesotho,"Peas, dry",1977,kg/ha,990.6,A,Official figure
+Lesotho,"Peas, dry",1978,kg/ha,1018.2,A,Official figure
+Lesotho,"Peas, dry",1979,kg/ha,1202.4,A,Official figure
+Lesotho,"Peas, dry",1980,kg/ha,775.6,A,Official figure
+Lesotho,"Peas, dry",1981,kg/ha,683.0,A,Official figure
+Lesotho,"Peas, dry",1982,kg/ha,492.9,A,Official figure
+Lesotho,"Peas, dry",1983,kg/ha,387.4,A,Official figure
+Lesotho,"Peas, dry",1984,kg/ha,460.6,A,Official figure
+Lesotho,"Peas, dry",1985,kg/ha,451.6,A,Official figure
+Lesotho,"Peas, dry",1986,kg/ha,428.9,A,Official figure
+Lesotho,"Peas, dry",1987,kg/ha,385.7,A,Official figure
+Lesotho,"Peas, dry",1988,kg/ha,481.1,A,Official figure
+Lesotho,"Peas, dry",1989,kg/ha,978.7,A,Official figure
+Lesotho,"Peas, dry",1990,kg/ha,236.2,A,Official figure
+Lesotho,"Peas, dry",1991,kg/ha,74.7,A,Official figure
+Lesotho,"Peas, dry",1992,kg/ha,560.0,A,Official figure
+Lesotho,"Peas, dry",1993,kg/ha,543.3,A,Official figure
+Lesotho,"Peas, dry",1994,kg/ha,308.6,A,Official figure
+Lesotho,"Peas, dry",1995,kg/ha,287.2,A,Official figure
+Lesotho,"Peas, dry",1996,kg/ha,918.1,A,Official figure
+Lesotho,"Peas, dry",1997,kg/ha,751.2,A,Official figure
+Lesotho,"Peas, dry",1998,kg/ha,655.5,A,Official figure
+Lesotho,"Peas, dry",1999,kg/ha,853.2,A,Official figure
+Lesotho,"Peas, dry",2000,kg/ha,747.5,A,Official figure
+Lesotho,"Peas, dry",2001,kg/ha,822.8,A,Official figure
+Lesotho,"Peas, dry",2002,kg/ha,338.3,A,Official figure
+Lesotho,"Peas, dry",2003,kg/ha,299.4,A,Official figure
+Lesotho,"Peas, dry",2004,kg/ha,433.2,A,Official figure
+Lesotho,"Peas, dry",2005,kg/ha,415.8,A,Official figure
+Lesotho,"Peas, dry",2006,kg/ha,444.1,A,Official figure
+Lesotho,"Peas, dry",2007,kg/ha,299.3,A,Official figure
+Lesotho,"Peas, dry",2008,kg/ha,599.6,A,Official figure
+Lesotho,"Peas, dry",2009,kg/ha,689.0,A,Official figure
+Lesotho,"Peas, dry",2010,kg/ha,651.6,A,Official figure
+Lesotho,"Peas, dry",2011,kg/ha,508.2,A,Official figure
+Lesotho,"Peas, dry",2012,kg/ha,452.7,E,Estimated value
+Lesotho,"Peas, dry",2013,kg/ha,429.8,E,Estimated value
+Lesotho,"Peas, dry",2014,kg/ha,335.7,A,Official figure
+Lesotho,"Peas, dry",2015,kg/ha,257.7,A,Official figure
+Lesotho,"Peas, dry",2016,kg/ha,323.7,A,Official figure
+Lesotho,"Peas, dry",2017,kg/ha,607.3,A,Official figure
+Lesotho,"Peas, dry",2018,kg/ha,393.1,A,Official figure
+Lesotho,"Peas, dry",2019,kg/ha,588.5,A,Official figure
+Lesotho,"Peas, dry",2020,kg/ha,9.6,A,Official figure
+Lesotho,"Peas, dry",2021,kg/ha,512.5,A,Official figure
+Lesotho,"Peas, dry",2022,kg/ha,342.1,A,Official figure
+Lesotho,"Peas, dry",2023,kg/ha,374.6,A,Official figure
+Lesotho,Potatoes,1961,kg/ha,15000.0,E,Estimated value
+Lesotho,Potatoes,1962,kg/ha,15000.0,E,Estimated value
+Lesotho,Potatoes,1963,kg/ha,15000.0,E,Estimated value
+Lesotho,Potatoes,1964,kg/ha,15000.0,E,Estimated value
+Lesotho,Potatoes,1965,kg/ha,15000.0,E,Estimated value
+Lesotho,Potatoes,1966,kg/ha,14000.0,E,Estimated value
+Lesotho,Potatoes,1967,kg/ha,14000.0,E,Estimated value
+Lesotho,Potatoes,1968,kg/ha,14000.0,E,Estimated value
+Lesotho,Potatoes,1969,kg/ha,14000.0,E,Estimated value
+Lesotho,Potatoes,1970,kg/ha,13333.3,E,Estimated value
+Lesotho,Potatoes,1971,kg/ha,13333.3,E,Estimated value
+Lesotho,Potatoes,1972,kg/ha,13333.3,E,Estimated value
+Lesotho,Potatoes,1973,kg/ha,12857.1,E,Estimated value
+Lesotho,Potatoes,1974,kg/ha,12857.1,E,Estimated value
+Lesotho,Potatoes,1975,kg/ha,12973.0,E,Estimated value
+Lesotho,Potatoes,1976,kg/ha,13052.6,E,Estimated value
+Lesotho,Potatoes,1977,kg/ha,13333.3,E,Estimated value
+Lesotho,Potatoes,1978,kg/ha,12500.0,E,Estimated value
+Lesotho,Potatoes,1979,kg/ha,15000.0,E,Estimated value
+Lesotho,Potatoes,1980,kg/ha,15000.0,E,Estimated value
+Lesotho,Potatoes,1981,kg/ha,15000.0,E,Estimated value
+Lesotho,Potatoes,1982,kg/ha,14285.7,E,Estimated value
+Lesotho,Potatoes,1983,kg/ha,14666.7,E,Estimated value
+Lesotho,Potatoes,1984,kg/ha,15625.0,E,Estimated value
+Lesotho,Potatoes,1985,kg/ha,15555.6,E,Estimated value
+Lesotho,Potatoes,1986,kg/ha,15000.0,E,Estimated value
+Lesotho,Potatoes,1987,kg/ha,15217.4,E,Estimated value
+Lesotho,Potatoes,1988,kg/ha,15200.0,E,Estimated value
+Lesotho,Potatoes,1989,kg/ha,15517.2,E,Estimated value
+Lesotho,Potatoes,1990,kg/ha,17690.5,E,Estimated value
+Lesotho,Potatoes,1991,kg/ha,15625.0,E,Estimated value
+Lesotho,Potatoes,1992,kg/ha,14864.9,E,Estimated value
+Lesotho,Potatoes,1993,kg/ha,15000.0,E,Estimated value
+Lesotho,Potatoes,1994,kg/ha,15555.6,E,Estimated value
+Lesotho,Potatoes,1995,kg/ha,15629.9,E,Estimated value
+Lesotho,Potatoes,1996,kg/ha,15730.5,E,Estimated value
+Lesotho,Potatoes,1997,kg/ha,15957.4,E,Estimated value
+Lesotho,Potatoes,1998,kg/ha,16000.0,E,Estimated value
+Lesotho,Potatoes,1999,kg/ha,16346.2,E,Estimated value
+Lesotho,Potatoes,2000,kg/ha,16415.1,E,Estimated value
+Lesotho,Potatoes,2001,kg/ha,16296.3,E,Estimated value
+Lesotho,Potatoes,2002,kg/ha,16267.5,E,Estimated value
+Lesotho,Potatoes,2003,kg/ha,16286.3,E,Estimated value
+Lesotho,Potatoes,2004,kg/ha,16350.5,E,Estimated value
+Lesotho,Potatoes,2005,kg/ha,16396.7,E,Estimated value
+Lesotho,Potatoes,2006,kg/ha,16464.7,E,Estimated value
+Lesotho,Potatoes,2007,kg/ha,16607.1,E,Estimated value
+Lesotho,Potatoes,2008,kg/ha,16637.9,E,Estimated value
+Lesotho,Potatoes,2009,kg/ha,15964.9,E,Estimated value
+Lesotho,Potatoes,2010,kg/ha,16500.0,E,Estimated value
+Lesotho,Potatoes,2011,kg/ha,16470.6,E,Estimated value
+Lesotho,Potatoes,2012,kg/ha,16428.6,E,Estimated value
+Lesotho,Potatoes,2013,kg/ha,17361.1,E,Estimated value
+Lesotho,Potatoes,2014,kg/ha,17107.4,E,Estimated value
+Lesotho,Potatoes,2015,kg/ha,16881.7,E,Estimated value
+Lesotho,Potatoes,2016,kg/ha,18012.1,E,Estimated value
+Lesotho,Potatoes,2017,kg/ha,17691.1,E,Estimated value
+Lesotho,Potatoes,2018,kg/ha,17587.3,E,Estimated value
+Lesotho,Potatoes,2019,kg/ha,18599.5,E,Estimated value
+Lesotho,Potatoes,2020,kg/ha,17955.5,E,Estimated value
+Lesotho,Potatoes,2021,kg/ha,18042.6,E,Estimated value
+Lesotho,Potatoes,2022,kg/ha,18197.6,E,Estimated value
+Lesotho,Potatoes,2023,kg/ha,18065.1,E,Estimated value
+Lesotho,Sorghum,1961,kg/ha,846.2,E,Estimated value
+Lesotho,Sorghum,1962,kg/ha,846.2,E,Estimated value
+Lesotho,Sorghum,1963,kg/ha,846.2,E,Estimated value
+Lesotho,Sorghum,1964,kg/ha,846.2,E,Estimated value
+Lesotho,Sorghum,1965,kg/ha,927.8,A,Official figure
+Lesotho,Sorghum,1966,kg/ha,826.4,A,Official figure
+Lesotho,Sorghum,1967,kg/ha,829.6,A,Official figure
+Lesotho,Sorghum,1968,kg/ha,708.4,A,Official figure
+Lesotho,Sorghum,1969,kg/ha,672.5,A,Official figure
+Lesotho,Sorghum,1970,kg/ha,689.1,A,Official figure
+Lesotho,Sorghum,1971,kg/ha,752.9,A,Official figure
+Lesotho,Sorghum,1972,kg/ha,332.8,A,Official figure
+Lesotho,Sorghum,1973,kg/ha,671.9,A,Official figure
+Lesotho,Sorghum,1974,kg/ha,1009.0,A,Official figure
+Lesotho,Sorghum,1975,kg/ha,683.6,A,Official figure
+Lesotho,Sorghum,1976,kg/ha,554.7,A,Official figure
+Lesotho,Sorghum,1977,kg/ha,1466.7,A,Official figure
+Lesotho,Sorghum,1978,kg/ha,1446.9,A,Official figure
+Lesotho,Sorghum,1979,kg/ha,1345.3,A,Official figure
+Lesotho,Sorghum,1980,kg/ha,966.6,A,Official figure
+Lesotho,Sorghum,1981,kg/ha,795.3,A,Official figure
+Lesotho,Sorghum,1982,kg/ha,544.5,A,Official figure
+Lesotho,Sorghum,1983,kg/ha,659.4,A,Official figure
+Lesotho,Sorghum,1984,kg/ha,617.5,A,Official figure
+Lesotho,Sorghum,1985,kg/ha,725.6,A,Official figure
+Lesotho,Sorghum,1986,kg/ha,644.3,A,Official figure
+Lesotho,Sorghum,1987,kg/ha,440.5,A,Official figure
+Lesotho,Sorghum,1988,kg/ha,700.0,A,Official figure
+Lesotho,Sorghum,1989,kg/ha,768.9,A,Official figure
+Lesotho,Sorghum,1990,kg/ha,1011.2,A,Official figure
+Lesotho,Sorghum,1991,kg/ha,539.9,A,Official figure
+Lesotho,Sorghum,1992,kg/ha,612.3,A,Official figure
+Lesotho,Sorghum,1993,kg/ha,1270.4,A,Official figure
+Lesotho,Sorghum,1994,kg/ha,875.6,A,Official figure
+Lesotho,Sorghum,1995,kg/ha,802.8,A,Official figure
+Lesotho,Sorghum,1996,kg/ha,859.1,A,Official figure
+Lesotho,Sorghum,1997,kg/ha,805.6,A,Official figure
+Lesotho,Sorghum,1998,kg/ha,1476.3,A,Official figure
+Lesotho,Sorghum,1999,kg/ha,1108.9,A,Official figure
+Lesotho,Sorghum,2000,kg/ha,1037.8,A,Official figure
+Lesotho,Sorghum,2001,kg/ha,864.0,A,Official figure
+Lesotho,Sorghum,2002,kg/ha,422.5,A,Official figure
+Lesotho,Sorghum,2003,kg/ha,474.3,A,Official figure
+Lesotho,Sorghum,2004,kg/ha,393.3,A,Official figure
+Lesotho,Sorghum,2005,kg/ha,624.0,A,Official figure
+Lesotho,Sorghum,2006,kg/ha,329.0,A,Official figure
+Lesotho,Sorghum,2007,kg/ha,243.6,A,Official figure
+Lesotho,Sorghum,2008,kg/ha,286.6,A,Official figure
+Lesotho,Sorghum,2009,kg/ha,577.3,A,Official figure
+Lesotho,Sorghum,2010,kg/ha,718.9,A,Official figure
+Lesotho,Sorghum,2011,kg/ha,509.2,A,Official figure
+Lesotho,Sorghum,2012,kg/ha,134.3,A,Official figure
+Lesotho,Sorghum,2013,kg/ha,305.1,E,Estimated value
+Lesotho,Sorghum,2014,kg/ha,571.2,A,Official figure
+Lesotho,Sorghum,2015,kg/ha,596.8,A,Official figure
+Lesotho,Sorghum,2016,kg/ha,257.6,A,Official figure
+Lesotho,Sorghum,2017,kg/ha,763.3,A,Official figure
+Lesotho,Sorghum,2018,kg/ha,472.2,A,Official figure
+Lesotho,Sorghum,2019,kg/ha,583.4,A,Official figure
+Lesotho,Sorghum,2020,kg/ha,299.6,A,Official figure
+Lesotho,Sorghum,2021,kg/ha,795.5,A,Official figure
+Lesotho,Sorghum,2022,kg/ha,260.2,A,Official figure
+Lesotho,Sorghum,2023,kg/ha,535.7,A,Official figure
+Lesotho,Wheat,1961,kg/ha,864.8,A,Official figure
+Lesotho,Wheat,1962,kg/ha,785.7,E,Estimated value
+Lesotho,Wheat,1963,kg/ha,785.7,E,Estimated value
+Lesotho,Wheat,1964,kg/ha,771.4,E,Estimated value
+Lesotho,Wheat,1965,kg/ha,716.3,A,Official figure
+Lesotho,Wheat,1966,kg/ha,814.6,A,Official figure
+Lesotho,Wheat,1967,kg/ha,681.2,A,Official figure
+Lesotho,Wheat,1968,kg/ha,650.3,A,Official figure
+Lesotho,Wheat,1969,kg/ha,627.1,A,Official figure
+Lesotho,Wheat,1970,kg/ha,656.1,A,Official figure
+Lesotho,Wheat,1971,kg/ha,609.3,A,Official figure
+Lesotho,Wheat,1972,kg/ha,225.6,A,Official figure
+Lesotho,Wheat,1973,kg/ha,480.0,A,Official figure
+Lesotho,Wheat,1974,kg/ha,744.2,A,Official figure
+Lesotho,Wheat,1975,kg/ha,822.5,A,Official figure
+Lesotho,Wheat,1976,kg/ha,799.0,A,Official figure
+Lesotho,Wheat,1977,kg/ha,1472.8,A,Official figure
+Lesotho,Wheat,1978,kg/ha,1359.0,A,Official figure
+Lesotho,Wheat,1979,kg/ha,952.5,A,Official figure
+Lesotho,Wheat,1980,kg/ha,973.8,A,Official figure
+Lesotho,Wheat,1981,kg/ha,852.5,A,Official figure
+Lesotho,Wheat,1982,kg/ha,605.3,A,Official figure
+Lesotho,Wheat,1983,kg/ha,510.6,A,Official figure
+Lesotho,Wheat,1984,kg/ha,580.3,A,Official figure
+Lesotho,Wheat,1985,kg/ha,508.2,A,Official figure
+Lesotho,Wheat,1986,kg/ha,578.6,A,Official figure
+Lesotho,Wheat,1987,kg/ha,671.9,A,Official figure
+Lesotho,Wheat,1988,kg/ha,643.3,A,Official figure
+Lesotho,Wheat,1989,kg/ha,680.4,A,Official figure
+Lesotho,Wheat,1990,kg/ha,811.8,A,Official figure
+Lesotho,Wheat,1991,kg/ha,195.9,A,Official figure
+Lesotho,Wheat,1992,kg/ha,858.0,A,Official figure
+Lesotho,Wheat,1993,kg/ha,733.0,A,Official figure
+Lesotho,Wheat,1994,kg/ha,419.9,A,Official figure
+Lesotho,Wheat,1995,kg/ha,616.6,A,Official figure
+Lesotho,Wheat,1996,kg/ha,1410.8,A,Official figure
+Lesotho,Wheat,1997,kg/ha,1629.1,A,Official figure
+Lesotho,Wheat,1998,kg/ha,1481.0,A,Official figure
+Lesotho,Wheat,1999,kg/ha,738.8,A,Official figure
+Lesotho,Wheat,2000,kg/ha,654.7,A,Official figure
+Lesotho,Wheat,2001,kg/ha,2051.5,A,Official figure
+Lesotho,Wheat,2002,kg/ha,717.2,A,Official figure
+Lesotho,Wheat,2003,kg/ha,587.9,A,Official figure
+Lesotho,Wheat,2004,kg/ha,640.1,A,Official figure
+Lesotho,Wheat,2005,kg/ha,723.4,A,Official figure
+Lesotho,Wheat,2006,kg/ha,360.2,A,Official figure
+Lesotho,Wheat,2007,kg/ha,200.2,A,Official figure
+Lesotho,Wheat,2008,kg/ha,131.4,A,Official figure
+Lesotho,Wheat,2009,kg/ha,230.2,A,Official figure
+Lesotho,Wheat,2010,kg/ha,1469.3,A,Official figure
+Lesotho,Wheat,2011,kg/ha,996.5,A,Official figure
+Lesotho,Wheat,2012,kg/ha,864.1,A,Official figure
+Lesotho,Wheat,2013,kg/ha,1234.5,A,Official figure
+Lesotho,Wheat,2014,kg/ha,910.4,A,Official figure
+Lesotho,Wheat,2015,kg/ha,849.9,A,Official figure
+Lesotho,Wheat,2016,kg/ha,593.7,A,Official figure
+Lesotho,Wheat,2017,kg/ha,1293.4,A,Official figure
+Lesotho,Wheat,2018,kg/ha,939.1,A,Official figure
+Lesotho,Wheat,2019,kg/ha,624.8,A,Official figure
+Lesotho,Wheat,2020,kg/ha,697.0,A,Official figure
+Lesotho,Wheat,2021,kg/ha,461.4,A,Official figure
+Lesotho,Wheat,2022,kg/ha,810.7,A,Official figure
+Lesotho,Wheat,2023,kg/ha,598.4,A,Official figure
