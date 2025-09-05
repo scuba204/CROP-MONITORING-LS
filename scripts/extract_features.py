@@ -134,8 +134,8 @@ if gdf['label'].isnull().any():
 
 # === New Step: Extract Features from Earth Engine ===
 # This is where you call the function.
-training_start_date = "2024-05-01" # Adjust this to your ground truth collection period
-training_end_date = "2024-07-31"   # Adjust this to your ground truth collection period
+training_start_date = "2025-07-26" # Adjust this to your ground truth collection period
+training_end_date = "2025-08-10"   # Adjust this to your ground truth collection period
 
 # Define the bands you need for your model
 spectral_bands = ["B2", "B3", "B4", "B5", "B6", "B7", "B8A", "B11", "B12"]
