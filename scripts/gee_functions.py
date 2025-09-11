@@ -219,7 +219,7 @@ def get_simulated_hyperspectral(start: str, end: str, roi: ee.Geometry, **kwargs
 
 def get_soil_moisture(start: str, end: str, roi: ee.Geometry, **kwargs) -> Union[ee.Image, ee.ImageCollection]:
     """Mean soil moisture (0–10 cm) from FLDAS/NOAH."""
-    return _get_generic_product('NASA/FLDAS/NOAH01/C/GL/M/V001', 'SoilMoi00_10cm_tavg', start, end, roi, **kwargs)
+    return _get_generic_product('NASA/FLDAS/NOAH01/C/GL/M/V001,' 'SoilMoi00_10cm_tavg', start, end, roi, **kwargs)
 
 def get_soil_property(key: str, roi: ee.Geometry) -> ee.Image:
     """Generic loader for static SoilGrids properties."""

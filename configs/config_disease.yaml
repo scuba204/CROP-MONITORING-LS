@@ -4,7 +4,7 @@
 
 data:
   # ✨ CHANGE: Pointing to the disease-specific dataset
-  csv_path: "data/crop_disease_training.csv"
+  csv_path: "data/crop_disease_training_data.csv"
   
   # The available spectral bands from Sentinel-2
   bands:
