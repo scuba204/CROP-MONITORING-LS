@@ -1,39 +1,40 @@
+# clean_rotation_dataset.py
 import pandas as pd
 
-# === Load datasets ===
-env = pd.read_csv("gee_env_features_final.csv")  # Environmental features
-faostat_yield = pd.read_csv("faostat_lesotho_yield_only.csv")  # Yield data
-faostat_area = pd.read_csv("faostat_lesotho_area_shares.csv")  # Area share data
-faostat_rotation_proxy = pd.read_csv("faostat_rotation_proxy_features.csv")  # Crop rotation proxy data
+# Load merged dataset
+df = pd.read_csv("rotation_training.csv")
 
-# === Merge FAOSTAT files ===
-faostat = pd.merge(
-    faostat_yield,
-    faostat_area,
-    on=["Year", "Item"],
-    how="outer"
-)
+# === Drop duplicate/irrelevant columns ===
+df = df.drop(columns=[
+    "Area_y", "Yield_Unit_y", "Yield_y", "Flag_y", "Flag Description_y",
+    "prev_area_share_y"
+], errors="ignore")
 
-# === Merge with environmental features ===
-merged = pd.merge(
-    faostat,
-    env,
-    on=["Year", "Item"],
-    how="inner"  # keep only overlapping Year + Item
-)
+# === Rename columns to standard names ===
+df = df.rename(columns={
+    "Area_x": "Area",
+    "Yield_x": "Yield",
+    "Yield_Unit_x": "Yield_Unit",
+    "Flag_x": "Flag",
+    "Flag Description_x": "Flag_Description",
+    "prev_area_share_x": "prev_area_share"
+})
 
-# === Save merged dataset ===
-merged.to_csv("crop_rotation_training_data.csv", index=False)
-print("✅ Saved merged dataset -> crop_rotation_training_data.csv")
+# === Reorder columns for readability ===
+col_order = [
+    "Year", "Item", "Area", "Yield", "Yield_Unit", "Flag", "Flag_Description",
+    "Area_ha", "total_area", "area_share", "prev_area_share",
+    # proxy features (FAOSTAT rotation proxy file probably added columns here)
+] + [c for c in df.columns if c not in [
+    "Year", "Item", "Area", "Yield", "Yield_Unit", "Flag", "Flag_Description",
+    "Area_ha", "total_area", "area_share", "prev_area_share"
+]]
 
-# === Summary Checks ===
-print("\n📊 Dataset Summary")
-print("-" * 40)
-print("Rows:", len(merged))
-print("Columns:", merged.shape[1])
-print("\nCrops included:", merged["Item"].unique())
-print("\nRecords per crop:")
-print(merged["Item"].value_counts())
+df = df[col_order]
 
-print("\n🔍 Missing values check:")
-print(merged.isnull().sum())
+# === Save cleaned dataset ===
+df.to_csv("rotation_training_clean.csv", index=False)
+
+print("✅ Cleaned dataset saved to rotation_training_clean.csv")
+print("Shape:", df.shape)
+print("Columns:", df.columns.tolist())
