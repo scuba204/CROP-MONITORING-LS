@@ -1,111 +1,97 @@
-# crop_rotation_model_fixed.py
-import os, json, joblib
+# train_rotation_model.py
 import pandas as pd
 import numpy as np
-
-from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.impute import SimpleImputer
-from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.model_selection import train_test_split
+import os
+from sklearn.model_selection import train_test_split, cross_val_score, RandomizedSearchCV
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+from sklearn.compose import ColumnTransformer
+import joblib
 
 
-def train(
-    input_csv="data/rotation_training.csv",
-    target_col="recommended_crop",
-    model_dir="models",
-    test_size=0.2,
-    random_state=42,
-):
-    # Load dataset
-    df = pd.read_csv(input_csv)
+def train_and_evaluate_model():
+    # === Load dataset ===
+    # Correct way to join the directory and filename
+    file_path = os.path.join("data", "rotation_training_clean.csv")
+    df = pd.read_csv(file_path)
 
-    if target_col not in df.columns:
-        raise ValueError(f"Target column '{target_col}' not found in dataset!")
+    # === Select features & target ===
+    numeric_features = [
+        "Year", "area_share", "prev_area_share", "ET", "LST_Day_1km",
+        "NDVI", "precipitation", "rel_humidity",
+        "surface_solar_radiation_downwards", "soil_ph", "soil_soc",
+        "soil_nitrogen", "soil_cec"
+    ]
+    categorical_features = ["Item"]
+    target = "Yield"
 
-    # Separate features & target
-    y_raw = df[target_col].astype("category")
-    X = df.drop(columns=[target_col])
+    X = df[numeric_features + categorical_features]
+    y = df[target]
 
-    # Encode target labels
-    le = LabelEncoder()
-    y = le.fit_transform(y_raw)
+    # === Train/test split ===
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Identify categorical and numeric features
-    cat_cols = X.select_dtypes(include=["object", "category"]).columns.tolist()
-    num_cols = X.select_dtypes(include=["number"]).columns.tolist()
-
-    print(f"Categorical columns: {cat_cols}")
-    print(f"Numeric columns: {num_cols}")
-    print("Target classes:", list(le.classes_))
-
-    # Preprocessing: handle missing + encode categoricals
+    # === Create preprocessing and model pipeline ===
+    # Use ColumnTransformer to apply different transformations to different columns
     preprocessor = ColumnTransformer(
         transformers=[
-            ("num", SimpleImputer(strategy="median"), num_cols),
-            (
-                "cat",
-                Pipeline(
-                    [
-                        ("imputer", SimpleImputer(strategy="most_frequent")),
-                        ("ohe", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
-                    ]
-                ),
-                cat_cols,
-            ),
+            ('num', StandardScaler(), numeric_features),
+            ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_features)
         ],
-        remainder="drop",
-        verbose_feature_names_out=False,
+        remainder='passthrough'
     )
 
-    # Model: simpler RandomForest for small datasets
-    clf = RandomForestClassifier(
-        n_estimators=150,
-        max_depth=10,  # limit depth to avoid overfitting small datasets
-        min_samples_leaf=1,
-        n_jobs=-1,
-        class_weight="balanced",
-        random_state=random_state,
-    )
+    # Create the full pipeline with a regressor
+    pipe = Pipeline(steps=[
+        ('preprocessor', preprocessor),
+        ('regressor', RandomForestRegressor(n_jobs=-1, random_state=42))
+    ])
 
-    # Full pipeline
-    pipe = Pipeline(steps=[("pre", preprocessor), ("clf", clf)])
-
-    # Split dataset
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, stratify=y, random_state=random_state
-    )
-
-    # Train model
-    pipe.fit(X_train, y_train)
-
-    # Predictions
-    y_pred = pipe.predict(X_test)
-
-    # Evaluation
-    print("=== Crop Rotation Advisor ===")
-    print(classification_report(y_test, y_pred, target_names=le.classes_, digits=3))
-    print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
-
-    # Save model + metadata
-    os.makedirs(model_dir, exist_ok=True)
-    model_path = os.path.join(model_dir, "crop_rotation_pipeline.joblib")
-    joblib.dump(pipe, model_path)
-
-    meta = {
-        "model_path": model_path,
-        "target_col": target_col,
-        "features": {"numeric": num_cols, "categorical": cat_cols},
-        "class_labels": list(le.classes_),
-        "label_encoder": {cls: int(i) for i, cls in enumerate(le.classes_)},
+    # === Hyperparameter Tuning with RandomizedSearchCV ===
+    param_grid = {
+        'regressor__n_estimators': [100, 200, 300, 400],
+        'regressor__max_depth': [10, 20, 30, None],
+        'regressor__min_samples_split': [2, 5, 10],
+        'regressor__min_samples_leaf': [1, 2, 4],
     }
-    with open(os.path.join(model_dir, "crop_rotation_metadata.json"), "w") as f:
-        json.dump(meta, f, indent=2)
 
-    print(f"✅ Model saved at: {model_path}")
+    print("🔎 Starting hyperparameter search...")
+    random_search = RandomizedSearchCV(
+        estimator=pipe,
+        param_distributions=param_grid,
+        n_iter=50,
+        cv=5,
+        verbose=1,
+        random_state=42,
+        n_jobs=-1,
+        scoring='r2'
+    )
 
+    random_search.fit(X_train, y_train)
+    best_pipe = random_search.best_estimator_
+
+    print("\n✅ Model trained and tuned")
+    print("Best parameters found:", random_search.best_params_)
+
+    # === Evaluate on the test set ===
+    y_pred = best_pipe.predict(X_test)
+    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    r2 = r2_score(y_test, y_pred)
+
+    print("\n=== Model Evaluation ===")
+    print(f"Test RMSE: {rmse:.4f}")
+    print(f"Test R²: {r2:.4f}")
+
+    # === Cross-validation with the best model ===
+    cv_scores = cross_val_score(best_pipe, X_train, y_train, cv=5, scoring="r2")
+    print("\nCV R² scores:", cv_scores)
+    print("Mean CV R²:", cv_scores.mean())
+
+    # === Save the best pipeline model ===
+    joblib.dump(best_pipe, "rotation_yield_pipeline.pkl")
+    print("\n✅ Best model pipeline saved as 'rotation_yield_pipeline.pkl'")
 
 if __name__ == "__main__":
-    train()
+    train_and_evaluate_model()
