@@ -1,3 +1,5 @@
+# CROP MONITORING LS
+
 This project provides a web-based dashboard for
 monitoring crop health and pest/disease risks at
 the district level in Lesotho. It integrates satellite
