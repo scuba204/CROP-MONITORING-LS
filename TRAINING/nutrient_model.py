@@ -11,6 +11,8 @@ df = pd.get_dummies(df, drop_first=True)
 X = df.drop("label", axis=1)
 y = df["label"]
 
+print(df.head())
+
 with open("models/nutrient_model_features.json", "w") as f:
     json.dump(list(X.columns), f)
 
