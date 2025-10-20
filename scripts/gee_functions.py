@@ -266,3 +266,66 @@ if __name__ == '__main__':
     if rvi_collection:
         logging.info(f"Successfully generated RVI collection with {rvi_collection.size().getInfo()} images.")
 
+# === Additional functions for soil properties as per the original request ===
+
+def get_ndvi(start_date, end_date, geom):
+    dataset = ee.ImageCollection('MODIS/061/MOD13Q1').filterDate(start_date, end_date)
+    return dataset.select('NDVI').mean().multiply(0.0001).clip(geom)
+
+def get_soil_moisture(start_date, end_date, geom):
+    dataset = ee.ImageCollection('NASA_USDA/HSL/SMAP10KM_soil_moisture').filterDate(start_date, end_date)
+    return dataset.select('ssm').mean().clip(geom)
+
+def get_precipitation(start_date, end_date, geom):
+    dataset = ee.ImageCollection('UCSB-CHG/CHIRPS/DAILY').filterDate(start_date, end_date)
+    return dataset.select('precipitation').sum().clip(geom)
+
+def get_land_surface_temperature(start_date, end_date, geom):
+    dataset = ee.ImageCollection('MODIS/061/MOD11A2').filterDate(start_date, end_date)
+    return dataset.select('LST_Day_1km').mean().multiply(0.02).subtract(273.15).clip(geom)
+
+def get_humidity(start_date, end_date, geom):
+    dataset = ee.ImageCollection('ECMWF/ERA5_LAND/HOURLY').filterDate(start_date, end_date)
+    t2m = dataset.select('temperature_2m').mean()
+    td = dataset.select('dewpoint_temperature_2m').mean()
+    rh = t2m.subtract(273.15).expression(
+        "100 * (6.112 * exp((17.67 * td) / (td + 243.5))) / "
+        "(6.112 * exp((17.67 * t2m) / (t2m + 243.5)))",
+        {'t2m': t2m.subtract(273.15), 'td': td.subtract(273.15)}
+    )
+    return rh.rename('Humidity').clip(geom)
+
+def get_irradiance(start_date, end_date, geom):
+    dataset = ee.ImageCollection('ECMWF/ERA5_LAND/HOURLY').filterDate(start_date, end_date)
+    return dataset.select('surface_solar_radiation_downwards').mean().clip(geom)
+
+def get_evapotranspiration(start_date, end_date, geom):
+    dataset = ee.ImageCollection('MODIS/061/MOD16A2').filterDate(start_date, end_date)
+    return dataset.select('ET').mean().multiply(0.1).clip(geom)
+
+def get_simulated_hyperspectral(start_date, end_date, geom):
+    dataset = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED').filterDate(start_date, end_date)
+    return dataset.select(['B5', 'B6', 'B7', 'B11', 'B12']).mean().clip(geom)
+
+# === Soil property functions ===
+def get_soil_organic_matter(geom):
+    dataset = ee.Image('projects/soilgrids-isric/ocd_mean')
+    return dataset.select('ocd_0-5cm_mean').clip(geom)
+
+def get_soil_ph(geom):
+    dataset = ee.Image('projects/soilgrids-isric/phh2o_mean')
+    return dataset.select('phh2o_0-5cm_mean').clip(geom)
+
+def get_soil_nitrogen(geom):
+    dataset = ee.Image('projects/soilgrids-isric/nitrogen_mean')
+    return dataset.select('nitrogen_0-5cm_mean').clip(geom)
+
+def get_soil_cec(geom):
+    dataset = ee.Image('projects/soilgrids-isric/cec_mean')
+    return dataset.select('cec_0-5cm_mean').clip(geom)
+
+def get_soil_texture(start_date, end_date, geom):
+    clay = ee.Image('projects/soilgrids-isric/clay_mean').select('clay_0-5cm_mean')
+    silt = ee.Image('projects/soilgrids-isric/silt_mean').select('silt_0-5cm_mean')
+    sand = ee.Image('projects/soilgrids-isric/sand_mean').select('sand_0-5cm_mean')
+    return ee.Image.cat([clay, silt, sand]).clip(geom)

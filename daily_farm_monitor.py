@@ -14,16 +14,16 @@ from scripts.gee_functions import (
     get_land_surface_temperature, get_humidity, get_irradiance, get_simulated_hyperspectral,
     get_evapotranspiration,
     # Soil property functions
-    get_soil_organic_matter, get_soil_ph, get_soil_nitrogen, get_soil_cec, # <-- Re-added get_soil_cec
+    get_soil_organic_matter, get_soil_ph, get_soil_nitrogen, get_soil_cec, # < Re-added get_soil_cec
     get_soil_texture
 )
 
 # Initialize Earth Engine
 ee.Initialize(project='winged-tenure-464005-p9')
 
-# Set date range (yesterday to today)
+# Date range for data retrieval 30 days back from today
 end_date = datetime.today().strftime('%Y-%m-%d')
-start_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+start_date = (datetime.today() - timedelta(days=30)).strftime('%Y-%m-%d')
 
 # Load district boundaries
 shp_path =r"data/LSO_adm/LSO_adm1.shp"
